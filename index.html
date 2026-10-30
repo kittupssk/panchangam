@@ -761,9 +761,10 @@ function render() {
       <div class="main">${lordName(cur.lord)} <span class="when">${shortHTML(cur.start)} – ${shortHTML(cur.end)}</span></div>
       <div class="sub">${nx ? `<span>${L().next(lordName(nx.lord), shortHTML(nx.start))}</span>` : ""}${live.length ? `<span class="warn">${L().liveIn(live)}</span>` : ""}</div>`;
     card.hidden = false;
-  } else {
-    // Before sunrise the current hora belongs to the previous day's chart
-    const prev = prevChartNow(r);
+  }
+  // Before sunrise the current hora belongs to the previous day's chart
+  const prev = cur ? null : prevChartNow(r);
+  if (!cur) {
     if (prev) {
       card.innerHTML = `<div class="big-glyph" aria-hidden="true">${prev.h.lord.g}</div>
         <div class="lbl">${L().cardPrev(prev.h.i - 11)}</div>
@@ -776,7 +777,7 @@ function render() {
     <div class="stat"><span>${L().dayLen}</span><b>${L().hm(Math.floor(r.dayLen / 60), pad(r.dayLen % 60))}</b></div>
     <div class="stat"><span>${L().dayHora}</span><b>${dur(r.dayHora)}</b></div>
     <div class="stat"><span>${L().nightHora}</span><b>${dur(r.nightHora)}</b></div>
-    <div class="stat now"><span>${L().curHora}</span><b>${cur ? L().curTill(lordName(cur.lord), bareTime(cur.end)) : L().notIn}</b></div>`;
+    <div class="stat now"><span>${L().curHora}</span><b>${cur ? L().curTill(lordName(cur.lord), bareTime(cur.end)) : prev ? L().curTill(lordName(prev.h.lord), bareTime(prev.h.end)) : L().notIn}</b></div>`;
 
   $("band").innerHTML = r.horas.map((h, i) =>
     `<div class="${h.isDay ? "d" : "n"}${i === curIdx ? " cur" : ""}" title="${lordName(h.lord)}: ${plain(h.start)} – ${plain(h.end)}">${h.lord.g}</div>`

@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<meta name="color-scheme" content="dark">
+<style>:root{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;background:#12111d;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
 <title>Daily Hora Chart</title>
@@ -14,36 +15,26 @@
 <style>
 /* Layout: a single instrument column — inputs, the day's panchangam, a 24-segment day/night band, then the two hora tables */
 :root {
-  --bg: #f3f2ee;
-  --surface: #ffffff;
-  --ink: #1d1b2e;
-  --muted: #6a6878;
-  --line: #e1dfd8;
-  --accent: #b5610b;      /* turmeric */
-  --accent-soft: #fbead3;
-  --warn: #a8321f;
-  --warn-soft: #f8e1dc;
-  --day: #f2c66d;
-  --day-ink: #6b4a0b;
-  --night: #3b3a6b;
-  --night-ink: #dcdaf5;
-  --now: #b5610b;
+  --bg: #12111d;
+  --surface: #1b1a2a;
+  --ink: #ecebf5;
+  --muted: #9c9ab0;
+  --line: #2d2c42;
+  --accent: #f0a04b;      /* turmeric */
+  --accent-soft: #3a2a17;
+  --warn: #ff9a85;
+  --warn-soft: #3d1f1a;
+  --day: #c9963a;
+  --day-ink: #2a1c02;
+  --night: #4a4890;
+  --night-ink: #e6e4ff;
+  --now: #f0a04b;
+  --flash: #5a3f1c;
   --font-display: "Marcellus", "Palatino Linotype", Georgia, serif;
   --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
   --font-te: "Noto Sans Telugu", "Nirmala UI", "Gautami", sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #12111d; --surface: #1b1a2a; --ink: #ecebf5; --muted: #9c9ab0; --line: #2d2c42;
-    --accent: #f0a04b; --accent-soft: #3a2a17; --warn: #ff9a85; --warn-soft: #3d1f1a;
-    --day: #c9963a; --day-ink: #2a1c02; --night: #4a4890; --night-ink: #e6e4ff; --now: #f0a04b; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #12111d; --surface: #1b1a2a; --ink: #ecebf5; --muted: #9c9ab0; --line: #2d2c42;
-  --accent: #f0a04b; --accent-soft: #3a2a17; --warn: #ff9a85; --warn-soft: #3d1f1a;
-  --day: #c9963a; --day-ink: #2a1c02; --night: #4a4890; --night-ink: #e6e4ff; --now: #f0a04b; color-scheme: dark;
+  color-scheme: dark; /* always dark, whatever the device theme */
 }
 
 * { box-sizing: border-box; }
@@ -134,7 +125,7 @@ button.ghost:hover { border-color: var(--accent); background: transparent; color
 .now-card .sub b { color: var(--ink); font-weight: 600; }
 .now-card .warn { color: var(--warn); font-weight: 600; }
 .now-card.flash { animation: cardflash 1.6s ease-out; }
-@keyframes cardflash { 0%, 30% { background: var(--day); } 100% { background: var(--accent-soft); } }
+@keyframes cardflash { 0%, 30% { background: var(--flash); } 100% { background: var(--accent-soft); } }
 @media (prefers-reduced-motion: reduce) { .now-card.flash { animation: none; } }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 @media (max-width: 680px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -173,7 +164,7 @@ td.t .s { color: var(--muted); font-size: 0.8em; }
 tr.cur td { background: var(--accent-soft); }
 tr.cur td:first-child { box-shadow: inset 3px 0 0 var(--now); }
 tr.cur.flash td { animation: flash 1.6s ease-out; }
-@keyframes flash { 0%, 30% { background: var(--day); } 100% { background: var(--accent-soft); } }
+@keyframes flash { 0%, 30% { background: var(--flash); } 100% { background: var(--accent-soft); } }
 @media (prefers-reduced-motion: reduce) { tr.cur.flash td { animation: none; } }
 .tag { font: 700 0.65rem var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-left: 8px; }
 
@@ -677,7 +668,17 @@ function render() {
       <div class="main">${cur.lord.n} <span class="when">${shortHTML(cur.start)} – ${shortHTML(cur.end)}</span></div>
       <div class="sub">${nx ? `<span>Next: <b>${nx.lord.n}</b> from ${shortHTML(nx.start)}</span>` : ""}${live.length ? `<span class="warn">Now in ${live.join(" and ")}</span>` : ""}</div>`;
     card.hidden = false;
-  } else card.hidden = true;
+  } else {
+    // Before sunrise the current hora belongs to the previous day's chart
+    const prev = prevChartNow(r);
+    if (prev) {
+      card.innerHTML = `<div class="big-glyph" aria-hidden="true">${prev.h.lord.g}</div>
+        <div class="lbl">Current hora · night hora ${prev.h.i - 11} of yesterday's chart</div>
+        <div class="main">${prev.h.lord.n} <span class="when">${bareTime(prev.h.start)} – ${bareTime(prev.h.end)}</span></div>
+        <div class="sub">${prev.nx ? `<span>Next: <b>${prev.nx.lord.n}</b> from ${bareTime(prev.nx.start)}</span>` : `<span>Today's horas start at ${shortHTML(r.horas[0].start)}</span>`}</div>`;
+      card.hidden = false;
+    } else card.hidden = true;
+  }
   $("stats").innerHTML = `
     <div class="stat"><span>Day length</span><b>${Math.floor(r.dayLen / 60)}h ${pad(r.dayLen % 60)}m</b></div>
     <div class="stat"><span>Day hora</span><b>${dur(r.dayHora)}</b></div>
@@ -695,6 +696,26 @@ function render() {
   $("nightTbl").innerHTML = HEAD + "<tbody>" + r.horas.slice(12).map((h) => rowHTML(h, h.i === curIdx)).join("") + "</tbody>";
 }
 
+// Horas of the day before the selected date, from calculated sunrise/sunset, for the pre-sunrise "now" card
+function prevChartNow(r) {
+  const d = new Date(Date.UTC(r.Y, r.M - 1, r.D - 1));
+  const Y = d.getUTCFullYear(), M = d.getUTCMonth() + 1, D = d.getUTCDate();
+  const base = istMidnight(Y, M, D), ev = PJ.sunEvents(Y, M, D, REF.lat, REF.lon);
+  const sr = Math.round((ev.rise - base) / 60000), ss = Math.round((ev.set - base) / 60000), off = -appliedOffset;
+  const night = (1440 - (ss - sr)) / 12, now = (Date.now() - base) / 60000;
+  const start0 = VARA_START[new Date(Date.UTC(Y, M - 1, D)).getUTCDay()];
+  for (let i = 12; i < 24; i++) {
+    const s = ss + off + (i - 12) * night, e = s + night;
+    if (now >= s && now < e) {
+      const mk = (k, st) => ({ i: k, start: st, end: st + night, lord: LORDS[(start0 + k) % 7] });
+      return { h: mk(i, s), nx: i < 23 ? mk(i + 1, e) : null, shift: (base - r.base) / 60000 };
+    }
+  }
+  return null;
+}
+const bareTime = (mins) => { const f = fmt(mins, false); return `${f.hm} ${f.ap}`; };
+const systemDate = () => { const d = new Date(); return { Y: d.getFullYear(), M: d.getMonth() + 1, D: d.getDate() }; };
+
 // A Hindu day runs sunrise to sunrise: before today's first hora, the current hora belongs to yesterday's chart.
 function jumpToNow() {
   manual = { sunrise: false, sunset: false };
@@ -711,7 +732,10 @@ function jumpToNow() {
 }
 
 loadOffset();
-jumpToNow();
+// Open on the device's own date
+$("date").value = isoDate(systemDate());
+fillSun();
+render();
 $("date").addEventListener("input", () => { manual = { sunrise: false, sunset: false }; fillSun(); render(); });
 $("sunrise").addEventListener("input", () => { manual.sunrise = true; markManual(); render(); });
 $("sunset").addEventListener("input", () => { manual.sunset = true; markManual(); render(); });

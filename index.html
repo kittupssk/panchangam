@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="te">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -181,50 +181,63 @@ tr.cur.flash td { animation: flash 1.6s ease-out; }
   .glyph { width: 22px; height: 22px; font-size: 13px; }
   td.t { font-size: 0.86rem; }
 }
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.lang {
+  font: 600 0.9rem var(--font-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; flex: 0 0 auto;
+}
+.lang:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+html[lang="te"] body { font-family: var(--font-te), var(--font-body); }
+html[lang="te"] h1, html[lang="te"] h2, html[lang="te"] .now-card .main, html[lang="te"] .vara b { font-family: var(--font-te), var(--font-display); font-weight: 500; }
+html[lang="te"] .field label, html[lang="te"] .eyebrow, html[lang="te"] th, html[lang="te"] .stat span,
+html[lang="te"] .now-card .lbl, html[lang="te"] .tag, html[lang="te"] .chip { letter-spacing: 0; text-transform: none; font-size: 0.82rem; }
+.note p { line-height: 1.7; }
 </style>
 
 <div class="wrap">
-  <header>
-    <h1>Daily Hora Chart</h1>
-    <p>Pick a date. Sunrise and sunset fill in for Rajahmundry as printed in Sri Relangi Tangirala Panchangam, and the day's tithi, nakshatra, Varjyam and Durmuhurtham are worked out by the same Surya Siddhanta method the panchangam uses.</p>
+  <header class="top">
+    <h1 data-i18n="title">హోరా చక్రం</h1>
+    <select id="lang" class="lang" aria-label="Language / భాష">
+      <option value="te">తెలుగు</option>
+      <option value="en">English</option>
+    </select>
   </header>
 
   <form class="panel" id="form" autocomplete="off">
     <div class="fields">
       <div class="field">
-        <label for="date">Date</label>
+        <label for="date" data-i18n="date">తేదీ</label>
         <input type="date" id="date" required>
-        <small>Sets the weekday (vara)</small>
       </div>
       <div class="field">
-        <label for="city">Your town</label>
+        <label for="city" data-i18n="town">మీ ఊరు</label>
         <select id="city"></select>
-        <small id="cityNote">Offset from the Tangirala table</small>
+        <small id="cityNote"></small>
       </div>
       <div class="field wide">
-        <label for="offset">Offset from Rajahmundry (min)</label>
+        <label for="offset" data-i18n="offset">రాజమండ్రి నుండి దేశాంతరం (ని॥)</label>
         <div class="offset-row">
           <input type="number" id="offset" step="1" inputmode="numeric" required>
-          <button type="button" id="apply" disabled>Recalculate</button>
+          <button type="button" id="apply" data-i18n="recalc" disabled>మళ్ళీ లెక్కించు</button>
         </div>
-        <small id="offNote">+ means earlier, &minus; means later</small>
+        <small id="offNote"></small>
       </div>
       <div class="field">
-        <label for="sunrise">Rajahmundry sunrise</label>
+        <label for="sunrise" data-i18n="sunrise">రాజమండ్రి సూర్యోదయం</label>
         <input type="time" id="sunrise" step="60" required>
-        <small id="srNote">Calculated, as in Tangirala</small>
+        <small id="srNote"></small>
       </div>
       <div class="field">
-        <label for="sunset">Rajahmundry sunset</label>
+        <label for="sunset" data-i18n="sunset">రాజమండ్రి సూర్యాస్తమయం</label>
         <input type="time" id="sunset" step="60" required>
-        <small id="ssNote">Calculated, as in Tangirala</small>
+        <small id="ssNote"></small>
       </div>
     </div>
     <div class="actions">
       <div class="vara" id="vara"></div>
       <div class="btns">
-        <button type="button" class="ghost" id="recalc" hidden>Use calculated sunrise</button>
-        <button type="button" id="today">Jump to current hora</button>
+        <button type="button" class="ghost" id="recalc" data-i18n="useCalc" hidden>లెక్కించిన సమయం వాడు</button>
+        <button type="button" id="today" data-i18n="jump">ప్రస్తుత హోరా చూపు</button>
       </div>
     </div>
     <div id="msg" class="err" hidden></div>
@@ -234,15 +247,15 @@ tr.cur.flash td { animation: flash 1.6s ease-out; }
 
   <div class="panel panch" aria-live="polite">
     <div class="panch-head">
-      <h2>Panchangam</h2>
+      <h2 data-i18n="panch">పంచాంగం</h2>
       <span id="panchRange"></span>
     </div>
-    <div class="prow"><div class="eyebrow">Tithi<span class="te">తిథి</span></div><div class="items" id="pTithi"></div></div>
-    <div class="prow"><div class="eyebrow">Nakshatra<span class="te">నక్షత్రం</span></div><div class="items" id="pNak"></div></div>
-    <div class="prow"><div class="eyebrow">Varjyam<span class="te">వర్జ్యం</span></div><div class="items" id="pVarj"></div></div>
-    <div class="prow"><div class="eyebrow">Durmuhurtham<span class="te">దుర్ముహూర్తం</span></div><div class="items" id="pDur"></div></div>
+    <div class="prow"><div class="eyebrow" data-i18n="tithi">తిథి</div><div class="items" id="pTithi"></div></div>
+    <div class="prow"><div class="eyebrow" data-i18n="nak">నక్షత్రం</div><div class="items" id="pNak"></div></div>
+    <div class="prow"><div class="eyebrow" data-i18n="varj">వర్జ్యం</div><div class="items" id="pVarj"></div></div>
+    <div class="prow"><div class="eyebrow" data-i18n="dur">దుర్ముహూర్తం</div><div class="items" id="pDur"></div></div>
     <div class="panch-foot">
-      <label class="check"><input type="checkbox" id="adjAll"> Apply the town offset to tithi, nakshatra and Varjyam too</label>
+      <label class="check"><input type="checkbox" id="adjAll"> <span data-i18n="adjAll">తిథి, నక్షత్ర, వర్జ్యాలకు కూడా దేశాంతరం కలుపు</span></label>
     </div>
   </div>
 
@@ -254,22 +267,17 @@ tr.cur.flash td { animation: flash 1.6s ease-out; }
   </div>
 
   <section>
-    <h2>Day horas <small id="dayRange"></small></h2>
+    <h2><span data-i18n="dayH">పగటి హోరాలు</span> <small id="dayRange"></small></h2>
     <div class="tbl-wrap"><table id="dayTbl"></table></div>
   </section>
 
   <section>
-    <h2>Night horas <small id="nightRange"></small></h2>
+    <h2><span data-i18n="nightH">రాత్రి హోరాలు</span> <small id="nightRange"></small></h2>
     <div class="tbl-wrap"><table id="nightTbl"></table></div>
   </section>
 
   <div class="note">
-    <p><b>Town offsets</b> come from Tangirala's table of time differences from Rajahmundry. As in the book, + means earlier and &minus; means later: Visakhapatnam +6 turns 8:40 into 8:34, Hyderabad &minus;13 turns it into 8:53. You can type your own offset and press Recalculate.</p>
-    <p><b>Horas</b> follow your spreadsheet: the first day hora starts at Rajahmundry's sunrise moved by your town's offset, the first night hora at the adjusted sunset, and each hora is one twelfth of the day or night. Hora lords run Surya, Sukra, Budha, Chandra, Sani, Guru, Kuja, starting with the weekday's lord at sunrise.</p>
-    <p><b>Sunrise and sunset</b> are for Rajahmundry, the place Tangirala is printed for, worked out the traditional way (the Sun's centre on the horizon). They are tuned to the book's printed times from 30 Oct 2026 to Ugadi, 7 Apr 2027, and agree within 2 minutes.</p>
-    <p><b>Durmuhurtham</b> splits the day (and night) into 15 muhurtas and uses the same adjusted sunrise and sunset as the horas.</p>
-    <p><b>Tithi and nakshatra</b> use Surya Siddhanta positions of the Sun and Moon. Like the book, the calculated moments are treated as local sundial time and converted to clock time. Checked against every day of Tangirala from 30 Oct 2026 to 7 Apr 2027: tithi end times are typically within 3 minutes and nakshatra and Varjyam within 3 to 4, with a few days up to 9 minutes apart. Their end times are the same moment everywhere, so the local adjustment is left off unless you tick the box. Varjyam uses the standard starting ghati for each nakshatra, all 27 confirmed against the book, including Moola's second Varjyam.</p>
-    <p>Times are Indian Standard Time. <span style="color:var(--accent)">+1</span> means the next calendar day.</p>
+    <p><b data-i18n="noteTitle">దేశాంతర కాలము:</b> <span data-i18n="note"></span></p>
   </div>
 </div>
 
@@ -397,16 +405,19 @@ if (typeof module !== "undefined") module.exports = PJ;
 </script>
 <script>
 const LORDS = [
-  { n: "Surya",   e: "Sun",     g: "☉" },
-  { n: "Sukra",   e: "Venus",   g: "♀︎" },
-  { n: "Budha",   e: "Mercury", g: "☿" },
-  { n: "Chandra", e: "Moon",    g: "☽" },
-  { n: "Sani",    e: "Saturn",  g: "♄" },
-  { n: "Guru",    e: "Jupiter", g: "♃" },
-  { n: "Kuja",    e: "Mars",    g: "♂︎" },
+  { n: "Surya",   te: "సూర్య",  e: "Sun",     g: "☉" },
+  { n: "Sukra",   te: "శుక్ర",  e: "Venus",   g: "♀︎" },
+  { n: "Budha",   te: "బుధ",    e: "Mercury", g: "☿" },
+  { n: "Chandra", te: "చంద్ర",  e: "Moon",    g: "☽" },
+  { n: "Sani",    te: "శని",    e: "Saturn",  g: "♄" },
+  { n: "Guru",    te: "గురు",   e: "Jupiter", g: "♃" },
+  { n: "Kuja",    te: "కుజ",    e: "Mars",    g: "♂︎" },
 ];
 const VARA_START = [0, 3, 6, 2, 5, 1, 4];
-const VARA_NAMES = ["Ravivara (Sun)", "Somavara (Mon)", "Mangalavara (Tue)", "Budhavara (Wed)", "Guruvara (Thu)", "Sukravara (Fri)", "Sanivara (Sat)"];
+const VARA = {
+  en: ["Ravivara (Sun)", "Somavara (Mon)", "Mangalavara (Tue)", "Budhavara (Wed)", "Guruvara (Thu)", "Sukravara (Fri)", "Sanivara (Sat)"],
+  te: ["ఆదివారం", "సోమవారం", "మంగళవారం", "బుధవారం", "గురువారం", "శుక్రవారం", "శనివారం"],
+};
 const TITHI = [
   ["Pratipada", "పాడ్యమి"], ["Dwitiya", "విదియ"], ["Tritiya", "తదియ"], ["Chaturthi", "చవితి"], ["Panchami", "పంచమి"],
   ["Shashthi", "షష్ఠి"], ["Saptami", "సప్తమి"], ["Ashtami", "అష్టమి"], ["Navami", "నవమి"], ["Dashami", "దశమి"],
@@ -420,11 +431,80 @@ const NAK = [
   ["Uttarashadha", "ఉత్తరాషాఢ"], ["Shravanam", "శ్రవణం"], ["Dhanishta", "ధనిష్ఠ"], ["Shatabhisham", "శతభిషం"],
   ["Purvabhadra", "పూర్వాభాద్ర"], ["Uttarabhadra", "ఉత్తరాభాద్ర"], ["Revati", "రేవతి"],
 ];
+
+// ---------- Language ----------
+const I18N = {
+  te: {
+    title: "హోరా చక్రం", date: "తేదీ", town: "మీ ఊరు", offset: "రాజమండ్రి నుండి దేశాంతరం (ని॥)", recalc: "మళ్ళీ లెక్కించు",
+    sunrise: "రాజమండ్రి సూర్యోదయం", sunset: "రాజమండ్రి సూర్యాస్తమయం", useCalc: "లెక్కించిన సమయం వాడు", jump: "ప్రస్తుత హోరా చూపు",
+    panch: "పంచాంగం", tithi: "తిథి", nak: "నక్షత్రం", varj: "వర్జ్యం", dur: "దుర్ముహూర్తం",
+    adjAll: "తిథి, నక్షత్ర, వర్జ్యాలకు కూడా దేశాంతరం కలుపు", dayH: "పగటి హోరాలు", nightH: "రాత్రి హోరాలు",
+    lordH: "హోరాధిపతి", starts: "ప్రారంభం", ends: "ముగింపు", now: "ఇప్పుడు", night: "రాత్రి",
+    calc: "తంగిరాల ప్రకారం", entered: "మీరు మార్చినది",
+    dayLen: "పగటి కాలం", dayHora: "పగటి హోరా", nightHora: "రాత్రి హోరా", curHora: "ప్రస్తుత హోరా", notIn: "ఈ పట్టికలో లేదు",
+    noVarj: "వర్జ్యం లేదు", pending: "అమలు చేయడానికి ‘మళ్ళీ లెక్కించు’ నొక్కండి", nearest: " · మీకు దగ్గరలో",
+    errFill: "తేదీ, సూర్యోదయం, సూర్యాస్తమయం, దేశాంతరం నింపండి.", errSet: "సూర్యాస్తమయం సూర్యోదయం తరువాత ఉండాలి. AM/PM సరిచూడండి.",
+    noteTitle: "దేశాంతర కాలము:",
+    note: "సూర్యోదయ, సూర్యాస్తమయములందు ఆయా పట్టణములకు గల దేశాంతర నిమిషములను సంస్కరించుకొనవలెను. ఉదాహరణకు రాజమండ్రికి ఏప్రిల్ 11వ తేదీ వృషభ లగ్నము ఉదయము గం॥ 8.40 ని॥లు శుభ ముహూర్త కాలము. అయితే విశాఖపట్టణమునకు +6 అనగా 8.34 ని॥లు అగును. హైదరాబాద్‌నకు –13 ని॥లు. అనగా 8.53 ని॥లు అగును. (గుర్తులు “+” అనగా ముందు, “–” అనగా ఆలస్యము అని గ్రహించవలెను.)",
+    vara: (v, l) => `వారం: <b>${v}</b> · మొదటి హోరా ${l}`,
+    till: (t) => `<span class="when">${t}</span> వరకు`,
+    allDay: (t) => `రోజంతా · <span class="when">${t}</span> వరకు`,
+    range: (a, b) => `సూర్యోదయం నుండి సూర్యోదయం · ${a} – ${b}`,
+    book: (a) => `పుస్తకంలో ${a} ని॥`, bookYou: (a, b) => `పుస్తకంలో ${a}, మీరు ${b}`,
+    rel: (v) => v === 0 ? "రాజమండ్రి సమయమే" : `రాజమండ్రి కంటే ${Math.abs(v)} ని॥ ${v > 0 ? "ముందు" : "ఆలస్యం"}`,
+    hm: (h, m) => `${h} గం ${m} ని`, ms: (m, s) => `${m} ని ${s} సె`,
+    curTill: (l, t) => `${l} · ${t} వరకు`,
+    cardLbl: (day, n) => `ప్రస్తుత హోరా · ${day ? "పగటి" : "రాత్రి"} హోరా ${n}`,
+    cardPrev: (n) => `ప్రస్తుత హోరా · నిన్నటి రాత్రి హోరా ${n}`,
+    next: (l, t) => `తరువాత: <b>${l}</b> ${t} నుండి`,
+    todayFrom: (t) => `నేటి హోరాలు ${t} నుండి`,
+    liveIn: (list) => `ఇప్పుడు ${list.join(", ")}`,
+  },
+  en: {
+    title: "Daily Hora Chart", date: "Date", town: "Your town", offset: "Offset from Rajahmundry (min)", recalc: "Recalculate",
+    sunrise: "Rajahmundry sunrise", sunset: "Rajahmundry sunset", useCalc: "Use calculated sunrise", jump: "Jump to current hora",
+    panch: "Panchangam", tithi: "Tithi", nak: "Nakshatra", varj: "Varjyam", dur: "Durmuhurtham",
+    adjAll: "Apply the town offset to tithi, nakshatra and Varjyam too", dayH: "Day horas", nightH: "Night horas",
+    lordH: "Hora lord", starts: "Starts", ends: "Ends", now: "Now", night: "night",
+    calc: "As per Tangirala", entered: "Entered by you",
+    dayLen: "Day length", dayHora: "Day hora", nightHora: "Night hora", curHora: "Current hora", notIn: "Not in this chart",
+    noVarj: "No Varjyam today", pending: "Press Recalculate to apply", nearest: " · nearest to you",
+    errFill: "Fill in the date, sunrise, sunset and town offset.", errSet: "Sunset must be later than sunrise. Check the AM/PM on the sunset time.",
+    noteTitle: "Town offset:",
+    note: "Apply each town’s desantara (time-difference) minutes to sunrise and sunset. For example, on 11 April the auspicious muhurtham in Vrishabha lagna at Rajahmundry is at 8:40 in the morning. For Visakhapatnam, +6 makes it 8:34. For Hyderabad, −13 makes it 8:53. (The sign “+” means earlier and “−” means later.)",
+    vara: (v, l) => `Vara: <b>${v}</b> · first hora ${l}`,
+    till: (t) => `till <span class="when">${t}</span>`,
+    allDay: (t) => `all day, till <span class="when">${t}</span>`,
+    range: (a, b) => `sunrise to sunrise · ${a} – ${b}`,
+    book: (a) => `Book offset ${a} min`, bookYou: (a, b) => `Book offset ${a}, you set ${b}`,
+    rel: (v) => v === 0 ? "Same as Rajahmundry" : `${Math.abs(v)} min ${v > 0 ? "earlier" : "later"} than Rajahmundry`,
+    hm: (h, m) => `${h}h ${m}m`, ms: (m, s) => `${m}m ${s}s`,
+    curTill: (l, t) => `${l} till ${t}`,
+    cardLbl: (day, n) => `Current hora · ${day ? "day" : "night"} hora ${n}`,
+    cardPrev: (n) => `Current hora · night hora ${n} of yesterday's chart`,
+    next: (l, t) => `Next: <b>${l}</b> from ${t}`,
+    todayFrom: (t) => `Today's horas start at ${t}`,
+    liveIn: (list) => `Now in ${list.join(" and ")}`,
+  },
+};
+let LANG = "te";
+const L = () => I18N[LANG];
+const lordName = (l) => (LANG === "te" ? l.te : l.n);
+const nakName = (i) => NAK[i][LANG === "te" ? 1 : 0];
 function tithiName(i) {
-  if (i === 14) return ["Shukla Purnima", "పౌర్ణమి"];
-  if (i === 29) return ["Amavasya", "అమావాస్య"];
+  const te = LANG === "te";
+  if (i === 14) return te ? "పౌర్ణమి" : "Purnima";
+  if (i === 29) return te ? "అమావాస్య" : "Amavasya";
   const t = TITHI[i % 15];
-  return i < 15 ? ["Shukla " + t[0], "శుక్ల " + t[1]] : ["Bahula " + t[0], "బహుళ " + t[1]];
+  return i < 15 ? (te ? "శుక్ల " + t[1] : "Shukla " + t[0]) : (te ? "బహుళ " + t[1] : "Bahula " + t[0]);
+}
+function applyLang() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = L()[el.dataset.i18n]; });
+  $("lang").value = LANG;
+  fillTowns();
+  markManual();
+  pendingState();
 }
 
 // Rajahmundry as computed by Tangirala: these effective coordinates reproduce the book's printed sunrise/sunset (within 2 min, Oct 2026 - Apr 2027)
@@ -434,63 +514,69 @@ const IST = 330;
 const $ = (id) => document.getElementById(id);
 const pad = (n) => String(n).padStart(2, "0");
 const toMin = (hhmm) => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
-const istParts = (ms) => { const d = new Date(ms + IST * 60000); return { Y: d.getUTCFullYear(), M: d.getUTCMonth() + 1, D: d.getUTCDate(), min: d.getUTCHours() * 60 + d.getUTCMinutes() + d.getUTCSeconds() / 60 }; };
+const istParts = (ms) => { const d = new Date(ms + IST * 60000); return { Y: d.getUTCFullYear(), M: d.getUTCMonth() + 1, D: d.getUTCDate() }; };
 const istMidnight = (Y, M, D) => Date.UTC(Y, M - 1, D) - IST * 60000;
 const isoDate = (p) => `${p.Y}-${pad(p.M)}-${pad(p.D)}`;
 const hhmm = (min) => { const r = Math.round(min); return `${pad(Math.floor(r / 60) % 24)}:${pad(r % 60)}`; };
 
 let manual = { sunrise: false, sunset: false };
 
-// Tangirala "Desantara kalamu": minutes from Rajahmundry (+ earlier, - later), with approximate coordinates
+// Tangirala "Desantara kalamu": minutes from Rajahmundry (+ earlier, - later), Telugu name as printed, approximate coordinates
 const TOWNS = [
-  ["Rajahmundry", 0, 17.00, 81.80],
-  ["Adilabad", -13, 19.66, 78.53], ["Adoni", -18, 15.63, 77.27], ["Agra", -14, 27.18, 78.01],
-  ["Anakapalli", 5, 17.69, 83.00], ["Anantapur", -16, 14.68, 77.60], ["Bapatla", -5, 15.90, 80.47],
-  ["Bellary", -29, 15.14, 76.92], ["Bengaluru", -13, 12.97, 77.59], ["Berhampur", 16, 19.31, 84.79],
-  ["Bhadrachalam", -3, 17.67, 80.89], ["Bhubaneswar", 16, 20.30, 85.82], ["Bobbili", 6, 18.57, 83.36],
-  ["Chennai", -6, 13.08, 80.27], ["Chirala", -5, 15.82, 80.35], ["Chittoor", -10, 13.22, 79.10],
-  ["Eluru", -3, 16.71, 81.10], ["Gangavathi", -20, 15.43, 76.53], ["Gudivada", -3, 16.43, 80.99],
-  ["Gudur", -13, 14.15, 79.85], ["Guntakal", -18, 15.17, 77.37], ["Guntur", -5, 16.31, 80.44],
-  ["Hindupur", -17, 13.83, 77.49], ["Howrah", 26, 22.59, 88.26], ["Hyderabad", -13, 17.39, 78.49],
-  ["Ichchapuram", 11, 19.11, 84.69], ["Jaggayyapeta", -1, 16.89, 80.10], ["Kadapa", -12, 14.47, 78.82],
-  ["Kadiri", -15, 14.11, 78.16], ["Kakinada", 2, 16.99, 82.25], ["Kandukur", -7, 15.22, 79.90],
-  ["Karimnagar", -11, 18.44, 79.13], ["Kavali", -7, 14.91, 79.99], ["Khammam", -6, 17.25, 80.15],
-  ["Kothagudem", -5, 17.55, 80.62], ["Kurnool", -15, 15.83, 78.04], ["Lucknow", -3, 26.85, 80.95],
-  ["Macherla", -10, 16.48, 79.44], ["Machilipatnam", -2, 16.19, 81.14], ["Mahabubnagar", -16, 16.74, 77.99],
-  ["Mangalagiri", -4, 16.43, 80.57], ["Medak", -14, 18.05, 78.26], ["Mumbai", -33, 19.08, 72.88],
-  ["Mysuru", -22, 12.30, 76.64], ["Nagarjuna Sagar", -1, 16.57, 79.31], ["Nagpur", -10, 21.15, 79.09],
-  ["Nalgonda", -10, 17.05, 79.27], ["Nandigama", -6, 16.77, 80.29], ["Nandyal", -14, 15.48, 78.48],
-  ["Nellore", -8, 14.44, 79.99], ["New Delhi", -19, 28.61, 77.21], ["Ongole", -7, 15.50, 80.05],
-  ["Parvathipuram", 6, 18.78, 83.43], ["Podili", -9, 15.60, 79.61], ["Proddatur", -13, 14.75, 78.55],
-  ["Pune", -31, 18.52, 73.86], ["Puri", 16, 19.81, 85.83], ["Rameswaram", -11, 9.29, 79.31],
-  ["Rangoon (Yangon)", 54, 16.87, 96.20], ["Repalle", -4, 16.02, 80.83], ["Saluru", 5, 18.53, 83.21],
-  ["Sattenapalli", -7, 16.39, 80.15], ["Secunderabad", -12, 17.44, 78.50], ["Singapore", 4, 1.35, 103.82],
-  ["Singareni", -6, 17.59, 80.32], ["Sirpur", -9, 19.33, 79.47], ["Srikakulam", 7, 18.30, 83.90],
-  ["Srikalahasti", -9, 13.75, 79.70], ["Sriharikota", -6, 13.72, 80.23], ["Sringeri", -27, 13.42, 75.25],
-  ["Srisailam", -12, 16.07, 78.87], ["Srungavarapukota", 6, 18.11, 83.07], ["Suryapet", -9, 17.14, 79.62],
-  ["Tekkali", 10, 18.61, 84.23], ["Tenali", -5, 16.24, 80.64], ["Tirupati", -10, 13.63, 79.42],
-  ["Varanasi", 4, 25.32, 82.97], ["Venkatagiri", -8, 13.96, 79.58], ["Vijayawada", -5, 16.51, 80.65],
-  ["Visakhapatnam", 6, 17.69, 83.22], ["Vizianagaram", 6, 18.11, 83.40], ["Vuyyuru", -4, 16.37, 80.85],
+  ["Rajahmundry", "రాజమండ్రి", 0, 17.00, 81.80],
+  ["Adilabad", "ఆదిలాబాద్", -13, 19.66, 78.53], ["Adoni", "ఆదోని", -18, 15.63, 77.27], ["Agra", "ఆగ్రా", -14, 27.18, 78.01],
+  ["Anakapalli", "అనకాపల్లి", 5, 17.69, 83.00], ["Anantapur", "అనంతపురం", -16, 14.68, 77.60], ["Bapatla", "బాపట్ల", -5, 15.90, 80.47],
+  ["Bellary", "బళ్ళారి", -29, 15.14, 76.92], ["Bengaluru", "బెంగుళూరు", -13, 12.97, 77.59], ["Berhampur", "బరంపురం", 16, 19.31, 84.79],
+  ["Bhadrachalam", "భద్రాచలం", -3, 17.67, 80.89], ["Bhubaneswar", "భువనేశ్వరం", 16, 20.30, 85.82], ["Bobbili", "బొబ్బిలి", 6, 18.57, 83.36],
+  ["Chennai", "చెన్నై", -6, 13.08, 80.27], ["Chirala", "చీరాల", -5, 15.82, 80.35], ["Chittoor", "చిత్తూరు", -10, 13.22, 79.10],
+  ["Eluru", "ఏలూరు", -3, 16.71, 81.10], ["Gangavathi", "గంగావతి", -20, 15.43, 76.53], ["Gudivada", "గుడివాడ", -3, 16.43, 80.99],
+  ["Gudur", "గూడూరు", -13, 14.15, 79.85], ["Guntakal", "గుంతకల్లు", -18, 15.17, 77.37], ["Guntur", "గుంటూరు", -5, 16.31, 80.44],
+  ["Hindupur", "హిందూపురం", -17, 13.83, 77.49], ["Howrah", "హౌరా", 26, 22.59, 88.26], ["Hyderabad", "హైదరాబాద్", -13, 17.39, 78.49],
+  ["Ichchapuram", "ఇచ్ఛాపురం", 11, 19.11, 84.69], ["Jaggayyapeta", "జగ్గయ్యపేట", -1, 16.89, 80.10], ["Kadapa", "కడప", -12, 14.47, 78.82],
+  ["Kadiri", "కదిరి", -15, 14.11, 78.16], ["Kakinada", "కాకినాడ", 2, 16.99, 82.25], ["Kandukur", "కందుకూరు", -7, 15.22, 79.90],
+  ["Karimnagar", "కరీంనగర్", -11, 18.44, 79.13], ["Kavali", "కావలి", -7, 14.91, 79.99], ["Khammam", "ఖమ్మం", -6, 17.25, 80.15],
+  ["Kothagudem", "కొత్తగూడెం", -5, 17.55, 80.62], ["Kurnool", "కర్నూలు", -15, 15.83, 78.04], ["Lucknow", "లక్నో", -3, 26.85, 80.95],
+  ["Macherla", "మాచర్ల", -10, 16.48, 79.44], ["Machilipatnam", "మచిలీపట్నం", -2, 16.19, 81.14], ["Mahabubnagar", "మహబూబ్‌నగర్", -16, 16.74, 77.99],
+  ["Mangalagiri", "మంగళగిరి", -4, 16.43, 80.57], ["Medak", "మెదక్", -14, 18.05, 78.26], ["Mumbai", "ముంబాయి", -33, 19.08, 72.88],
+  ["Mysuru", "మైసూర్", -22, 12.30, 76.64], ["Nagarjuna Sagar", "నాగార్జునసాగర్", -1, 16.57, 79.31], ["Nagpur", "నాగపూర్", -10, 21.15, 79.09],
+  ["Nalgonda", "నల్గొండ", -10, 17.05, 79.27], ["Nandigama", "నందిగామ", -6, 16.77, 80.29], ["Nandyal", "నంద్యాల", -14, 15.48, 78.48],
+  ["Nellore", "నెల్లూరు", -8, 14.44, 79.99], ["New Delhi", "న్యూఢిల్లీ", -19, 28.61, 77.21], ["Ongole", "ఒంగోలు", -7, 15.50, 80.05],
+  ["Parvathipuram", "పార్వతీపురం", 6, 18.78, 83.43], ["Podili", "పొదిలి", -9, 15.60, 79.61], ["Proddatur", "ప్రొద్దుటూరు", -13, 14.75, 78.55],
+  ["Pune", "పూనా", -31, 18.52, 73.86], ["Puri", "పూరి", 16, 19.81, 85.83], ["Rameswaram", "రామేశ్వరం", -11, 9.29, 79.31],
+  ["Rangoon (Yangon)", "రంగూన్", 54, 16.87, 96.20], ["Repalle", "రేపల్లె", -4, 16.02, 80.83], ["Saluru", "సాలూరు", 5, 18.53, 83.21],
+  ["Sattenapalli", "సత్తెనపల్లి", -7, 16.39, 80.15], ["Secunderabad", "సికింద్రాబాద్", -12, 17.44, 78.50], ["Singapore", "సింగపూర్", 4, 1.35, 103.82],
+  ["Singareni", "సింగరేణి", -6, 17.59, 80.32], ["Sirpur", "సిర్పూరు", -9, 19.33, 79.47], ["Srikakulam", "శ్రీకాకుళం", 7, 18.30, 83.90],
+  ["Srikalahasti", "కాళహస్తి", -9, 13.75, 79.70], ["Sriharikota", "శ్రీహరికోట", -6, 13.72, 80.23], ["Sringeri", "శృంగేరి", -27, 13.42, 75.25],
+  ["Srisailam", "శ్రీశైలము", -12, 16.07, 78.87], ["Srungavarapukota", "శృంగవరపుకోట", 6, 18.11, 83.07], ["Suryapet", "సూర్యాపేట", -9, 17.14, 79.62],
+  ["Tekkali", "టెక్కలి", 10, 18.61, 84.23], ["Tenali", "తెనాలి", -5, 16.24, 80.64], ["Tirupati", "తిరుపతి", -10, 13.63, 79.42],
+  ["Varanasi", "వారణాశి", 4, 25.32, 82.97], ["Venkatagiri", "వెంకటగిరి", -8, 13.96, 79.58], ["Vijayawada", "విజయవాడ", -5, 16.51, 80.65],
+  ["Visakhapatnam", "విశాఖపట్నం", 6, 17.69, 83.22], ["Vizianagaram", "విజయనగరం", 6, 18.11, 83.40], ["Vuyyuru", "ఉయ్యూరు", -4, 16.37, 80.85],
 ];
+const T_OFF = 2, T_LAT = 3, T_LON = 4;
+const townName = (t) => (LANG === "te" ? t[1] : t[0]);
 const signed = (n) => (n > 0 ? "+" + n : n < 0 ? "−" + Math.abs(n) : "0");
 let appliedOffset = -13; // book convention: local time = Rajahmundry time - offset
+let nearestNote = false;
 
 function fillTowns() {
-  $("city").innerHTML = TOWNS.map((t, i) => `<option value="${i}">${t[0]} (${signed(t[1])})</option>`).join("");
+  const sel = $("city"), keep = sel.value;
+  const order = TOWNS.map((t, i) => i).slice(1).sort((a, b) => townName(TOWNS[a]).localeCompare(townName(TOWNS[b]), LANG));
+  sel.innerHTML = [0, ...order].map((i) => `<option value="${i}">${townName(TOWNS[i])} (${signed(TOWNS[i][T_OFF])})</option>`).join("");
+  if (keep !== "") sel.value = keep;
 }
 function townNote() {
   const t = TOWNS[+$("city").value];
   const v = appliedOffset;
-  const rel = v === 0 ? "same as Rajahmundry" : `${Math.abs(v)} min ${v > 0 ? "earlier" : "later"} than Rajahmundry`;
-  $("cityNote").textContent = v === t[1] ? `Book offset ${signed(t[1])} min` : `Book offset ${signed(t[1])}, you set ${signed(v)}`;
-  $("offNote").textContent = `Using ${signed(v)}: ${rel}`;
+  $("cityNote").textContent = (v === t[T_OFF] ? L().book(signed(v)) : L().bookYou(signed(t[T_OFF]), signed(v))) + (nearestNote ? L().nearest : "");
+  $("offNote").textContent = L().rel(v);
 }
 function pendingState() {
+  if ($("city").value === "") return;
   const v = parseFloat($("offset").value);
   const pending = !isNaN(v) && v !== appliedOffset;
   $("apply").disabled = !pending;
   $("offset").classList.toggle("pending", pending);
-  if (pending) $("offNote").textContent = "Press Recalculate to apply";
+  if (pending) $("offNote").textContent = L().pending;
   else townNote();
 }
 function applyOffset() {
@@ -502,24 +588,25 @@ function applyOffset() {
 }
 function chooseTown(i, keepOffset) {
   $("city").value = String(i);
-  if (!keepOffset) { appliedOffset = TOWNS[i][1]; $("offset").value = appliedOffset; }
+  if (!keepOffset) { appliedOffset = TOWNS[i][T_OFF]; $("offset").value = appliedOffset; }
   pendingState();
 }
 function nearestTown(lat, lon) {
   let best = 0, bd = Infinity;
   TOWNS.forEach((t, i) => {
-    const dy = t[2] - lat, dx = (t[3] - lon) * Math.cos(lat * Math.PI / 180), d = dx * dx + dy * dy;
+    const dy = t[T_LAT] - lat, dx = (t[T_LON] - lon) * Math.cos(lat * Math.PI / 180), d = dx * dx + dy * dy;
     if (d < bd) { bd = d; best = i; }
   });
   return best;
 }
-function loadOffset() {
-  fillTowns();
+function loadPrefs() {
+  try { const l = localStorage.getItem("hora-lang"); if (l === "en" || l === "te") LANG = l; } catch (e) {}
+  applyLang();
   let s = null;
   try { s = JSON.parse(localStorage.getItem("hora-place") || "null"); } catch (e) {}
   try { $("adjAll").checked = !!JSON.parse(localStorage.getItem("hora-inputs") || "{}").adjAll; } catch (e) {}
   if (s && TOWNS[s.city]) {
-    appliedOffset = typeof s.offset === "number" ? s.offset : TOWNS[s.city][1];
+    appliedOffset = typeof s.offset === "number" ? s.offset : TOWNS[s.city][T_OFF];
     $("offset").value = appliedOffset;
     chooseTown(s.city, true);
     return;
@@ -528,8 +615,8 @@ function loadOffset() {
   // First visit: pick the nearest town when the browser shares a location (Claude's viewer does not)
   try {
     if (navigator.geolocation) navigator.geolocation.getCurrentPosition((pos) => {
+      nearestNote = true;
       chooseTown(nearestTown(pos.coords.latitude, pos.coords.longitude));
-      $("cityNote").textContent += " · nearest to you";
       render();
     }, () => {}, { timeout: 8000, maximumAge: 3600000 });
   } catch (e) {}
@@ -538,6 +625,7 @@ function save() {
   try {
     localStorage.setItem("hora-place", JSON.stringify({ city: +$("city").value, offset: appliedOffset }));
     localStorage.setItem("hora-inputs", JSON.stringify({ adjAll: $("adjAll").checked }));
+    localStorage.setItem("hora-lang", LANG);
   } catch (e) {}
 }
 
@@ -556,8 +644,8 @@ function fillSun() {
 function markManual() {
   $("sunrise").classList.toggle("edited", manual.sunrise);
   $("sunset").classList.toggle("edited", manual.sunset);
-  $("srNote").textContent = manual.sunrise ? "Entered by you" : "Calculated, as in Tangirala";
-  $("ssNote").textContent = manual.sunset ? "Entered by you" : "Calculated, as in Tangirala";
+  $("srNote").textContent = manual.sunrise ? L().entered : L().calc;
+  $("ssNote").textContent = manual.sunset ? L().entered : L().calc;
   $("recalc").hidden = !(manual.sunrise || manual.sunset);
 }
 
@@ -575,14 +663,15 @@ function timeHTML(mins) { const f = fmt(mins, true); return `${f.hm}<span class=
 function shortHTML(mins) { const f = fmt(mins, false); return `${f.hm} ${f.ap}${shiftHTML(f)}`; }
 function plain(mins) { const f = fmt(mins, true); return `${f.hm}:${f.sec} ${f.ap}${f.shift > 0 ? " (+1)" : ""}`; }
 function plainShort(mins) { const f = fmt(mins, false); return `${f.hm} ${f.ap}${f.shift > 0 ? " (+1)" : ""}`; }
-function dur(mins) { const s = Math.round(mins * 60); return `${Math.floor(s / 60)}m ${pad(s % 60)}s`; }
+const bareTime = (mins) => { const f = fmt(mins, false); return `${f.hm} ${f.ap}`; };
+function dur(mins) { const s = Math.round(mins * 60); return L().ms(Math.floor(s / 60), pad(s % 60)); }
 
 function compute() {
   const d = selectedDate(), sr = $("sunrise").value, ss = $("sunset").value;
   const off = -appliedOffset; // minutes added to Rajahmundry times
-  if (!d || !sr || !ss || isNaN(off)) return { error: "Fill in the date, sunrise, sunset and town offset." };
+  if (!d || !sr || !ss || isNaN(off)) return { error: L().errFill };
   const sunrise = toMin(sr), sunset = toMin(ss);
-  if (sunset <= sunrise) return { error: "Sunset must be later than sunrise. Check the AM/PM on the sunset time." };
+  if (sunset <= sunrise) return { error: L().errSet };
   const dayLen = sunset - sunrise, nightLen = 1440 - dayLen;
   const dayHora = dayLen / 12, nightHora = nightLen / 12;
   const wd = new Date(Date.UTC(d.Y, d.M - 1, d.D)).getUTCDay();
@@ -603,15 +692,16 @@ function panchangam(r) {
   const shift = $("adjAll").checked ? r.off : 0;
   const toLocal = (ms) => (ms - r.base) / 60000 + shift;
   const fromRise = r.sunrise, toRise = r.sunrise + 1440;  // reference day window, minutes
+  const live = [];
 
   const tithis = PJ.segments(PJ.tithiPos, riseRef, nextRiseRef, 30);
   const naks = PJ.segments(PJ.nakPos, riseRef, nextRiseRef, 27);
   const span = (seg) => {
     const whole = (seg.start - r.base) / 60000 <= fromRise && (seg.end - r.base) / 60000 >= toRise;
-    return `${whole ? "all day, " : ""}till <span class="when">${shortHTML(toLocal(seg.end))}</span>`;
+    return (whole ? L().allDay : L().till)(shortHTML(toLocal(seg.end)));
   };
-  $("pTithi").innerHTML = tithis.map((s) => { const [en, te] = tithiName(s.index); return `<div class="item"><span class="name">${en}</span><span class="te">${te}</span>${span(s)}</div>`; }).join("");
-  $("pNak").innerHTML = naks.map((s) => `<div class="item"><span class="name">${NAK[s.index][0]}</span><span class="te">${NAK[s.index][1]}</span>${span(s)}</div>`).join("");
+  $("pTithi").innerHTML = tithis.map((s) => `<div class="item"><span class="name">${tithiName(s.index)}</span>${span(s)}</div>`).join("");
+  $("pNak").innerHTML = naks.map((s) => `<div class="item"><span class="name">${nakName(s.index)}</span>${span(s)}</div>`).join("");
 
   // Varjyam periods that start between this sunrise and the next (also check the nakshatra that follows)
   const nakList = naks.slice();
@@ -620,30 +710,33 @@ function panchangam(r) {
   const now = (Date.now() - r.base) / 60000;
   const varj = nakList.flatMap(PJ.varjyam).filter((v) => { const m = (v.start - r.base) / 60000; return m >= fromRise && m < toRise; });
   $("pVarj").innerHTML = varj.length ? varj.map((v) => {
-    const a = toLocal(v.start), b = toLocal(v.end), live = now >= a && now < b;
-    return `<div class="item"><span class="when">${shortHTML(a)} – ${shortHTML(b)}</span><span class="te">${NAK[v.nak][0]}</span>${live ? '<span class="chip live">Now</span>' : ""}</div>`;
-  }).join("") : `<div class="item empty">No Varjyam between this sunrise and the next</div>`;
+    const a = toLocal(v.start), b = toLocal(v.end), isLive = now >= a && now < b;
+    if (isLive) live.push(L().varj);
+    return `<div class="item"><span class="when">${shortHTML(a)} – ${shortHTML(b)}</span><span class="te">${nakName(v.nak)}</span>${isLive ? `<span class="chip live">${L().now}</span>` : ""}</div>`;
+  }).join("") : `<div class="item empty">${L().noVarj}</div>`;
 
   // Durmuhurtham uses the adjusted sunrise/sunset, like the horas
   const rise = r.base + (r.sunrise + r.off) * 60000, set = r.base + (r.sunset + r.off) * 60000;
   const dm = PJ.durmuhurtham(r.wd, rise, set, rise + 1440 * 60000);
   $("pDur").innerHTML = dm.map((x) => {
-    const a = (x.start - r.base) / 60000, b = (x.end - r.base) / 60000, live = now >= a && now < b;
-    return `<div class="item"><span class="when">${shortHTML(a)} – ${shortHTML(b)}</span>${x.night ? '<span class="te">night</span>' : ""}${live ? '<span class="chip avoid">Now</span>' : ""}</div>`;
+    const a = (x.start - r.base) / 60000, b = (x.end - r.base) / 60000, isLive = now >= a && now < b;
+    if (isLive) live.push(L().dur);
+    return `<div class="item"><span class="when">${shortHTML(a)} – ${shortHTML(b)}</span>${x.night ? `<span class="te">${L().night}</span>` : ""}${isLive ? `<span class="chip avoid">${L().now}</span>` : ""}</div>`;
   }).join("");
 
-  $("panchRange").textContent = `sunrise to sunrise · ${plainShort(r.sunrise + r.off)} – ${plainShort(r.sunrise + r.off + 1440)}`;
+  $("panchRange").textContent = L().range(plainShort(r.sunrise + r.off), plainShort(r.sunrise + r.off + 1440));
+  return live;
 }
 
 function rowHTML(h, cur) {
   return `<tr class="${cur ? "cur" : ""}">
     <td class="n">${h.isDay ? h.i + 1 : h.i - 11}</td>
-    <td><span class="lord"><span class="glyph">${h.lord.g}</span><b>${h.lord.n}</b><em>${h.lord.e}</em>${cur ? '<span class="tag">Now</span>' : ""}</span></td>
+    <td><span class="lord"><span class="glyph">${h.lord.g}</span><b>${lordName(h.lord)}</b>${LANG === "en" ? `<em>${h.lord.e}</em>` : ""}${cur ? `<span class="tag">${L().now}</span>` : ""}</span></td>
     <td class="t">${timeHTML(h.start)}</td>
     <td class="t">${timeHTML(h.end)}</td>
   </tr>`;
 }
-const HEAD = `<thead><tr><th>#</th><th>Hora lord</th><th>Starts</th><th>Ends</th></tr></thead>`;
+const head = () => `<thead><tr><th>#</th><th>${L().lordH}</th><th>${L().starts}</th><th>${L().ends}</th></tr></thead>`;
 
 function render() {
   const r = compute();
@@ -654,46 +747,46 @@ function render() {
 
   const now = (Date.now() - r.base) / 60000;
   const curIdx = r.horas.findIndex((h) => now >= h.start && now < h.end);
-  $("vara").innerHTML = `Vara: <b>${VARA_NAMES[r.wd]}</b> &middot; first hora lord ${r.horas[0].lord.n}`;
+  $("vara").innerHTML = L().vara(VARA[LANG][r.wd], lordName(r.horas[0].lord));
 
-  try { panchangam(r); } catch (e) { console.error(e); }
+  let live = [];
+  try { live = panchangam(r); } catch (e) { console.error(e); }
 
   const cur = curIdx >= 0 ? r.horas[curIdx] : null;
   const card = $("nowCard");
   if (cur) {
     const nx = r.horas[curIdx + 1];
-    const live = [...document.querySelectorAll(".chip.avoid, .chip.live")].map((c) => c.closest(".prow").querySelector(".eyebrow").firstChild.textContent.trim());
     card.innerHTML = `<div class="big-glyph" aria-hidden="true">${cur.lord.g}</div>
-      <div class="lbl">Current hora · ${cur.isDay ? "day" : "night"} hora ${cur.isDay ? cur.i + 1 : cur.i - 11}</div>
-      <div class="main">${cur.lord.n} <span class="when">${shortHTML(cur.start)} – ${shortHTML(cur.end)}</span></div>
-      <div class="sub">${nx ? `<span>Next: <b>${nx.lord.n}</b> from ${shortHTML(nx.start)}</span>` : ""}${live.length ? `<span class="warn">Now in ${live.join(" and ")}</span>` : ""}</div>`;
+      <div class="lbl">${L().cardLbl(cur.isDay, cur.isDay ? cur.i + 1 : cur.i - 11)}</div>
+      <div class="main">${lordName(cur.lord)} <span class="when">${shortHTML(cur.start)} – ${shortHTML(cur.end)}</span></div>
+      <div class="sub">${nx ? `<span>${L().next(lordName(nx.lord), shortHTML(nx.start))}</span>` : ""}${live.length ? `<span class="warn">${L().liveIn(live)}</span>` : ""}</div>`;
     card.hidden = false;
   } else {
     // Before sunrise the current hora belongs to the previous day's chart
     const prev = prevChartNow(r);
     if (prev) {
       card.innerHTML = `<div class="big-glyph" aria-hidden="true">${prev.h.lord.g}</div>
-        <div class="lbl">Current hora · night hora ${prev.h.i - 11} of yesterday's chart</div>
-        <div class="main">${prev.h.lord.n} <span class="when">${bareTime(prev.h.start)} – ${bareTime(prev.h.end)}</span></div>
-        <div class="sub">${prev.nx ? `<span>Next: <b>${prev.nx.lord.n}</b> from ${bareTime(prev.nx.start)}</span>` : `<span>Today's horas start at ${shortHTML(r.horas[0].start)}</span>`}</div>`;
+        <div class="lbl">${L().cardPrev(prev.h.i - 11)}</div>
+        <div class="main">${lordName(prev.h.lord)} <span class="when">${bareTime(prev.h.start)} – ${bareTime(prev.h.end)}</span></div>
+        <div class="sub">${prev.nx ? `<span>${L().next(lordName(prev.nx.lord), bareTime(prev.nx.start))}</span>` : `<span>${L().todayFrom(shortHTML(r.horas[0].start))}</span>`}</div>`;
       card.hidden = false;
     } else card.hidden = true;
   }
   $("stats").innerHTML = `
-    <div class="stat"><span>Day length</span><b>${Math.floor(r.dayLen / 60)}h ${pad(r.dayLen % 60)}m</b></div>
-    <div class="stat"><span>Day hora</span><b>${dur(r.dayHora)}</b></div>
-    <div class="stat"><span>Night hora</span><b>${dur(r.nightHora)}</b></div>
-    <div class="stat now"><span>Current hora</span><b>${cur ? `${cur.lord.n} till ${fmt(cur.end).hm} ${fmt(cur.end).ap}` : "Not in this chart"}</b></div>`;
+    <div class="stat"><span>${L().dayLen}</span><b>${L().hm(Math.floor(r.dayLen / 60), pad(r.dayLen % 60))}</b></div>
+    <div class="stat"><span>${L().dayHora}</span><b>${dur(r.dayHora)}</b></div>
+    <div class="stat"><span>${L().nightHora}</span><b>${dur(r.nightHora)}</b></div>
+    <div class="stat now"><span>${L().curHora}</span><b>${cur ? L().curTill(lordName(cur.lord), bareTime(cur.end)) : L().notIn}</b></div>`;
 
   $("band").innerHTML = r.horas.map((h, i) =>
-    `<div class="${h.isDay ? "d" : "n"}${i === curIdx ? " cur" : ""}" title="${h.lord.n}: ${plain(h.start)} – ${plain(h.end)}">${h.lord.g}</div>`
+    `<div class="${h.isDay ? "d" : "n"}${i === curIdx ? " cur" : ""}" title="${lordName(h.lord)}: ${plain(h.start)} – ${plain(h.end)}">${h.lord.g}</div>`
   ).join("");
   $("bandLegend").innerHTML = `<span>${plainShort(r.horas[0].start)}</span><span>${plainShort(r.horas[12].start)}</span><span>${plainShort(r.horas[23].end)}</span>`;
 
   $("dayRange").textContent = `${plain(r.horas[0].start)} – ${plain(r.horas[11].end)}`;
   $("nightRange").textContent = `${plain(r.horas[12].start)} – ${plain(r.horas[23].end)}`;
-  $("dayTbl").innerHTML = HEAD + "<tbody>" + r.horas.slice(0, 12).map((h) => rowHTML(h, h.i === curIdx)).join("") + "</tbody>";
-  $("nightTbl").innerHTML = HEAD + "<tbody>" + r.horas.slice(12).map((h) => rowHTML(h, h.i === curIdx)).join("") + "</tbody>";
+  $("dayTbl").innerHTML = head() + "<tbody>" + r.horas.slice(0, 12).map((h) => rowHTML(h, h.i === curIdx)).join("") + "</tbody>";
+  $("nightTbl").innerHTML = head() + "<tbody>" + r.horas.slice(12).map((h) => rowHTML(h, h.i === curIdx)).join("") + "</tbody>";
 }
 
 // Horas of the day before the selected date, from calculated sunrise/sunset, for the pre-sunrise "now" card
@@ -708,41 +801,39 @@ function prevChartNow(r) {
     const s = ss + off + (i - 12) * night, e = s + night;
     if (now >= s && now < e) {
       const mk = (k, st) => ({ i: k, start: st, end: st + night, lord: LORDS[(start0 + k) % 7] });
-      return { h: mk(i, s), nx: i < 23 ? mk(i + 1, e) : null, shift: (base - r.base) / 60000 };
+      return { h: mk(i, s), nx: i < 23 ? mk(i + 1, e) : null };
     }
   }
   return null;
 }
-const bareTime = (mins) => { const f = fmt(mins, false); return `${f.hm} ${f.ap}`; };
 const systemDate = () => { const d = new Date(); return { Y: d.getFullYear(), M: d.getMonth() + 1, D: d.getDate() }; };
 
 // A Hindu day runs sunrise to sunrise: before today's first hora, the current hora belongs to yesterday's chart.
 function jumpToNow() {
   manual = { sunrise: false, sunset: false };
-  const p = istParts(Date.now());
-  $("date").value = isoDate(p);
+  $("date").value = isoDate(istParts(Date.now()));
   fillSun();
   const r = compute();
   if (!r.error && (Date.now() - r.base) / 60000 < r.horas[0].start) {
-    const y = istParts(Date.now() - 86400000);
-    $("date").value = isoDate(y);
+    $("date").value = isoDate(istParts(Date.now() - 86400000));
     fillSun();
   }
   render();
 }
 
-loadOffset();
+loadPrefs();
 // Open on the device's own date
 $("date").value = isoDate(systemDate());
 fillSun();
 render();
+$("lang").addEventListener("change", () => { LANG = $("lang").value; applyLang(); render(); });
 $("date").addEventListener("input", () => { manual = { sunrise: false, sunset: false }; fillSun(); render(); });
 $("sunrise").addEventListener("input", () => { manual.sunrise = true; markManual(); render(); });
 $("sunset").addEventListener("input", () => { manual.sunset = true; markManual(); render(); });
 $("offset").addEventListener("input", pendingState);
 $("offset").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); applyOffset(); } });
 $("apply").addEventListener("click", applyOffset);
-$("city").addEventListener("change", () => { chooseTown(+$("city").value); render(); });
+$("city").addEventListener("change", () => { nearestNote = false; chooseTown(+$("city").value); render(); });
 $("adjAll").addEventListener("change", render);
 $("form").addEventListener("submit", (e) => e.preventDefault());
 $("today").addEventListener("click", () => {

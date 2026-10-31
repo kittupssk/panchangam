@@ -30,6 +30,8 @@
   --night-ink: #e6e4ff;
   --now: #f0a04b;
   --flash: #5a3f1c;
+  --good: #2fb35f;
+  --good-soft: #123a24;
   --font-display: "Marcellus", "Palatino Linotype", Georgia, serif;
   --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
@@ -107,7 +109,7 @@ button.ghost:hover { border-color: var(--accent); background: transparent; color
 .item .name { font-weight: 600; }
 .item .te { font-family: var(--font-te); color: var(--muted); }
 .item .when { font: 500 0.95rem var(--font-mono); font-variant-numeric: tabular-nums; }
-.item .when .plus, td.t .plus { color: var(--accent); font-size: 0.75em; margin-left: 2px; }
+.plus { color: var(--accent); font-weight: 700; font-size: 0.85em; white-space: nowrap; }
 .chip { font: 700 0.65rem var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; border-radius: 4px; padding: 2px 6px; }
 .chip.avoid { background: var(--warn-soft); color: var(--warn); }
 .chip.live { background: var(--accent-soft); color: var(--accent); }
@@ -117,7 +119,7 @@ button.ghost:hover { border-color: var(--accent); background: transparent; color
 .check input { width: 16px; height: 16px; accent-color: var(--accent); }
 
 .now-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: center; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px; padding: 14px 18px; }
-.now-card .big-glyph { grid-row: span 2; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 24px; background: var(--surface); border: 1px solid var(--accent); }
+.now-card .big-glyph { grid-row: span 2; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font: 600 1.15rem var(--font-te), var(--font-body); background: var(--surface); border: 1px solid var(--accent); }
 .now-card .lbl { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
 .now-card .main { font-family: var(--font-display); font-size: 1.35rem; line-height: 1.2; }
 .now-card .main .when { font: 500 0.95rem var(--font-mono); color: var(--ink); white-space: nowrap; }
@@ -134,11 +136,11 @@ button.ghost:hover { border-color: var(--accent); background: transparent; color
 .stat b { font: 500 1.05rem var(--font-mono); font-variant-numeric: tabular-nums; }
 .stat.now b { color: var(--accent); }
 
-.band { display: flex; height: 34px; border-radius: 6px; overflow: hidden; position: relative; border: 1px solid var(--line); }
-.band div { flex: 1 1 0; display: grid; place-items: center; font-size: 0.8rem; border-right: 1px solid color-mix(in srgb, var(--bg) 40%, transparent); }
+.band { --band-h: 34px; display: flex; height: var(--band-h); border-radius: 6px; overflow: hidden; position: relative; border: 1px solid var(--line); }
+.band div { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font: 600 0.72rem var(--font-te), var(--font-body); overflow: hidden; border-right: 1px solid color-mix(in srgb, var(--bg) 40%, transparent); }
 .band .d { background: var(--day); color: var(--day-ink); }
 .band .n { background: var(--night); color: var(--night-ink); }
-.band .cur { box-shadow: inset 0 0 0 2px var(--now); font-weight: 700; }
+
 .band-legend { display: flex; justify-content: space-between; font: 0.75rem var(--font-mono); color: var(--muted); margin-top: 4px; }
 
 section h2 {
@@ -155,9 +157,11 @@ td.n { color: var(--muted); font: 0.85rem var(--font-mono); width: 2.5em; }
 td.t { font: 500 1rem var(--font-mono); }
 td.t .s { color: var(--muted); font-size: 0.8em; }
 .lord { display: inline-flex; align-items: center; gap: 9px; }
+/* hora lord short label */
 .glyph {
+  font-family: var(--font-te), var(--font-body); font-weight: 600;
   width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center;
-  font-size: 15px; line-height: 1; background: var(--bg); border: 1px solid var(--line);
+  font-size: 12px; line-height: 1; background: var(--bg); border: 1px solid var(--line);
 }
 .lord b { font-weight: 600; }
 .lord em { font-style: normal; color: var(--muted); font-size: 0.85rem; }
@@ -178,8 +182,10 @@ tr.cur.flash td { animation: flash 1.6s ease-out; }
   tr.cur td.n + td { box-shadow: inset 3px 0 0 var(--now); }
   .lord em { display: none; }
   .lord { gap: 6px; }
-  .glyph { width: 22px; height: 22px; font-size: 13px; }
+  .glyph { width: 24px; height: 24px; font-size: 11px; }
   td.t { font-size: 0.86rem; }
+  .band div { font-size: 0.56rem; letter-spacing: -0.02em; }
+  html[lang="te"] .band div { font-size: 0.66rem; }
 }
 header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .lang {
@@ -192,11 +198,106 @@ html[lang="te"] h1, html[lang="te"] h2, html[lang="te"] .now-card .main, html[la
 html[lang="te"] .field label, html[lang="te"] .eyebrow, html[lang="te"] th, html[lang="te"] .stat span,
 html[lang="te"] .now-card .lbl, html[lang="te"] .tag, html[lang="te"] .chip { letter-spacing: 0; text-transform: none; font-size: 0.82rem; }
 .note p { line-height: 1.7; }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.chip.bad { background: var(--warn-soft); color: var(--warn); }
+.now-card .effect { grid-column: 1 / -1; font-size: 0.9rem; line-height: 1.6; border-top: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding-top: 8px; margin-top: 4px; }
+.tara-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 16px 18px 12px; }
+.tara-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.35rem; margin: 0; }
+html[lang="te"] .tara-head h2 { font-family: var(--font-te), var(--font-display); font-weight: 500; }
+.tara-pick { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tara-pick select { font: 500 0.95rem var(--font-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; min-width: 0; max-width: 100%; }
+html[lang="te"] .tara-pick select { font-family: var(--font-te), var(--font-body); }
+.tara-pick select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tara-item { padding: 12px 18px; border-top: 1px solid var(--line); display: grid; gap: 5px; }
+.tara-top { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.tara-top .when { font: 500 0.92rem var(--font-mono); }
+.tara-top .arrow { color: var(--muted); }
+.fx { color: var(--muted); font-size: 0.9rem; line-height: 1.65; }
+.meta { color: var(--muted); font-size: 0.8rem; }
+.hint { padding: 0 18px 16px; color: var(--muted); font-size: 0.9rem; }
+details.ref { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+details.ref summary { cursor: pointer; padding: 14px 18px; font-family: var(--font-display); font-size: 1.15rem; list-style-position: inside; }
+html[lang="te"] details.ref summary { font-family: var(--font-te), var(--font-display); font-weight: 500; }
+details.ref summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ref-body { padding: 0 18px 16px; display: grid; gap: 10px; font-size: 0.92rem; line-height: 1.7; }
+.ref-body p { margin: 0; }
+.ref-body .muted { color: var(--muted); }
+.ref-body b { color: var(--accent); font-weight: 600; }
+.days { display: grid; }
+.day { padding: 12px 18px; border-top: 1px solid var(--line); display: grid; gap: 6px; }
+.day.today { background: color-mix(in srgb, var(--accent-soft) 60%, transparent); }
+.day-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.day-head b { font-size: 1.02rem; }
+.day-head .sun { color: var(--muted); font: 0.85rem var(--font-mono); }
+.day-row { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 2px 10px; font-size: 0.92rem; }
+.day-row .k { color: var(--muted); font-size: 0.82rem; padding-top: 2px; }
+.day-row .v { display: grid; gap: 2px; min-width: 0; }
+.day-row .when { font: 500 0.9rem var(--font-mono); }
+@media (max-width: 520px) { .day-row { grid-template-columns: 6.2rem minmax(0, 1fr); } }
+/* Good (Guru, Sukra) and bad (Sani, Kuja) horas */
+tr.good td.t { color: var(--good); }
+tr.bad td.t { color: var(--warn); }
+tr.good td:first-child { box-shadow: inset 3px 0 0 var(--good); }
+tr.bad td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+tr.cur td:first-child { box-shadow: inset 3px 0 0 var(--now); }
+tr.good .glyph { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+tr.bad .glyph { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.lord .chip { margin-left: 2px; font-size: 0.62rem; padding: 1px 5px; }
+.band .good { box-shadow: inset 0 -4px 0 var(--good); }
+.band .bad { box-shadow: inset 0 -4px 0 var(--warn); }
+.now-card.good .big-glyph { border-color: var(--good); color: var(--good); background: var(--good-soft); }
+.now-card.bad .big-glyph { border-color: var(--warn); color: var(--warn); background: var(--warn-soft); }
+.now-card .main .chip { font-family: var(--font-body); font-size: 0.65rem; vertical-align: middle; }
+@media (max-width: 520px) { tr.cur td.n + td { box-shadow: inset 3px 0 0 var(--now); } tr.good td.n + td { box-shadow: inset 3px 0 0 var(--good); } tr.bad td.n + td { box-shadow: inset 3px 0 0 var(--warn); } tr.cur.good td.n + td, tr.cur.bad td.n + td { box-shadow: inset 3px 0 0 var(--now); } }
+.good-panel .panch-head h2 { color: var(--good); }
+.good-list { display: grid; }
+.good-item { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 10px 18px; border-top: 1px solid var(--line); }
+.good-item .when { font: 600 1rem var(--font-mono); color: var(--good); }
+.good-item.now { background: var(--good-soft); box-shadow: inset 3px 0 0 var(--good); }
+.good-item .lordname { color: var(--ink); }
+.good-item .meta { margin-left: auto; }
+.good-rule { padding: 10px 18px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; line-height: 1.6; }
+.good-rule .need { color: var(--accent); }
+/* Good-time bars over the day/night band */
+.band-wrap { --bh: 34px; position: relative; padding-top: 12px; }
+.band-wrap .band { --band-h: var(--bh); }
+.gtrack { position: absolute; left: 0; right: 0; top: 0; height: calc(12px + var(--bh) + 2px); pointer-events: none; }
+.gbar {
+  position: absolute; top: 0; bottom: 0; min-width: 5px; padding: 0; margin: 0; cursor: pointer; pointer-events: auto;
+  background: color-mix(in srgb, var(--good) 45%, transparent);
+  border: 0; border-top: 9px solid var(--good); border-radius: 3px 3px 0 0;
+}
+.gbar:hover, .gbar.on { background: color-mix(in srgb, var(--good) 65%, transparent); }
+.gbar:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.gtip {
+  position: absolute; top: calc(var(--bh) + 22px); z-index: 5; width: max-content; max-width: min(320px, 100%);
+  background: var(--surface); color: var(--ink); border: 1px solid var(--good); border-radius: 8px;
+  padding: 10px 12px; font-size: 0.86rem; line-height: 1.6; box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+.gtip .t { font: 600 0.95rem var(--font-mono); color: var(--good); }
+.gtip .fx { margin-top: 4px; font-size: 0.82rem; }
+/* Current time on the day/night band */
+.nowline { position: absolute; top: 2px; height: calc(10px + var(--bh) + 8px); width: 2px; margin-left: -1px; z-index: 3; pointer-events: none;
+  background: #ffffff; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.55); border-radius: 1px; }
+.nowline::before { content: ""; position: absolute; top: -2px; left: -4px; border: 5px solid transparent; border-top: 7px solid #ffffff; }
+/* Start time under each hora on wider screens */
+.band .bt { display: none; font: 500 0.6rem var(--font-mono); opacity: 0.85; letter-spacing: -0.02em; white-space: nowrap; }
+@media (min-width: 700px) {
+  .band-wrap { --bh: 50px; }
+  .band .bt { display: block; }
+  .band div { font-size: 0.8rem; }
+}
+/* Phone turned sideways: band first, taller and easier to read */
+/* html.land-phone is set from the device's real orientation, which also works when the Claude app stretches the page to full height */
+html.land-phone header.top { order: -2; }
+html.land-phone .band-wrap { order: -1; --bh: 64px; }
+html.land-phone .band .bt { display: block; font-size: 0.66rem; }
+html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.95rem; }
 </style>
 
 <div class="wrap">
   <header class="top">
-    <h1 data-i18n="title">హోరా చక్రం</h1>
+    <h1 data-i18n="title">హోర చక్రం</h1>
     <select id="lang" class="lang" aria-label="Language / భాష">
       <option value="te">తెలుగు</option>
       <option value="en">English</option>
@@ -237,7 +338,7 @@ html[lang="te"] .now-card .lbl, html[lang="te"] .tag, html[lang="te"] .chip { le
       <div class="vara" id="vara"></div>
       <div class="btns">
         <button type="button" class="ghost" id="recalc" data-i18n="useCalc" hidden>లెక్కించిన సమయం వాడు</button>
-        <button type="button" id="today" data-i18n="jump">ప్రస్తుత హోరా చూపు</button>
+        <button type="button" id="today" data-i18n="jump">ప్రస్తుత హోర చూపు</button>
       </div>
     </div>
     <div id="msg" class="err" hidden></div>
@@ -259,22 +360,40 @@ html[lang="te"] .now-card .lbl, html[lang="te"] .tag, html[lang="te"] .chip { le
     </div>
   </div>
 
+  <div class="panel panch tara" aria-live="polite">
+    <div class="tara-head">
+      <h2 data-i18n="taraTitle">తారాబలం</h2>
+      <div class="tara-pick">
+        <label for="janma" class="eyebrow" data-i18n="janma">జన్మ నక్షత్రం</label>
+        <select id="janma"></select>
+      </div>
+    </div>
+    <div id="taraBody"></div>
+  </div>
+
   <div class="stats" id="stats"></div>
 
-  <div>
+  <div class="band-wrap" id="bandWrap">
     <div class="band" id="band" aria-hidden="true"></div>
+    <div class="gtrack" id="gtrack"></div>
+    <div class="nowline" id="nowLine" hidden></div>
     <div class="band-legend" id="bandLegend"></div>
+    <div class="gtip" id="gtip" role="tooltip" hidden></div>
   </div>
 
   <section>
-    <h2><span data-i18n="dayH">పగటి హోరాలు</span> <small id="dayRange"></small></h2>
+    <h2><span data-i18n="dayH">పగటి హోరలు</span> <small id="dayRange"></small></h2>
     <div class="tbl-wrap"><table id="dayTbl"></table></div>
   </section>
 
   <section>
-    <h2><span data-i18n="nightH">రాత్రి హోరాలు</span> <small id="nightRange"></small></h2>
+    <h2><span data-i18n="nightH">రాత్రి హోరలు</span> <small id="nightRange"></small></h2>
     <div class="tbl-wrap"><table id="nightTbl"></table></div>
   </section>
+
+  <details class="ref" id="daysRef"><summary data-i18n="tenDays">రాబోయే 10 రోజుల పంచాంగం</summary><div class="days" id="daysBody"></div></details>
+  <details class="ref" id="horaRef"><summary data-i18n="horaRef">హోరాధిపతులు - ఫలితములు</summary><div class="ref-body" id="horaRefBody"></div></details>
+  <details class="ref" id="taraRef"><summary data-i18n="taraRef">తారలు, అధిపతులు - శాంతులు</summary><div class="ref-body" id="taraRefBody"></div></details>
 
   <div class="note">
     <p><b data-i18n="noteTitle">దేశాంతర కాలము:</b> <span data-i18n="note"></span></p>
@@ -282,14 +401,14 @@ html[lang="te"] .now-card .lbl, html[lang="te"] .tag, html[lang="te"] .chip { le
 </div>
 
 <script>
-// Surya Siddhanta panchangam engine (tuned against Sri Relangi Tangirala Panchangam)
+// Surya Siddhanta panchangam engine (tuned to the reference almanac)
 const PJ = (() => {
   const R = Math.PI / 180, frac = (x) => x - Math.floor(x), norm = (x) => ((x % 360) + 360) % 360;
   // Surya Siddhanta: revolutions per Mahayuga and civil days
   const CIVIL = 1577917828, SUN_REV = 4320000, MOON_REV = 57753336, MOON_APO_REV = 488203;
-  const SUN_APO = 77.26 - 2.21094;  // Sun's mandocca (fitted to Tangirala)
+  const SUN_APO = 77.26 - 2.21094;  // Sun's mandocca (fitted)
   const UJJAIN = 75.77;            // Kali epoch is midnight at Ujjain
-  // Corrections fitted to Tangirala (Rajahmundry), 30 Oct 2026 - 7 Apr 2027 (rms 2.5 min)
+  // Fitted corrections (Rajahmundry), 30 Oct 2026 - 7 Apr 2027 (rms 2.5 min)
   const MOON_FIX = -0.03959, SUN_FIX = -0.04745, MOON_EPI = 1 - 0.00367, SUN_EPI = 1 - 0.00288;
   const MOON_APO_FIX = -0.2627, EOT_K = 0.60053, SHIFT_MIN = -0.8948;
   // Equation of time in minutes (apparent minus mean solar time)
@@ -432,33 +551,128 @@ const NAK = [
   ["Purvabhadra", "పూర్వాభాద్ర"], ["Uttarabhadra", "ఉత్తరాభాద్ర"], ["Revati", "రేవతి"],
 ];
 
+// ---------- Book texts ----------
+// Hora results, indexed like LORDS: Surya, Sukra, Budha, Chandra, Sani, Guru, Kuja
+const HORA_FX = {
+  te: [
+    "ఉద్యోగ ప్రయత్నములకు, సాహసకార్యములకు, పై అధికారులను దర్శించుటకు, క్రయ విక్రయాదులు - సన్మానములు - దస్తావేజులు వ్రాయుట - రాజకీయ వ్యవహారములు, న్యాయసంబంధ వ్యవహారములు నెరపుటకు మంచిది.",
+    "సమస్తమైన శుభకార్యములకు యోగ్యమైనది. స్త్రీ పురుషుల పరస్పర సమాగమములు - క్రొత్తబట్టలు - వస్తువులు ధరించుట - ప్రయాణం - ఔషధ సేవనం - నూతన వాహనములు ఉపయోగించుట ఇత్యాదు లన్నింటికీ శ్రేష్ఠమైనది. నిశ్చయతాంబూలాలకు మంచిది.",
+    "వ్యాపార సంబంధిత కార్యములకు, వ్రాతపనులకు, ప్రయాణములకు, లెక్కలు - శిల్పం - జ్యోతిషం వంటి విద్యలు నేర్చుటకు చాలా మంచిది. స్వర్ణ వస్త్రవ్యాపారులకు కూడా.",
+    "స్త్రీ సమాగమం, ప్రేమవ్యవహారములు తెల్లని వస్తువుల వ్యాపారం, ఉద్యోగంలో చేరుట, ఇల్లుమారుట, నీటిపై ప్రయాణములు, గృహోభరణపాత్రలు కొనుటకు, వాడుటకు మంచిది.",
+    "ఇనుము, మినుములు, నూనె వ్యాపారములకు యంత్ర వ్యాపారములకు మంచిది. కాని ఇతరపనులకు మంచికాదు.",
+    "ధనము నిల్వ చేసేందుకు, వివాహవిషయాలు మాట్లాడేందుకు, పిల్లలకు ఉయ్యాల వేయుటకు, క్రొత్త పుస్తకములు పఠించుట, ఔషధములు సేవించుటకు, బాకీల వసూలుకు, లాటరీలకు నూతన వస్తువు, వస్త్రాభరణాదు లుపయోగించుటకు మంచిది.",
+    "అగ్ని సంబంధమైన పనులు, సాహస కృత్యములు, క్రయ విక్రయములకు మంచిది. యథాశక్తి కృషి చేయుటకు కూడా మంచిదే. కాని ఇది అశుభ సమయం. కష్టాలు, నష్టాలు, విరోధాలు, చిక్కులు కలుగుతాయి. జాగ్రత్తగా ఉండాల్సిన సమయం.",
+  ],
+  en: [
+    "Good for job efforts, bold undertakings, meeting superiors, buying and selling, honours, writing documents, political matters and legal affairs.",
+    "Suitable for all auspicious work. Best for meetings between men and women, wearing new clothes and things, travel, taking medicine, starting to use new vehicles and the like. Good for engagements (nischaya tambulam).",
+    "Very good for business work, paperwork, travel, and learning subjects such as mathematics, sculpture and astrology. Also good for gold and cloth merchants.",
+    "Good for meeting women, matters of love, trade in white goods, joining a job, moving house, travel over water, and buying or using household vessels and ornaments.",
+    "Good for trade in iron, black gram and oil, and for machinery business. Not good for other work.",
+    "Good for saving money, discussing marriage matters, putting a baby in the cradle, starting new books, taking medicine, collecting dues, lotteries, and starting to use new things, clothes and jewellery.",
+    "Good for work involving fire, bold acts, and buying and selling. Also fine for working as hard as you can. But this is an inauspicious time: troubles, losses, enmities and complications arise. A time to be careful.",
+  ],
+};
+const HORA_TITLE = { te: ["సూర్యహోర", "శుక్రహోర", "బుధ హోర", "చంద్ర హోర", "శని హోర", "గురు హోర", "కుజ హోర"], en: ["Surya hora", "Sukra hora", "Budha hora", "Chandra hora", "Sani hora", "Guru hora", "Kuja hora"] };
+const HORA_BOOK_ORDER = [0, 1, 2, 3, 4, 5, 6];
+const HORA_INTRO = {
+  te: [
+    "(ప్రతిరోజు ఏ వారముతో మొదలగునో ఆ రోజునకు అధిపతియైన గ్రహముతో హోర మొదలగును. ఆదివారము ప్రారంభ రవి హోర, సూర్యునికి చేరువగా శుక్ర బుధల హోరలుకాగా రవి అనంతరమివి వచ్చును. పిమ్మట వేగగమనముకల చంద్రహోర తదుపరి శని, గురు, కుజ హోరలు చేరును)",
+    "ఇందు శుభగ్రహ హోరలలో శుభ ఫలితములు, పాపగ్రహ హోరలలో హోరలలో అశుభ ఫలములును కలుగును. గురు, శుక్రులు - పూర్ణ చంద్రుడు, వీరితో కలిసిన బుధుడు ఈ నలుగురూ శుభులు. క్షీణచంద్రుడు, సూర్య, కుజ, శనులు, - వారితో కలసిన బుధుడును - యీ అయిదుగురును పాపులు.",
+  ],
+  en: [
+    "(Each day the horas begin with the planet that rules that weekday. Sunday begins with the Sun's hora; Venus and Mercury, which are close to the Sun, come next. Then comes the swift-moving Moon's hora, followed by Saturn, Jupiter and Mars.)",
+    "In the horas of benefic planets the results are good; in the horas of malefic planets they are bad. Jupiter, Venus, the full Moon, and Mercury when joined with these: these four are benefics. The waning Moon, Sun, Mars and Saturn, and Mercury when joined with them: these five are malefics.",
+  ],
+};
+
+// Taras 1-9
+const TARA_NAME = {
+  te: ["జన్మతార", "సంపత్తార", "విపత్తార", "క్షేమతార", "ప్రత్యక్తార", "సాధనతార", "నైధనతార", "మిత్రతార", "పరమమిత్రతార"],
+  en: ["Janma tara", "Sampat tara", "Vipat tara", "Kshema tara", "Pratyak tara", "Sadhana tara", "Naidhana tara", "Mitra tara", "Parama Mitra tara"],
+};
+const TARA_GOOD = [false, true, false, true, false, true, false, true, true];
+const TARA_FX = {
+  te: [
+    "మంచిదికాదు -అధిపతి-రవి వాహనం-నెమలి దోషకాలం-7 ఘడియలు తోటకూరదానం శాంతి. తాపకారకుడు. మనస్తాపం కలిగించును. క్షోభతో దేహనాశము కల్గించును. వృత్తి, ఉద్యోగముల కారకుడు, వృధావ్యయం.",
+    "మంచిది-అధిపతి-బుధుడు వాహనం-గుర్రం- దోషం లేదు. ధనలాభం, ఆనందం, సుఖం కలిగించును. ధనధాన్యలాభకరము, సర్వవిధ ద్రవ్య లాభము. ఏలోటు ఉండదు. హుందాతనం, సంపద, వృద్ధి, స్థిరత్వం.",
+    "చెడ్డది-అధిపతి-రాహువు వాహనం-మేక దోషం-3 ఘడియలు. బెల్లం దానం శాంతి. ఇది కలహములు, అపార్థములు కలిగించును. దారిద్ర్యబాధ, కార్యనాశనము కూడా, మనఃక్లేశము, విపత్తులు ఇచ్చును.",
+    "మంచిది-అధిపతి-గురుడు వాహనం-ఏనుగు దోషంలేదు. రాజప్రాప్తి, శాంతి, సుఖం, గౌరవం, ధైర్యప్రదాత. ఆరోగ్యక్షేమములు కలుగును.",
+    "చెడ్డది-అధిపతి-కేతువు వాహనం- కాకి కార్యనాశనం- దోషం 8 ఘడియలు. ఉప్పు దానం శాంతి. మృత్యుకారకుడు. పట్టుదలలు, తాపము.",
+    "మంచిది-అధిపతి-చంద్రుడు వాహనం-నక్క దోషంలేదు. కీర్తికరుడు. సుఖశాంతులతో సంపత్సౌభాగ్యాలతో గౌరవప్రతిష్ఠలతో వర్ధిల్ల చేయును. వ్యవహారజయం, లాభం, కార్యసిద్ధి కల్గించును.",
+    "చెడ్డది-అధిపతి-శని-కార్యనాశకుడు వాహనం-సింహం. ప్రమాదభయము, యుద్ధభయం, ప్రాణభీతి. దోష ఘడియలు 8 బంగారముతో కలిపి నువ్వులు దానం శాంతి. సర్వదా చెడ్డది. ఆయుఃక్షీణము నిచ్చును.",
+    "మంచిది. అధిపతి-శుక్రుడు-సంతోషకారకుడు. వాహనం-గరుడుడు విశేషమైన సుఖసౌఖ్యములు, దోషంలేదు. పుష్టి నిచ్చును.",
+    "మంచిది. అధిపతి-కుజుడు. వాహనం-హంస కొంచెం కష్టం, కార్యసానుకూలము, దోషములేదు. అధిమిత్రత్వం శాంతి సుఖం శుభం.",
+  ],
+  en: [
+    "Not good. Lord: Ravi (Sun); vehicle: peacock; dosha period: 7 ghadiyas. Remedy: donate thotakura (amaranth greens). Causes affliction and mental distress; through anxiety it harms the body. Governs livelihood and jobs; wasteful expense.",
+    "Good. Lord: Budha (Mercury); vehicle: horse; no dosha. Brings wealth, joy and comfort. Gains of money and grain, every kind of material gain. No shortage of anything. Dignity, prosperity, growth and stability.",
+    "Bad. Lord: Rahu; vehicle: goat; dosha: 3 ghadiyas. Remedy: donate jaggery. Causes quarrels and misunderstandings; also poverty, failure of work, mental anguish and calamities.",
+    "Good. Lord: Guru (Jupiter); vehicle: elephant; no dosha. Gives royal favour, peace, comfort, honour and courage. Brings health and well-being.",
+    "Bad. Lord: Ketu; vehicle: crow; ruins work; dosha: 8 ghadiyas. Remedy: donate salt. A bringer of death. Obstinacy and distress.",
+    "Good. Lord: Chandra (Moon); vehicle: fox; no dosha. Brings fame. Makes one flourish with comfort and peace, wealth and good fortune, honour and reputation. Gives success in dealings, profit and accomplishment of work.",
+    "Bad. Lord: Shani (Saturn), destroyer of work; vehicle: lion. Fear of accidents, of conflict, and for one's life. Dosha: 8 ghadiyas. Remedy: donate sesame together with gold. Always bad. Shortens life.",
+    "Good. Lord: Shukra (Venus), giver of happiness; vehicle: Garuda. Special comforts and pleasures; no dosha. Gives strength.",
+    "Good. Lord: Kuja (Mars); vehicle: swan. A little difficulty, but work goes favourably; no dosha. Close friendship, peace, comfort and auspiciousness.",
+  ],
+};
+const TARA_INTRO = {
+  te: "ఎవరైనా మంచి ముహూర్తము నిర్ణయించుకొన్నప్పుడు వ్యక్తి యొక్క జన్మ లేక నామ నక్షత్రము నుండి ఆనాటి నక్షత్రము వరకు లెక్కించగా ఈ క్రింది తారలు వచ్చును. ఇవి మూడు పర్యాయములు వచ్చును. 1 జన్మ, 2 సంపత్, 3 విపత్, 4 క్షేమ, 5 ప్రత్యక్, 6 సాధన 7 నైధన, 8 మిత్ర, 9 పరమమిత్ర తారలు అనబడును.",
+  en: "When fixing a good muhurtham, count from the person's birth (or name) nakshatra up to that day's nakshatra; you get the taras below. They come three times over (in three sets of nine): 1 Janma, 2 Sampat, 3 Vipat, 4 Kshema, 5 Pratyak, 6 Sadhana, 7 Naidhana, 8 Mitra, 9 Parama Mitra.",
+};
+const TARA_RULE = {
+  te: "ప్రథమ నవకంలో జన్మతార, ద్వితీయ నవకంలో విపత్తార, తృతీయంలో ప్రత్యక్తార సర్వవేళలా నైధనతార పూర్తిగా విసర్జించి తీరాలి. ఆయా నిషిద్ధ నవకాలు కాక యితర నవకాలలో ఆయా తారలు వచ్చుచున్నప్పుడు దోష ఘడియలు విసర్జించి ఉపర్యుక్త దానాలతో శాంతి జరిపి పిమ్మట కార్యక్రమాలు జరుపుకోవాలి.",
+  en: "Janma tara in the first set of nine, Vipat tara in the second, Pratyak tara in the third, and Naidhana tara at all times must be avoided completely. When these taras fall in the other sets of nine, avoid the dosha ghadiyas, perform the remedy with the donations above, and then go ahead with the work.",
+};
+const MASA_RULE = {
+  te: "శుద్ధ పాడ్యమి ప్రవేశమునందే నక్షత్రము ముందునో ఆ నక్షత్రము లగాయతు తన నక్షత్రము వరకు లెక్కించి ఆ సంఖ్యను 9చే భాగించగా మిగిలిన శేషము 1. ప్రయాణము 2. మృష్టాన్న భోజనము 3. తనుతాపము 4. శౌర్యము 5. విద్య 6. వస్త్రలాభము, 7. శోకము 8. అనంత పుణ్యము 9. మహాఫలము కలుగును",
+  en: "Count from the nakshatra running when Shukla Padyami begins up to your own nakshatra, and divide the number by 9. The remainder gives: 1. travel 2. a fine meal 3. bodily suffering 4. valour 5. learning 6. gain of clothes 7. sorrow 8. endless merit 9. great results.",
+};
+const MASA_FX = {
+  te: ["ప్రయాణము", "మృష్టాన్న భోజనము", "తనుతాపము", "శౌర్యము", "విద్య", "వస్త్రలాభము", "శోకము", "అనంత పుణ్యము", "మహాఫలము"],
+  en: ["Travel", "A fine meal", "Bodily suffering", "Valour", "Learning", "Gain of clothes", "Sorrow", "Endless merit", "Great results"],
+};
+const MASA_GOOD = [true, true, false, true, true, true, false, true, true];
+
 // ---------- Language ----------
 const I18N = {
   te: {
-    title: "హోరా చక్రం", date: "తేదీ", town: "మీ ఊరు", offset: "రాజమండ్రి నుండి దేశాంతరం (ని॥)", recalc: "మళ్ళీ లెక్కించు",
-    sunrise: "రాజమండ్రి సూర్యోదయం", sunset: "రాజమండ్రి సూర్యాస్తమయం", useCalc: "లెక్కించిన సమయం వాడు", jump: "ప్రస్తుత హోరా చూపు",
+    title: "హోర చక్రం", date: "తేదీ", town: "మీ ఊరు", offset: "రాజమండ్రి నుండి దేశాంతరం (ని॥)", recalc: "మళ్ళీ లెక్కించు",
+    sunrise: "రాజమండ్రి సూర్యోదయం", sunset: "రాజమండ్రి సూర్యాస్తమయం", useCalc: "లెక్కించిన సమయం వాడు", jump: "ప్రస్తుత హోర చూపు",
     panch: "పంచాంగం", tithi: "తిథి", nak: "నక్షత్రం", varj: "వర్జ్యం", dur: "దుర్ముహూర్తం",
-    adjAll: "తిథి, నక్షత్ర, వర్జ్యాలకు కూడా దేశాంతరం కలుపు", dayH: "పగటి హోరాలు", nightH: "రాత్రి హోరాలు",
+    adjAll: "తిథి, నక్షత్ర, వర్జ్యాలకు కూడా దేశాంతరం కలుపు", dayH: "పగటి హోరలు", nightH: "రాత్రి హోరలు",
     lordH: "హోరాధిపతి", starts: "ప్రారంభం", ends: "ముగింపు", now: "ఇప్పుడు", night: "రాత్రి",
-    calc: "తంగిరాల ప్రకారం", entered: "మీరు మార్చినది",
-    dayLen: "పగటి కాలం", dayHora: "పగటి హోరా", nightHora: "రాత్రి హోరా", curHora: "ప్రస్తుత హోరా", notIn: "ఈ పట్టికలో లేదు",
+    calc: "లెక్కించినది", entered: "మీరు మార్చినది",
+    dayLen: "పగటి కాలం", dayHora: "పగటి హోర", nightHora: "రాత్రి హోర", curHora: "ప్రస్తుత హోర", notIn: "ఈ పట్టికలో లేదు",
     noVarj: "వర్జ్యం లేదు", pending: "అమలు చేయడానికి ‘మళ్ళీ లెక్కించు’ నొక్కండి", nearest: " · మీకు దగ్గరలో",
     errFill: "తేదీ, సూర్యోదయం, సూర్యాస్తమయం, దేశాంతరం నింపండి.", errSet: "సూర్యాస్తమయం సూర్యోదయం తరువాత ఉండాలి. AM/PM సరిచూడండి.",
     noteTitle: "దేశాంతర కాలము:",
     note: "సూర్యోదయ, సూర్యాస్తమయములందు ఆయా పట్టణములకు గల దేశాంతర నిమిషములను సంస్కరించుకొనవలెను. ఉదాహరణకు రాజమండ్రికి ఏప్రిల్ 11వ తేదీ వృషభ లగ్నము ఉదయము గం॥ 8.40 ని॥లు శుభ ముహూర్త కాలము. అయితే విశాఖపట్టణమునకు +6 అనగా 8.34 ని॥లు అగును. హైదరాబాద్‌నకు –13 ని॥లు. అనగా 8.53 ని॥లు అగును. (గుర్తులు “+” అనగా ముందు, “–” అనగా ఆలస్యము అని గ్రహించవలెను.)",
-    vara: (v, l) => `వారం: <b>${v}</b> · మొదటి హోరా ${l}`,
-    till: (t) => `<span class="when">${t}</span> వరకు`,
-    allDay: (t) => `రోజంతా · <span class="when">${t}</span> వరకు`,
+    vara: (v, l) => `వారం: <b>${v}</b> · మొదటి హోర ${l}`,
+    till: (t) => `<span class="when">${t}</span>`,
+    purti: "పూర్తి",
     range: (a, b) => `సూర్యోదయం నుండి సూర్యోదయం · ${a} – ${b}`,
     book: (a) => `పుస్తకంలో ${a} ని॥`, bookYou: (a, b) => `పుస్తకంలో ${a}, మీరు ${b}`,
     rel: (v) => v === 0 ? "రాజమండ్రి సమయమే" : `రాజమండ్రి కంటే ${Math.abs(v)} ని॥ ${v > 0 ? "ముందు" : "ఆలస్యం"}`,
     hm: (h, m) => `${h} గం ${m} ని`, ms: (m, s) => `${m} ని ${s} సె`,
     curTill: (l, t) => `${l} · ${t} వరకు`,
-    cardLbl: (day, n) => `ప్రస్తుత హోరా · ${day ? "పగటి" : "రాత్రి"} హోరా ${n}`,
-    cardPrev: (n) => `ప్రస్తుత హోరా · నిన్నటి రాత్రి హోరా ${n}`,
+    cardLbl: (day, n) => `ప్రస్తుత హోర · ${day ? "పగటి" : "రాత్రి"} హోర ${n}`,
+    cardPrev: (n) => `ప్రస్తుత హోర · నిన్నటి రాత్రి హోర ${n}`,
     next: (l, t) => `తరువాత: <b>${l}</b> ${t} నుండి`,
-    todayFrom: (t) => `నేటి హోరాలు ${t} నుండి`,
+    todayFrom: (t) => `నేటి హోరలు ${t} నుండి`,
     liveIn: (list) => `ఇప్పుడు ${list.join(", ")}`,
+    horaNo: (day, n) => `${day ? "పగటి" : "రాత్రి"} హోర ${n}`, horaL: "హోర", taraL: "తార", clean: "దుర్ముహూర్తం, వర్జ్యం లేవు",
+    goodTitle: "శుభ సమయాలు", noGood: "ఈ రోజు శుభ సమయాలు లేవు", goodNow: "శుభ సమయం",
+    goodRule: "గురు, శుక్ర, బుధ, చంద్ర హోరలు · దుర్ముహూర్తం, వర్జ్యం లేని సమయం · తారాబలం 2, 4, 6, 8, 9",
+    needJanma: "తారాబలం కూడా చూడాలంటే క్రింద జన్మ నక్షత్రం ఎంచుకోండి.",
+    goodTotalF: (n, m) => `${n} సమయాలు · మొత్తం ${Math.floor(m / 60)} గం ${pad(Math.round(m % 60))} ని`,
+    minsF: (m) => `${Math.round(m)} ని`,
+    tenDays: "రాబోయే 10 రోజుల పంచాంగం", srS: "సూ.ఉ", ssS: "సూ.అ", varaS: ["ఆది", "సోమ", "మంగళ", "బుధ", "గురు", "శుక్ర", "శని"], today: "ఈ రోజు",
+    taraTitle: "తారాబలం", janma: "జన్మ నక్షత్రం", choose: "ఎంచుకోండి", taraHint: "జన్మ నక్షత్రం ఎంచుకుంటే, ఈ రోజు నక్షత్రాలకు తారాబలం చూపుతుంది.",
+    good: "మంచిది", bad: "చెడ్డది", avoid: "పూర్తిగా విసర్జించాలి", masa: "మాసఫలము",
+    horaRef: "హోరాధిపతులు - ఫలితములు", taraRef: "తారలు, అధిపతులు - శాంతులు", masaRef: "మాసఫలము జూచు క్రమము",
+    count: (n, nav) => `జన్మ నక్షత్రం నుండి ${n}వ నక్షత్రం · ${nav}వ నవకం`,
+    padyami: (d, t, nk) => `శుద్ధ పాడ్యమి ప్రవేశం ${d} ${t} · ${nk} నక్షత్రం`,
   },
   en: {
     title: "Daily Hora Chart", date: "Date", town: "Your town", offset: "Offset from Rajahmundry (min)", recalc: "Recalculate",
@@ -466,7 +680,7 @@ const I18N = {
     panch: "Panchangam", tithi: "Tithi", nak: "Nakshatra", varj: "Varjyam", dur: "Durmuhurtham",
     adjAll: "Apply the town offset to tithi, nakshatra and Varjyam too", dayH: "Day horas", nightH: "Night horas",
     lordH: "Hora lord", starts: "Starts", ends: "Ends", now: "Now", night: "night",
-    calc: "As per Tangirala", entered: "Entered by you",
+    calc: "Calculated", entered: "Entered by you",
     dayLen: "Day length", dayHora: "Day hora", nightHora: "Night hora", curHora: "Current hora", notIn: "Not in this chart",
     noVarj: "No Varjyam today", pending: "Press Recalculate to apply", nearest: " · nearest to you",
     errFill: "Fill in the date, sunrise, sunset and town offset.", errSet: "Sunset must be later than sunrise. Check the AM/PM on the sunset time.",
@@ -474,7 +688,7 @@ const I18N = {
     note: "Apply each town’s desantara (time-difference) minutes to sunrise and sunset. For example, on 11 April the auspicious muhurtham in Vrishabha lagna at Rajahmundry is at 8:40 in the morning. For Visakhapatnam, +6 makes it 8:34. For Hyderabad, −13 makes it 8:53. (The sign “+” means earlier and “−” means later.)",
     vara: (v, l) => `Vara: <b>${v}</b> · first hora ${l}`,
     till: (t) => `till <span class="when">${t}</span>`,
-    allDay: (t) => `all day, till <span class="when">${t}</span>`,
+    purti: "all day",
     range: (a, b) => `sunrise to sunrise · ${a} – ${b}`,
     book: (a) => `Book offset ${a} min`, bookYou: (a, b) => `Book offset ${a}, you set ${b}`,
     rel: (v) => v === 0 ? "Same as Rajahmundry" : `${Math.abs(v)} min ${v > 0 ? "earlier" : "later"} than Rajahmundry`,
@@ -485,11 +699,30 @@ const I18N = {
     next: (l, t) => `Next: <b>${l}</b> from ${t}`,
     todayFrom: (t) => `Today's horas start at ${t}`,
     liveIn: (list) => `Now in ${list.join(" and ")}`,
+    horaNo: (day, n) => `${day ? "day" : "night"} hora ${n}`, horaL: "Hora", taraL: "Tara", clean: "No Durmuhurtham or Varjyam",
+    goodTitle: "Good times", noGood: "No good times today", goodNow: "Good time",
+    goodRule: "Guru, Sukra, Budha or Chandra hora · no Durmuhurtham or Varjyam · tarabalam 2, 4, 6, 8, 9",
+    needJanma: "Choose a birth nakshatra below to include tarabalam too.",
+    goodTotalF: (n, m) => `${n} windows · ${Math.floor(m / 60)}h ${pad(Math.round(m % 60))}m in all`,
+    minsF: (m) => `${Math.round(m)} min`,
+    tenDays: "Panchangam for the next 10 days", srS: "Sunrise", ssS: "Sunset", varaS: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], today: "Today",
+    taraTitle: "Tarabalam", janma: "Birth nakshatra", choose: "Choose…", taraHint: "Choose a birth nakshatra to see the tara for each of today's nakshatras.",
+    good: "Good", bad: "Bad", avoid: "Avoid completely", masa: "Month's result",
+    horaRef: "Hora lords – results", taraRef: "Taras, lords – remedies", masaRef: "How to see the month's result",
+    count: (n, nav) => `${n}${["th","st","nd","rd"][(n % 100 > 10 && n % 100 < 14) ? 0 : (n % 10 < 4 ? n % 10 : 0)]} from birth nakshatra · set ${nav} of 3`,
+    padyami: (d, t, nk) => `Shukla Padyami began ${d} ${t} in ${nk}`,
   },
 };
 let LANG = "te";
 const L = () => I18N[LANG];
 const lordName = (l) => (LANG === "te" ? l.te : l.n);
+// Short labels for hora lords: first syllable in Telugu, two letters in English (Sk for Sukra, since Surya is Su)
+const ABBR = { te: ["సూ", "శు", "బు", "చం", "శ", "గు", "కు"], en: ["Su", "Sk", "Bu", "Ch", "Sa", "Gu", "Ku"] };
+const abbr = (l) => ABBR[LANG][LORDS.indexOf(l)];
+// Guru and Sukra horas are good; Sani and Kuja horas are bad; others neutral
+const QUAL = ["", "good", "", "", "bad", "good", "bad"];
+const qual = (l) => QUAL[LORDS.indexOf(l)];
+const qualChip = (l) => qual(l) ? `<span class="chip ${qual(l)}">${qual(l) === "good" ? L().good : L().bad}</span>` : "";
 const nakName = (i) => NAK[i][LANG === "te" ? 1 : 0];
 function tithiName(i) {
   const te = LANG === "te";
@@ -503,11 +736,62 @@ function applyLang() {
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = L()[el.dataset.i18n]; });
   $("lang").value = LANG;
   fillTowns();
+  fillJanma();
+  buildRefs();
   markManual();
   pendingState();
 }
+let janma = -1;
+function fillJanma() {
+  const sel = $("janma");
+  sel.innerHTML = `<option value="-1">${L().choose}</option>` + NAK.map((n, i) => `<option value="${i}">${nakName(i)}</option>`).join("");
+  sel.value = String(janma);
+}
+function buildRefs() {
+  const k = LANG;
+  $("horaRefBody").innerHTML = HORA_INTRO[k].map((p) => `<p class="muted">${p}</p>`).join("") +
+    HORA_BOOK_ORDER.map((i, n) => `<p><b>${n + 1}. ${HORA_TITLE[k][i]} :</b> ${HORA_FX[k][i]}</p>`).join("");
+  $("taraRefBody").innerHTML = `<p class="muted">${TARA_INTRO[k]}</p>` +
+    TARA_NAME[k].map((t, i) => `<p><b>${i + 1}. ${t} :-</b> ${TARA_FX[k][i]}</p>`).join("") +
+    `<p>${TARA_RULE[k]}</p><p><b>10. ${L().masaRef} :-</b> ${MASA_RULE[k]}</p>`;
+}
+function taraOf(nak) {
+  const n = ((nak - janma + 27) % 27) + 1, t = (n - 1) % 9, nav = Math.ceil(n / 9);
+  const avoid = t === 6 || (t === 0 && nav === 1) || (t === 2 && nav === 2) || (t === 4 && nav === 3);
+  return { n, t, nav, avoid };
+}
+function renderTara(r) {
+  const body = $("taraBody");
+  if (janma < 0) { body.innerHTML = `<div class="hint">${L().taraHint}</div>`; return; }
+  const riseRef = r.base + r.sunrise * 60000, nextRiseRef = riseRef + 1440 * 60000;
+  const shift = $("adjAll").checked ? r.off : 0;
+  const toLocal = (ms) => (ms - r.base) / 60000 + shift;
+  const naks = PJ.segments(PJ.nakPos, riseRef, nextRiseRef, 27);
+  let html = naks.map((s) => {
+    const x = taraOf(s.index), good = TARA_GOOD[x.t];
+    return `<div class="tara-item">
+      <div class="tara-top"><b>${nakName(s.index)}</b>${L().till(shortHTML(toLocal(s.end)))}<span class="arrow">→</span><b>${TARA_NAME[LANG][x.t]}</b>
+        <span class="chip ${good ? "good" : "bad"}">${good ? L().good : L().bad}</span>${x.avoid ? `<span class="chip bad">${L().avoid}</span>` : ""}</div>
+      <div class="fx">${TARA_FX[LANG][x.t]}</div>
+      <div class="meta">${L().count(x.n, x.nav)}</div>
+    </div>`;
+  }).join("");
+  // Month's result: nakshatra at the start of this month's Shukla Padyami, counted to the birth nakshatra
+  const ts = PJ.segments(PJ.tithiPos, riseRef - 31 * 86400000, riseRef, 30).filter((s) => s.index === 0 && s.start <= riseRef);
+  if (ts.length) {
+    const st = ts[ts.length - 1].start;
+    const k = Math.floor(PJ.nakPos(st + 60000)) % 27;
+    const rem = (((janma - k + 27) % 27) + 1) % 9 || 9;
+    const p = istParts(st), tmin = ((st + IST * 60000) % 86400000) / 60000;
+    html += `<div class="tara-item">
+      <div class="tara-top"><span class="eyebrow">${L().masa}</span><b>${rem}. ${MASA_FX[LANG][rem - 1]}</b><span class="chip ${MASA_GOOD[rem - 1] ? "good" : "bad"}">${MASA_GOOD[rem - 1] ? L().good : L().bad}</span></div>
+      <div class="meta">${L().padyami(`${pad(p.D)}/${pad(p.M)}`, bareTime(tmin), nakName(k))}</div>
+    </div>`;
+  }
+  body.innerHTML = html;
+}
 
-// Rajahmundry as computed by Tangirala: these effective coordinates reproduce the book's printed sunrise/sunset (within 2 min, Oct 2026 - Apr 2027)
+// Effective coordinates that reproduce the almanac's printed Rajahmundry sunrise/sunset (within 2 min, Oct 2026 - Apr 2027)
 const REF = { lat: 17.50, lon: 82.45 };
 const IST = 330;
 
@@ -521,7 +805,7 @@ const hhmm = (min) => { const r = Math.round(min); return `${pad(Math.floor(r / 
 
 let manual = { sunrise: false, sunset: false };
 
-// Tangirala "Desantara kalamu": minutes from Rajahmundry (+ earlier, - later), Telugu name as printed, approximate coordinates
+// "Desantara kalamu": minutes from Rajahmundry (+ earlier, - later), Telugu name as printed, approximate coordinates
 const TOWNS = [
   ["Rajahmundry", "రాజమండ్రి", 0, 17.00, 81.80],
   ["Adilabad", "ఆదిలాబాద్", -13, 19.66, 78.53], ["Adoni", "ఆదోని", -18, 15.63, 77.27], ["Agra", "ఆగ్రా", -14, 27.18, 78.01],
@@ -601,6 +885,7 @@ function nearestTown(lat, lon) {
 }
 function loadPrefs() {
   try { const l = localStorage.getItem("hora-lang"); if (l === "en" || l === "te") LANG = l; } catch (e) {}
+  try { const j = parseInt(localStorage.getItem("hora-janma"), 10); if (j >= 0 && j < 27) janma = j; } catch (e) {}
   applyLang();
   let s = null;
   try { s = JSON.parse(localStorage.getItem("hora-place") || "null"); } catch (e) {}
@@ -626,6 +911,7 @@ function save() {
     localStorage.setItem("hora-place", JSON.stringify({ city: +$("city").value, offset: appliedOffset }));
     localStorage.setItem("hora-inputs", JSON.stringify({ adjAll: $("adjAll").checked }));
     localStorage.setItem("hora-lang", LANG);
+    localStorage.setItem("hora-janma", String(janma));
   } catch (e) {}
 }
 
@@ -656,14 +942,34 @@ function fmt(mins, withSec) {
   const s = ((totalSec % 86400) + 86400) % 86400;
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
   const h12 = ((h + 11) % 12) + 1, ap = h < 12 ? "AM" : "PM";
-  return { hm: `${pad(h12)}:${pad(m)}`, sec: pad(sec), ap, shift: dayShift };
+  return { hm: `${pad(h12)}:${pad(m)}`, sec: pad(sec), ap, shift: dayShift, mod: s / 60, te: `${h12}.${pad(m)}` };
 }
-const shiftHTML = (f) => f.shift > 0 ? `<span class="plus">+${f.shift}</span>` : f.shift < 0 ? `<span class="plus">${f.shift}</span>` : "";
-function timeHTML(mins) { const f = fmt(mins, true); return `${f.hm}<span class="s">:${f.sec}</span> <span class="s">${f.ap}</span>${shiftHTML(f)}`; }
-function shortHTML(mins) { const f = fmt(mins, false); return `${f.hm} ${f.ap}${shiftHTML(f)}`; }
-function plain(mins) { const f = fmt(mins, true); return `${f.hm}:${f.sec} ${f.ap}${f.shift > 0 ? " (+1)" : ""}`; }
-function plainShort(mins) { const f = fmt(mins, false); return `${f.hm} ${f.ap}${f.shift > 0 ? " (+1)" : ""}`; }
-const bareTime = (mins) => { const f = fmt(mins, false); return `${f.hm} ${f.ap}`; };
+// Telugu almanac style: తె. before sunrise, ఉ. morning, ప. afternoon, సా. evening, రా. night
+let TE_SUNRISE = 375;
+function tePre(mod) {
+  if (mod < 180) return "రా.";
+  if (mod < TE_SUNRISE) return "తె.";
+  if (mod < 720) return "ఉ.";
+  if (mod < 960) return "ప.";
+  if (mod < 1140) return "సా.";
+  return "రా.";
+}
+// "+1" only for times past the next sunrise (a time before it belongs to the same Hindu day)
+const teShift = (f) => (f.shift > 0 && f.mod >= TE_SUNRISE) || f.shift > 1 ? ` <span class="plus">(+${f.shift})</span>` : f.shift < 0 ? ` <span class="plus">(${f.shift})</span>` : "";
+const isTe = () => LANG === "te";
+function rangeHTML(a, b, bare) {
+  if (!isTe()) return bare ? `${bareTime(a)} – ${bareTime(b)}` : `${shortHTML(a)} – ${shortHTML(b)}`;
+  const fa = fmt(a, false), fb = fmt(b, false), pa = tePre(fa.mod), pb = tePre(fb.mod);
+  return `${pa}\u00a0${fa.te}${bare ? "" : teShift(fa)} ల ${fb.te}${bare ? "" : teShift(fb)}`;
+}
+const shiftHTML = (f) => f.shift > 0 ? ` <span class="plus">(+${f.shift})</span>` : f.shift < 0 ? ` <span class="plus">(${f.shift})</span>` : "";
+function timeHTML(mins) { const f = fmt(mins, true); return isTe() ? `${tePre(f.mod)}\u00a0${f.te}<span class="s">:${f.sec}</span>${teShift(f)}` : `${f.hm}<span class="s">:${f.sec}</span> <span class="s">${f.ap}</span>${shiftHTML(f)}`; }
+function shortHTML(mins) { const f = fmt(mins, false); return isTe() ? `${tePre(f.mod)}\u00a0${f.te}${teShift(f)}` : `${f.hm} ${f.ap}${shiftHTML(f)}`; }
+const teShiftText = (f) => (f.shift > 0 && f.mod >= TE_SUNRISE) || f.shift > 1 ? `\u00a0(+${f.shift})` : "";
+function plain(mins) { const f = fmt(mins, true); return isTe() ? `${tePre(f.mod)}\u00a0${f.te}:${f.sec}${teShiftText(f)}` : `${f.hm}:${f.sec} ${f.ap}${f.shift > 0 ? " (+1)" : ""}`; }
+function plainShort(mins) { const f = fmt(mins, false); return isTe() ? `${tePre(f.mod)}\u00a0${f.te}${teShiftText(f)}` : `${f.hm} ${f.ap}${f.shift > 0 ? " (+1)" : ""}`; }
+const bandTime = (mins) => { const f = fmt(mins, false); return isTe() ? f.te : f.hm.replace(/^0/, ""); };
+const bareTime = (mins) => { const f = fmt(mins, false); return isTe() ? `${tePre(f.mod)}\u00a0${f.te}` : `${f.hm} ${f.ap}`; };
 function dur(mins) { const s = Math.round(mins * 60); return L().ms(Math.floor(s / 60), pad(s % 60)); }
 
 function compute() {
@@ -686,6 +992,15 @@ function compute() {
   return { ...d, wd, sunrise, sunset, off, dayHora, nightHora, dayLen, nightLen, horas, base: istMidnight(d.Y, d.M, d.D) };
 }
 
+// Book convention: list what ends before the next sunrise; if nothing ends, the running one is "purti" (all day)
+function bookList(segs, dayEndMs) {
+  const ending = segs.filter((s) => s.end < dayEndMs);
+  return ending.length ? ending.map((s) => ({ s, purti: false })) : [{ s: segs[0], purti: true }];
+}
+function bookSpan(x, toLocal) {
+  return x.purti ? `<span class="when">${L().purti}</span>` : L().till(shortHTML(toLocal(x.s.end)));
+}
+
 function panchangam(r) {
   const riseRef = r.base + r.sunrise * 60000;            // reference (unadjusted) sunrise
   const nextRiseRef = riseRef + 1440 * 60000;
@@ -696,12 +1011,8 @@ function panchangam(r) {
 
   const tithis = PJ.segments(PJ.tithiPos, riseRef, nextRiseRef, 30);
   const naks = PJ.segments(PJ.nakPos, riseRef, nextRiseRef, 27);
-  const span = (seg) => {
-    const whole = (seg.start - r.base) / 60000 <= fromRise && (seg.end - r.base) / 60000 >= toRise;
-    return (whole ? L().allDay : L().till)(shortHTML(toLocal(seg.end)));
-  };
-  $("pTithi").innerHTML = tithis.map((s) => `<div class="item"><span class="name">${tithiName(s.index)}</span>${span(s)}</div>`).join("");
-  $("pNak").innerHTML = naks.map((s) => `<div class="item"><span class="name">${nakName(s.index)}</span>${span(s)}</div>`).join("");
+  $("pTithi").innerHTML = bookList(tithis, nextRiseRef).map((x) => `<div class="item"><span class="name">${tithiName(x.s.index)}</span>${bookSpan(x, toLocal)}</div>`).join("");
+  $("pNak").innerHTML = bookList(naks, nextRiseRef).map((x) => `<div class="item"><span class="name">${nakName(x.s.index)}</span>${bookSpan(x, toLocal)}</div>`).join("");
 
   // Varjyam periods that start between this sunrise and the next (also check the nakshatra that follows)
   const nakList = naks.slice();
@@ -712,7 +1023,7 @@ function panchangam(r) {
   $("pVarj").innerHTML = varj.length ? varj.map((v) => {
     const a = toLocal(v.start), b = toLocal(v.end), isLive = now >= a && now < b;
     if (isLive) live.push(L().varj);
-    return `<div class="item"><span class="when">${shortHTML(a)} – ${shortHTML(b)}</span><span class="te">${nakName(v.nak)}</span>${isLive ? `<span class="chip live">${L().now}</span>` : ""}</div>`;
+    return `<div class="item"><span class="when">${rangeHTML(a, b)}</span><span class="te">${nakName(v.nak)}</span>${isLive ? `<span class="chip live">${L().now}</span>` : ""}</div>`;
   }).join("") : `<div class="item empty">${L().noVarj}</div>`;
 
   // Durmuhurtham uses the adjusted sunrise/sunset, like the horas
@@ -721,7 +1032,7 @@ function panchangam(r) {
   $("pDur").innerHTML = dm.map((x) => {
     const a = (x.start - r.base) / 60000, b = (x.end - r.base) / 60000, isLive = now >= a && now < b;
     if (isLive) live.push(L().dur);
-    return `<div class="item"><span class="when">${shortHTML(a)} – ${shortHTML(b)}</span>${x.night ? `<span class="te">${L().night}</span>` : ""}${isLive ? `<span class="chip avoid">${L().now}</span>` : ""}</div>`;
+    return `<div class="item"><span class="when">${rangeHTML(a, b)}</span>${x.night && !isTe() ? `<span class="te">${L().night}</span>` : ""}${isLive ? `<span class="chip avoid">${L().now}</span>` : ""}</div>`;
   }).join("");
 
   $("panchRange").textContent = L().range(plainShort(r.sunrise + r.off), plainShort(r.sunrise + r.off + 1440));
@@ -729,9 +1040,9 @@ function panchangam(r) {
 }
 
 function rowHTML(h, cur) {
-  return `<tr class="${cur ? "cur" : ""}">
+  return `<tr class="${cur ? "cur" : ""} ${qual(h.lord)}">
     <td class="n">${h.isDay ? h.i + 1 : h.i - 11}</td>
-    <td><span class="lord"><span class="glyph">${h.lord.g}</span><b>${lordName(h.lord)}</b>${LANG === "en" ? `<em>${h.lord.e}</em>` : ""}${cur ? `<span class="tag">${L().now}</span>` : ""}</span></td>
+    <td><span class="lord"><span class="glyph">${abbr(h.lord)}</span><b>${lordName(h.lord)}</b>${LANG === "en" ? `<em>${h.lord.e}</em>` : ""}${cur ? `<span class="tag">${L().now}</span>` : ""}</span></td>
     <td class="t">${timeHTML(h.start)}</td>
     <td class="t">${timeHTML(h.end)}</td>
   </tr>`;
@@ -745,34 +1056,44 @@ function render() {
   msg.hidden = true;
   save();
 
+  TE_SUNRISE = r.sunrise + r.off;
   const now = (Date.now() - r.base) / 60000;
   const curIdx = r.horas.findIndex((h) => now >= h.start && now < h.end);
   $("vara").innerHTML = L().vara(VARA[LANG][r.wd], lordName(r.horas[0].lord));
 
   let live = [];
   try { live = panchangam(r); } catch (e) { console.error(e); }
+  try { renderTara(r); } catch (e) { console.error(e); }
+  try { renderDays(); } catch (e) { console.error(e); }
 
   const cur = curIdx >= 0 ? r.horas[curIdx] : null;
   const card = $("nowCard");
   if (cur) {
     const nx = r.horas[curIdx + 1];
-    card.innerHTML = `<div class="big-glyph" aria-hidden="true">${cur.lord.g}</div>
+    card.className = "now-card " + qual(cur.lord);
+    card.innerHTML = `<div class="big-glyph" aria-hidden="true">${abbr(cur.lord)}</div>
       <div class="lbl">${L().cardLbl(cur.isDay, cur.isDay ? cur.i + 1 : cur.i - 11)}</div>
-      <div class="main">${lordName(cur.lord)} <span class="when">${shortHTML(cur.start)} – ${shortHTML(cur.end)}</span></div>
-      <div class="sub">${nx ? `<span>${L().next(lordName(nx.lord), shortHTML(nx.start))}</span>` : ""}${live.length ? `<span class="warn">${L().liveIn(live)}</span>` : ""}</div>`;
+      <div class="main">${lordName(cur.lord)} ${qualChip(cur.lord)} <span class="when">${rangeHTML(cur.start, cur.end)}</span></div>
+      <div class="sub">${nx ? `<span>${L().next(lordName(nx.lord), shortHTML(nx.start))}</span>` : ""}${live.length ? `<span class="warn">${L().liveIn(live)}</span>` : ""}</div>
+      <div class="effect">${HORA_FX[LANG][LORDS.indexOf(cur.lord)]}</div>`;
     card.hidden = false;
   }
   // Before sunrise the current hora belongs to the previous day's chart
   const prev = cur ? null : prevChartNow(r);
   if (!cur) {
     if (prev) {
-      card.innerHTML = `<div class="big-glyph" aria-hidden="true">${prev.h.lord.g}</div>
+      card.className = "now-card " + qual(prev.h.lord);
+      card.innerHTML = `<div class="big-glyph" aria-hidden="true">${abbr(prev.h.lord)}</div>
         <div class="lbl">${L().cardPrev(prev.h.i - 11)}</div>
-        <div class="main">${lordName(prev.h.lord)} <span class="when">${bareTime(prev.h.start)} – ${bareTime(prev.h.end)}</span></div>
-        <div class="sub">${prev.nx ? `<span>${L().next(lordName(prev.nx.lord), bareTime(prev.nx.start))}</span>` : `<span>${L().todayFrom(shortHTML(r.horas[0].start))}</span>`}</div>`;
+        <div class="main">${lordName(prev.h.lord)} ${qualChip(prev.h.lord)} <span class="when">${rangeHTML(prev.h.start, prev.h.end, true)}</span></div>
+        <div class="sub">${prev.nx ? `<span>${L().next(lordName(prev.nx.lord), bareTime(prev.nx.start))}</span>` : `<span>${L().todayFrom(shortHTML(r.horas[0].start))}</span>`}</div>
+        <div class="effect">${HORA_FX[LANG][LORDS.indexOf(prev.h.lord)]}</div>`;
       card.hidden = false;
     } else card.hidden = true;
   }
+  let goodNow = false;
+  try { goodNow = renderGood(r); } catch (e) { console.error(e); }
+  if (goodNow && !card.hidden) { const sub = card.querySelector(".sub"); if (sub) sub.insertAdjacentHTML("afterbegin", `<span class="chip good">${L().goodNow}</span>`); }
   $("stats").innerHTML = `
     <div class="stat"><span>${L().dayLen}</span><b>${L().hm(Math.floor(r.dayLen / 60), pad(r.dayLen % 60))}</b></div>
     <div class="stat"><span>${L().dayHora}</span><b>${dur(r.dayHora)}</b></div>
@@ -780,14 +1101,153 @@ function render() {
     <div class="stat now"><span>${L().curHora}</span><b>${cur ? L().curTill(lordName(cur.lord), bareTime(cur.end)) : prev ? L().curTill(lordName(prev.h.lord), bareTime(prev.h.end)) : L().notIn}</b></div>`;
 
   $("band").innerHTML = r.horas.map((h, i) =>
-    `<div class="${h.isDay ? "d" : "n"}${i === curIdx ? " cur" : ""}" title="${lordName(h.lord)}: ${plain(h.start)} – ${plain(h.end)}">${h.lord.g}</div>`
+    `<div class="${h.isDay ? "d" : "n"} ${qual(h.lord)}${i === curIdx ? " cur" : ""}" title="${lordName(h.lord)}: ${plain(h.start)} – ${plain(h.end)}"><span>${abbr(h.lord)}</span><span class="bt">${bandTime(h.start)}</span></div>`
   ).join("");
+  // Vertical line at the current time (system clock), placed within its hora's segment
+  const nl = $("nowLine");
+  if (curIdx >= 0) {
+    const hc = r.horas[curIdx];
+    nl.style.left = ((curIdx + (now - hc.start) / (hc.end - hc.start)) * 100 / 24) + "%";
+    nl.hidden = false;
+  } else nl.hidden = true;
   $("bandLegend").innerHTML = `<span>${plainShort(r.horas[0].start)}</span><span>${plainShort(r.horas[12].start)}</span><span>${plainShort(r.horas[23].end)}</span>`;
 
   $("dayRange").textContent = `${plain(r.horas[0].start)} – ${plain(r.horas[11].end)}`;
   $("nightRange").textContent = `${plain(r.horas[12].start)} – ${plain(r.horas[23].end)}`;
   $("dayTbl").innerHTML = head() + "<tbody>" + r.horas.slice(0, 12).map((h) => rowHTML(h, h.i === curIdx)).join("") + "</tbody>";
   $("nightTbl").innerHTML = head() + "<tbody>" + r.horas.slice(12).map((h) => rowHTML(h, h.i === curIdx)).join("") + "</tbody>";
+}
+
+// ---------- Good times: good hora lord, no Durmuhurtham/Varjyam, good tara ----------
+const GOOD_HORA = [1, 2, 3, 5];          // Sukra, Budha, Chandra, Guru (index into LORDS)
+const GOOD_TARA = [1, 3, 5, 7, 8];       // taras 2, 4, 6, 8, 9 (0-based)
+// Tithis 2, 3, 5, 7, 10, 11, 13 of both pakshas, Shukla Chaturdashi, Purnima, Bahula Padyami (0 = Shukla Padyami)
+const GOOD_TITHI = [1, 2, 4, 6, 9, 10, 12, 13, 14, 15, 16, 17, 19, 21, 24, 25, 27];
+function goodWindows(r) {
+  const riseRef = r.base + r.sunrise * 60000, nextRiseRef = riseRef + 1440 * 60000;
+  const shift = $("adjAll").checked ? r.off : 0;
+  const toLocal = (ms) => (ms - r.base) / 60000 + shift;
+  const naks = PJ.segments(PJ.nakPos, riseRef, nextRiseRef, 27);
+  const last = naks[naks.length - 1];
+  const more = naks.concat(PJ.segments(PJ.nakPos, last.end + 60000, last.end + 120000, 27));
+  const bad = more.flatMap(PJ.varjyam).map((v) => [toLocal(v.start), toLocal(v.end)]);
+  const rise = r.base + (r.sunrise + r.off) * 60000, set = r.base + (r.sunset + r.off) * 60000;
+  PJ.durmuhurtham(r.wd, rise, set, rise + 1440 * 60000).forEach((x) => bad.push([(x.start - r.base) / 60000, (x.end - r.base) / 60000]));
+  if (janma >= 0) naks.forEach((s) => { if (!GOOD_TARA.includes(taraOf(s.index).t)) bad.push([toLocal(s.start), toLocal(s.end)]); });
+  const tithis = PJ.segments(PJ.tithiPos, riseRef, nextRiseRef, 30);
+  tithis.forEach((s) => { if (!GOOD_TITHI.includes(s.index)) bad.push([toLocal(s.start), toLocal(s.end)]); });
+  const out = [];
+  r.horas.forEach((hr) => {
+    if (!GOOD_HORA.includes(LORDS.indexOf(hr.lord))) return;
+    let segs = [[hr.start, hr.end]];
+    bad.forEach(([a, b]) => {
+      segs = segs.flatMap(([s, e]) => (b <= s || a >= e) ? [[s, e]] : [...(a > s ? [[s, a]] : []), ...(b < e ? [[b, e]] : [])]);
+    });
+    segs.filter(([s, e]) => e - s >= 5).forEach(([s, e]) => {
+      const mid = (s + e) / 2, nk = naks.find((x) => toLocal(x.start) <= mid && mid < toLocal(x.end));
+      const tt = tithis.find((x) => toLocal(x.start) <= mid && mid < toLocal(x.end));
+      out.push({ s, e, lord: hr.lord, i: hr.i, nak: nk ? nk.index : null, tithi: tt ? tt.index : null });
+    });
+  });
+  return out;
+}
+function tipHTML(w, r) {
+  const hr = r.horas[w.i], t = w.nak !== null && janma >= 0 ? taraOf(w.nak).t : null;
+  return `<div class="t">${rangeHTML(w.s, w.e)} · ${L().minsF(w.e - w.s)}</div>
+    <div>${L().horaL}: <b>${lordName(w.lord)}</b> (${L().horaNo(hr.isDay, hr.isDay ? hr.i + 1 : hr.i - 11)})</div>
+    ${w.tithi !== null ? `<div>${L().tithi}: <b>${tithiName(w.tithi)}</b></div>` : ""}
+    ${w.nak !== null ? `<div>${L().nak}: <b>${nakName(w.nak)}</b>${t !== null ? ` · ${L().taraL}: <b>${TARA_NAME[LANG][t]} (${t + 1})</b>` : ""}</div>` : ""}
+    <div>${L().clean}</div>
+    <div class="fx">${HORA_FX[LANG][LORDS.indexOf(w.lord)]}</div>`;
+}
+let pinnedBar = null;
+function showTip(bar) {
+  const tip = $("gtip"), wrap = $("bandWrap");
+  tip.innerHTML = bar.dataset.tip;
+  tip.hidden = false;
+  const wr = wrap.getBoundingClientRect(), br = bar.getBoundingClientRect();
+  const tw = tip.offsetWidth, centre = br.left - wr.left + br.width / 2;
+  tip.style.left = Math.max(0, Math.min(wr.width - tw, centre - tw / 2)) + "px";
+  document.querySelectorAll(".gbar.on").forEach((b) => b.classList.remove("on"));
+  bar.classList.add("on");
+}
+function hideTip() {
+  $("gtip").hidden = true;
+  document.querySelectorAll(".gbar.on").forEach((b) => b.classList.remove("on"));
+  pinnedBar = null;
+}
+let barsKey = "";
+function renderBars(list, r) {
+  // Rebuild only when the windows change, so an open tooltip survives the 30-second refresh
+  const key = [LANG, janma, r.base, list.map((w) => w.s.toFixed(2) + "-" + w.e.toFixed(2)).join(",")].join("|");
+  if (key === barsKey) return;
+  barsKey = key;
+  const W = 100 / 24;
+  $("gtrack").innerHTML = list.map((w, k) => {
+    const hr = r.horas[w.i], len = hr.end - hr.start;
+    const left = (w.i + (w.s - hr.start) / len) * W, width = ((w.e - w.s) / len) * W;
+    return `<button type="button" class="gbar" data-k="${k}" style="left:${left}%;width:${width}%" aria-label="${L().goodTitle} ${plainShort(w.s)} – ${plainShort(w.e)}"></button>`;
+  }).join("");
+  $("gtrack").querySelectorAll(".gbar").forEach((b) => {
+    const w = list[+b.dataset.k];
+    b.dataset.tip = tipHTML(w, r);
+    b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") showTip(b); });
+    b.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse" && pinnedBar !== b) hideTip(); });
+    b.addEventListener("focus", () => showTip(b));
+    b.addEventListener("blur", () => { if (pinnedBar !== b) hideTip(); });
+    b.addEventListener("click", (e) => { e.stopPropagation(); if (pinnedBar === b) { hideTip(); } else { showTip(b); pinnedBar = b; } });
+  });
+  hideTip();
+}
+document.addEventListener("click", (e) => { if (pinnedBar && !e.target.closest(".gtip")) hideTip(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") hideTip(); });
+
+function renderGood(r) {
+  const list = goodWindows(r), now = (Date.now() - r.base) / 60000;
+  renderBars(list, r);
+  return list.some((w) => now >= w.s && now < w.e);
+}
+
+// ---------- Next 10 days (calculated sunrise/sunset, current town offset) ----------
+function dayInfoHTML(Y, M, D, isToday) {
+  const base = istMidnight(Y, M, D), ev = PJ.sunEvents(Y, M, D, REF.lat, REF.lon);
+  const sr = Math.round((ev.rise - base) / 60000), ss = Math.round((ev.set - base) / 60000);
+  const off = -appliedOffset, shift = $("adjAll").checked ? off : 0;
+  const keepSunrise = TE_SUNRISE; TE_SUNRISE = sr + off;
+  const riseRef = base + sr * 60000, nextRef = riseRef + 1440 * 60000;
+  const toLocal = (ms) => (ms - base) / 60000 + shift;
+  const wd = new Date(Date.UTC(Y, M - 1, D)).getUTCDay();
+  const tithis = PJ.segments(PJ.tithiPos, riseRef, nextRef, 30);
+  const naks = PJ.segments(PJ.nakPos, riseRef, nextRef, 27);
+  const more = naks.concat(PJ.segments(PJ.nakPos, naks[naks.length - 1].end + 60000, naks[naks.length - 1].end + 120000, 27));
+  const varj = more.flatMap(PJ.varjyam).filter((v) => { const m = (v.start - base) / 60000; return m >= sr && m < sr + 1440; });
+  const rise = base + (sr + off) * 60000, set = base + (ss + off) * 60000;
+  const dm = PJ.durmuhurtham(wd, rise, set, rise + 1440 * 60000);
+  const row = (k, items) => `<div class="day-row"><span class="k">${k}</span><span class="v">${items.join("")}</span></div>`;
+  const html = `<div class="day${isToday ? " today" : ""}">
+    <div class="day-head"><b>${pad(D)}/${pad(M)} · ${L().varaS[wd]}${isToday ? ` · ${L().today}` : ""}</b>
+      <span class="sun">${isTe() ? `సూ.ఉ.\u00a0${fmt(sr + off).te} · సూ.అ.\u00a0${fmt(ss + off).te}` : `${L().srS} ${bareTime(sr + off)} · ${L().ssS} ${bareTime(ss + off)}`}</span></div>
+    ${row(L().tithi, bookList(tithis, nextRef).map((x) => `<span>${tithiName(x.s.index)} ${bookSpan(x, toLocal)}</span>`))}
+    ${row(L().nak, bookList(naks, nextRef).map((x) => `<span>${nakName(x.s.index)} ${bookSpan(x, toLocal)}</span>`))}
+    ${row(L().varj, varj.length ? varj.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noVarj}</span>`])}
+    ${row(L().dur, dm.map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span>${x.night && !isTe() ? ` <span class="meta">${L().night}</span>` : ""}</span>`))}
+  </div>`;
+  TE_SUNRISE = keepSunrise;
+  return html;
+}
+let daysKey = "";
+function renderDays() {
+  if (!$("daysRef").open) return;
+  const t = systemDate();
+  const key = [isoDate(t), appliedOffset, $("adjAll").checked, LANG].join("|");
+  if (key === daysKey) return;
+  daysKey = key;
+  let html = "";
+  for (let i = 0; i < 10; i++) {
+    const d = new Date(Date.UTC(t.Y, t.M - 1, t.D + i));
+    html += dayInfoHTML(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(), i === 0);
+  }
+  $("daysBody").innerHTML = html;
 }
 
 // Horas of the day before the selected date, from calculated sunrise/sunset, for the pre-sunrise "now" card
@@ -822,6 +1282,23 @@ function jumpToNow() {
   render();
 }
 
+// Detect a phone held sideways from the device itself, not the page frame
+function updateOrientation() {
+  let land = false;
+  try {
+    const t = screen.orientation && screen.orientation.type;
+    if (t) land = t.startsWith("landscape");
+    else if (typeof window.orientation === "number") land = Math.abs(window.orientation) === 90;
+    else land = window.innerWidth > window.innerHeight;
+  } catch (e) {}
+  const phone = Math.min(screen.width, screen.height) < 520;
+  document.documentElement.classList.toggle("land-phone", land && phone);
+}
+updateOrientation();
+try { screen.orientation && screen.orientation.addEventListener("change", updateOrientation); } catch (e) {}
+window.addEventListener("orientationchange", updateOrientation);
+window.addEventListener("resize", updateOrientation);
+
 loadPrefs();
 // Open on the device's own date
 $("date").value = isoDate(systemDate());
@@ -836,6 +1313,8 @@ $("offset").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.prev
 $("apply").addEventListener("click", applyOffset);
 $("city").addEventListener("change", () => { nearestNote = false; chooseTown(+$("city").value); render(); });
 $("adjAll").addEventListener("change", render);
+$("janma").addEventListener("change", () => { janma = +$("janma").value; render(); });
+$("daysRef").addEventListener("toggle", () => { try { renderDays(); } catch (e) { console.error(e); } });
 $("form").addEventListener("submit", (e) => e.preventDefault());
 $("today").addEventListener("click", () => {
   jumpToNow();

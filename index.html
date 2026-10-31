@@ -338,7 +338,6 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
       <div class="vara" id="vara"></div>
       <div class="btns">
         <button type="button" class="ghost" id="recalc" data-i18n="useCalc" hidden>లెక్కించిన సమయం వాడు</button>
-        <button type="button" id="today" data-i18n="jump">ప్రస్తుత హోర చూపు</button>
       </div>
     </div>
     <div id="msg" class="err" hidden></div>
@@ -1316,17 +1315,6 @@ $("adjAll").addEventListener("change", render);
 $("janma").addEventListener("change", () => { janma = +$("janma").value; render(); });
 $("daysRef").addEventListener("toggle", () => { try { renderDays(); } catch (e) { console.error(e); } });
 $("form").addEventListener("submit", (e) => e.preventDefault());
-$("today").addEventListener("click", () => {
-  jumpToNow();
-  const card = $("nowCard");
-  if (!card.hidden) { card.classList.remove("flash"); void card.offsetWidth; card.classList.add("flash"); }
-  const row = document.querySelector("tr.cur");
-  if (!row) return;
-  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // Scrolls where the page has its own scroll (desktop browsers); in the phone app the card above shows the hora instead
-  row.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
-  row.classList.remove("flash"); void row.offsetWidth; row.classList.add("flash");
-});
 $("recalc").addEventListener("click", () => { manual = { sunrise: false, sunset: false }; fillSun(); render(); });
 setInterval(render, 30000);
 </script>

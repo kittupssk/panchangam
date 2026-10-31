@@ -267,10 +267,10 @@ tr.bad .glyph { background: var(--warn-soft); border-color: var(--warn); color: 
   background: color-mix(in srgb, var(--good) 45%, transparent);
   border: 0; border-top: 9px solid var(--good); border-radius: 3px 3px 0 0;
 }
-.gbar:hover, .gbar.on { background: color-mix(in srgb, var(--good) 65%, transparent); }
+.gbar:hover, .gbar.on, .gbar.tip-src.on { background: color-mix(in srgb, var(--good) 65%, transparent); }
 .gbar:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
 .gtip {
-  position: absolute; top: calc(var(--bh) + 22px); z-index: 5; width: max-content; max-width: min(320px, 100%);
+  position: absolute; top: calc(var(--bh) + 22px); z-index: 6; width: max-content; max-width: min(320px, 100%);
   background: var(--surface); color: var(--ink); border: 1px solid var(--good); border-radius: 8px;
   padding: 10px 12px; font-size: 0.86rem; line-height: 1.6; box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
 }
@@ -283,16 +283,38 @@ tr.bad .glyph { background: var(--warn-soft); border-color: var(--warn); color: 
 /* Start time under each hora on wider screens */
 .band .bt { display: none; font: 500 0.6rem var(--font-mono); opacity: 0.85; letter-spacing: -0.02em; white-space: nowrap; }
 @media (min-width: 700px) {
-  .band-wrap { --bh: 50px; }
+  #bandWrap { --bh: 50px; }
   .band .bt { display: block; }
   .band div { font-size: 0.8rem; }
 }
 /* Phone turned sideways: band first, taller and easier to read */
 /* html.land-phone is set from the device's real orientation, which also works when the Claude app stretches the page to full height */
 html.land-phone header.top { order: -2; }
-html.land-phone .band-wrap { order: -1; --bh: 64px; }
+html.land-phone #bandWrap { order: -1; --bh: 64px; }
 html.land-phone .band .bt { display: block; font-size: 0.66rem; }
 html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.95rem; }
+/* 10-day rows: date on the left, mini hora band on the right */
+#daysBody { position: relative; }
+.drow { display: grid; grid-template-columns: 4.4rem minmax(0, 1fr); gap: 10px; align-items: end; padding: 8px 14px 10px; border-top: 1px solid var(--line); }
+.drow.today { background: color-mix(in srgb, var(--accent-soft) 60%, transparent); }
+.dlabel { display: grid; line-height: 1.25; cursor: pointer; padding-bottom: 2px; border-radius: 4px; }
+.dlabel b { font: 600 0.92rem var(--font-mono); }
+.dlabel span { font-size: 0.85rem; color: var(--muted); }
+.dlabel small { color: var(--accent); font-size: 0.72rem; font-weight: 600; }
+.dlabel.on, .dlabel:hover { color: var(--accent); }
+.dlabel:focus-visible, .band-wrap.mini .band:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.band-wrap.mini { --bh: 26px; padding-top: 9px; }
+.band-wrap.mini .band { cursor: pointer; }
+.band-wrap.mini .band.on { box-shadow: 0 0 0 2px var(--accent); }
+.band-wrap.mini .gtrack { height: calc(9px + var(--bh) + 2px); }
+.band-wrap.mini .gbar { border-top-width: 6px; }
+.band-wrap.mini .band div { font-size: 0.6rem; }
+.band-wrap.mini .band .bt { display: none !important; }
+.band-wrap.mini .nowline { height: calc(9px + var(--bh) + 4px); }
+@media (max-width: 520px) { .band-wrap.mini .band div { font-size: 0.5rem; letter-spacing: -0.04em; } .drow { grid-template-columns: 3.6rem minmax(0, 1fr); gap: 8px; padding-inline: 10px; } }
+.gtip.wide { max-width: min(380px, 100%); }
+.gtip .day { padding: 0; border: 0; background: none; gap: 4px; }
+.gtip .day-row { grid-template-columns: 6.5rem minmax(0, 1fr); }
 </style>
 
 <div class="wrap">
@@ -372,7 +394,7 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
 
   <div class="stats" id="stats"></div>
 
-  <div class="band-wrap" id="bandWrap">
+  <div class="band-wrap tip-host" id="bandWrap">
     <div class="band" id="band" aria-hidden="true"></div>
     <div class="gtrack" id="gtrack"></div>
     <div class="nowline" id="nowLine" hidden></div>
@@ -390,7 +412,7 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
     <div class="tbl-wrap"><table id="nightTbl"></table></div>
   </section>
 
-  <details class="ref" id="daysRef"><summary data-i18n="tenDays">రాబోయే 10 రోజుల పంచాంగం</summary><div class="days" id="daysBody"></div></details>
+  <details class="ref" id="daysRef"><summary data-i18n="tenDays">రాబోయే 10 రోజుల పంచాంగం</summary><div class="days tip-host" id="daysBody"></div></details>
   <details class="ref" id="horaRef"><summary data-i18n="horaRef">హోరాధిపతులు - ఫలితములు</summary><div class="ref-body" id="horaRefBody"></div></details>
   <details class="ref" id="taraRef"><summary data-i18n="taraRef">తారలు, అధిపతులు - శాంతులు</summary><div class="ref-body" id="taraRefBody"></div></details>
 
@@ -1159,21 +1181,49 @@ function tipHTML(w, r) {
     <div>${L().clean}</div>
     <div class="fx">${HORA_FX[LANG][LORDS.indexOf(w.lord)]}</div>`;
 }
-let pinnedBar = null;
-function showTip(bar) {
-  const tip = $("gtip"), wrap = $("bandWrap");
-  tip.innerHTML = bar.dataset.tip;
+// ---------- Tooltips (shared by the main band and the 10-day bands) ----------
+let pinned = null;
+function showTip(el) {
+  const host = el.closest(".tip-host"), tip = host && host.querySelector(":scope > .gtip");
+  if (!tip) return;
+  document.querySelectorAll(".gtip").forEach((t) => { if (t !== tip) t.hidden = true; });
+  document.querySelectorAll(".tip-src.on").forEach((b) => b.classList.remove("on"));
+  tip.innerHTML = el.dataset.tip;
+  tip.classList.toggle("wide", el.dataset.wide === "1");
   tip.hidden = false;
-  const wr = wrap.getBoundingClientRect(), br = bar.getBoundingClientRect();
-  const tw = tip.offsetWidth, centre = br.left - wr.left + br.width / 2;
-  tip.style.left = Math.max(0, Math.min(wr.width - tw, centre - tw / 2)) + "px";
-  document.querySelectorAll(".gbar.on").forEach((b) => b.classList.remove("on"));
-  bar.classList.add("on");
+  const hr = host.getBoundingClientRect(), er = el.getBoundingClientRect();
+  const tw = tip.offsetWidth, centre = er.left - hr.left + er.width / 2;
+  tip.style.left = Math.max(0, Math.min(hr.width - tw, centre - tw / 2)) + "px";
+  tip.style.top = (er.bottom - hr.top + 6) + "px";
+  el.classList.add("on");
 }
 function hideTip() {
-  $("gtip").hidden = true;
-  document.querySelectorAll(".gbar.on").forEach((b) => b.classList.remove("on"));
-  pinnedBar = null;
+  document.querySelectorAll(".gtip").forEach((t) => { t.hidden = true; });
+  document.querySelectorAll(".tip-src.on").forEach((b) => b.classList.remove("on"));
+  pinned = null;
+}
+function bindTips(container) {
+  container.querySelectorAll("[data-tip]").forEach((b) => {
+    b.classList.add("tip-src");
+    if (!b.matches("button")) b.tabIndex = 0;
+    b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") showTip(b); });
+    b.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse" && pinned !== b) hideTip(); });
+    b.addEventListener("focus", () => showTip(b));
+    b.addEventListener("blur", () => { if (pinned !== b) hideTip(); });
+    b.addEventListener("click", (e) => { e.stopPropagation(); if (pinned === b) hideTip(); else { showTip(b); pinned = b; } });
+  });
+}
+document.addEventListener("click", (e) => { if (pinned && !e.target.closest(".gtip")) hideTip(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") hideTip(); });
+
+// Green bars for good windows, positioned inside their hora segment
+function barsHTML(list, r) {
+  const W = 100 / 24;
+  return list.map((w, k) => {
+    const hr = r.horas[w.i], len = hr.end - hr.start;
+    const left = (w.i + (w.s - hr.start) / len) * W, width = ((w.e - w.s) / len) * W;
+    return `<button type="button" class="gbar" data-k="${k}" style="left:${left}%;width:${width}%" aria-label="${plainShort(w.s)} – ${plainShort(w.e)}"></button>`;
+  }).join("");
 }
 let barsKey = "";
 function renderBars(list, r) {
@@ -1181,25 +1231,12 @@ function renderBars(list, r) {
   const key = [LANG, janma, r.base, list.map((w) => w.s.toFixed(2) + "-" + w.e.toFixed(2)).join(",")].join("|");
   if (key === barsKey) return;
   barsKey = key;
-  const W = 100 / 24;
-  $("gtrack").innerHTML = list.map((w, k) => {
-    const hr = r.horas[w.i], len = hr.end - hr.start;
-    const left = (w.i + (w.s - hr.start) / len) * W, width = ((w.e - w.s) / len) * W;
-    return `<button type="button" class="gbar" data-k="${k}" style="left:${left}%;width:${width}%" aria-label="${L().goodTitle} ${plainShort(w.s)} – ${plainShort(w.e)}"></button>`;
-  }).join("");
-  $("gtrack").querySelectorAll(".gbar").forEach((b) => {
-    const w = list[+b.dataset.k];
-    b.dataset.tip = tipHTML(w, r);
-    b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") showTip(b); });
-    b.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse" && pinnedBar !== b) hideTip(); });
-    b.addEventListener("focus", () => showTip(b));
-    b.addEventListener("blur", () => { if (pinnedBar !== b) hideTip(); });
-    b.addEventListener("click", (e) => { e.stopPropagation(); if (pinnedBar === b) { hideTip(); } else { showTip(b); pinnedBar = b; } });
-  });
+  const track = $("gtrack");
+  track.innerHTML = barsHTML(list, r);
+  track.querySelectorAll(".gbar").forEach((b) => { b.dataset.tip = tipHTML(list[+b.dataset.k], r); });
+  bindTips(track);
   hideTip();
 }
-document.addEventListener("click", (e) => { if (pinnedBar && !e.target.closest(".gtip")) hideTip(); });
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") hideTip(); });
 
 function renderGood(r) {
   const list = goodWindows(r), now = (Date.now() - r.base) / 60000;
@@ -1207,7 +1244,20 @@ function renderGood(r) {
   return list.some((w) => now >= w.s && now < w.e);
 }
 
-// ---------- Next 10 days (calculated sunrise/sunset, current town offset) ----------
+// ---------- Next 10 days ----------
+// A day's chart from calculated sunrise/sunset and the current town offset (same shape as compute())
+function dayChart(Y, M, D) {
+  const base = istMidnight(Y, M, D), ev = PJ.sunEvents(Y, M, D, REF.lat, REF.lon);
+  const sunrise = Math.round((ev.rise - base) / 60000), sunset = Math.round((ev.set - base) / 60000);
+  const off = -appliedOffset, wd = new Date(Date.UTC(Y, M - 1, D)).getUTCDay();
+  const dayHora = (sunset - sunrise) / 12, nightHora = (1440 - (sunset - sunrise)) / 12, horas = [];
+  for (let i = 0; i < 24; i++) {
+    const isDay = i < 12;
+    const start = isDay ? sunrise + off + i * dayHora : sunset + off + (i - 12) * nightHora;
+    horas.push({ i, isDay, start, end: start + (isDay ? dayHora : nightHora), lord: LORDS[(VARA_START[wd] + i) % 7] });
+  }
+  return { Y, M, D, base, sunrise, sunset, off, wd, horas };
+}
 function dayInfoHTML(Y, M, D, isToday) {
   const base = istMidnight(Y, M, D), ev = PJ.sunEvents(Y, M, D, REF.lat, REF.lon);
   const sr = Math.round((ev.rise - base) / 60000), ss = Math.round((ev.set - base) / 60000);
@@ -1223,9 +1273,9 @@ function dayInfoHTML(Y, M, D, isToday) {
   const rise = base + (sr + off) * 60000, set = base + (ss + off) * 60000;
   const dm = PJ.durmuhurtham(wd, rise, set, rise + 1440 * 60000);
   const row = (k, items) => `<div class="day-row"><span class="k">${k}</span><span class="v">${items.join("")}</span></div>`;
-  const html = `<div class="day${isToday ? " today" : ""}">
+  const html = `<div class="day">
     <div class="day-head"><b>${pad(D)}/${pad(M)} · ${L().varaS[wd]}${isToday ? ` · ${L().today}` : ""}</b>
-      <span class="sun">${isTe() ? `సూ.ఉ.\u00a0${fmt(sr + off).te} · సూ.అ.\u00a0${fmt(ss + off).te}` : `${L().srS} ${bareTime(sr + off)} · ${L().ssS} ${bareTime(ss + off)}`}</span></div>
+      <span class="sun">${isTe() ? `సూ.ఉ. ${fmt(sr + off).te} · సూ.అ. ${fmt(ss + off).te}` : `${L().srS} ${bareTime(sr + off)} · ${L().ssS} ${bareTime(ss + off)}`}</span></div>
     ${row(L().tithi, bookList(tithis, nextRef).map((x) => `<span>${tithiName(x.s.index)} ${bookSpan(x, toLocal)}</span>`))}
     ${row(L().nak, bookList(naks, nextRef).map((x) => `<span>${nakName(x.s.index)} ${bookSpan(x, toLocal)}</span>`))}
     ${row(L().varj, varj.length ? varj.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noVarj}</span>`])}
@@ -1234,19 +1284,48 @@ function dayInfoHTML(Y, M, D, isToday) {
   TE_SUNRISE = keepSunrise;
   return html;
 }
-let daysKey = "";
+let daysKey = "", daysToday = null;
+function placeNowLine(line, r) {
+  const now = (Date.now() - r.base) / 60000, i = r.horas.findIndex((h) => now >= h.start && now < h.end);
+  if (i < 0) { line.hidden = true; return; }
+  const h = r.horas[i];
+  line.style.left = ((i + (now - h.start) / (h.end - h.start)) * 100 / 24) + "%";
+  line.hidden = false;
+}
 function renderDays() {
   if (!$("daysRef").open) return;
   const t = systemDate();
-  const key = [isoDate(t), appliedOffset, $("adjAll").checked, LANG].join("|");
-  if (key === daysKey) return;
+  const key = [isoDate(t), appliedOffset, $("adjAll").checked, LANG, janma].join("|");
+  if (key === daysKey) { if (daysToday) placeNowLine(daysToday.line, daysToday.r); return; }
   daysKey = key;
-  let html = "";
+  const keepSunrise = TE_SUNRISE;
+  const days = [];
   for (let i = 0; i < 10; i++) {
     const d = new Date(Date.UTC(t.Y, t.M - 1, t.D + i));
-    html += dayInfoHTML(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(), i === 0);
+    const Y = d.getUTCFullYear(), M = d.getUTCMonth() + 1, D = d.getUTCDate();
+    const r = dayChart(Y, M, D);
+    TE_SUNRISE = r.sunrise + r.off;
+    const list = goodWindows(r);
+    days.push({ r, list, info: dayInfoHTML(Y, M, D, i === 0), tips: list.map((w) => tipHTML(w, r)) });
   }
-  $("daysBody").innerHTML = html;
+  TE_SUNRISE = keepSunrise;
+  const body = $("daysBody");
+  body.innerHTML = days.map((x, i) => `<div class="drow${i === 0 ? " today" : ""}" data-i="${i}">
+      <div class="dlabel"><b>${pad(x.r.D)}/${pad(x.r.M)}</b><span>${L().varaS[x.r.wd]}</span>${i === 0 ? `<small>${L().today}</small>` : ""}</div>
+      <div class="band-wrap mini">
+        <div class="band">${x.r.horas.map((h) => `<div class="${h.isDay ? "d" : "n"} ${qual(h.lord)}"><span>${abbr(h.lord)}</span></div>`).join("")}</div>
+        <div class="gtrack">${barsHTML(x.list, x.r)}</div>
+        ${i === 0 ? `<div class="nowline" hidden></div>` : ""}
+      </div>
+    </div>`).join("") + `<div class="gtip" role="tooltip" hidden></div>`;
+  body.querySelectorAll(".drow").forEach((row) => {
+    const x = days[+row.dataset.i];
+    [row.querySelector(".dlabel"), row.querySelector(".band")].forEach((el) => { el.dataset.tip = x.info; el.dataset.wide = "1"; });
+    row.querySelectorAll(".gbar").forEach((b) => { b.dataset.tip = x.tips[+b.dataset.k]; });
+  });
+  bindTips(body);
+  daysToday = { r: days[0].r, line: body.querySelector(".nowline") };
+  if (daysToday.line) placeNowLine(daysToday.line, daysToday.r);
 }
 
 // Horas of the day before the selected date, from calculated sunrise/sunset, for the pre-sunrise "now" card

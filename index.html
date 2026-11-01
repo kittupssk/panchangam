@@ -323,7 +323,6 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
 .gtip .day-row { grid-template-columns: 6.5rem minmax(0, 1fr); }
 .gtip .chip { font-size: 0.6rem; padding: 1px 5px; vertical-align: middle; }
 #pasteText { width: 100%; min-height: 9rem; resize: vertical; font: 0.9rem/1.5 var(--font-te), var(--font-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
-#pasteText::placeholder { color: var(--muted); opacity: 0.75; }
 .paste-fmt { display: block; margin: 10px 0 6px; font-weight: 600; color: var(--ink); }
 #pasteText:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .paste-msg p { margin: 0; font-size: 0.88rem; }
@@ -799,8 +798,8 @@ const MASA_FX = {
 const MASA_GOOD = [true, true, false, true, true, true, false, true, true];
 
 // ---------- Language ----------
-// Sample shown in the empty paste box: the WhatsApp channel's layout (tests/sample-whatsapp.txt, trimmed).
-// The parser reads this Telugu layout, so the sample is the same in both languages.
+// Sample filled into the paste box, in the page's language: the WhatsApp channel's layout (tests/sample-whatsapp.txt,
+// trimmed) and its English translation. Both can be pasted over or edited in place; the parser reads either.
 const PASTE_SAMPLE = `శనివారం,అక్టోబర్.31,2026
 శ్రీ పరాభవ నామ సంవత్సరం
 ఆశ్వయుజ మాసం - బహుళ పక్షం
@@ -816,6 +815,22 @@ const PASTE_SAMPLE = `శనివారం,అక్టోబర్.31,2026
 యమగండ/కేతుకాలం:మ1.30-3.00
 సూర్యోదయం:6.00
 సూర్యాస్తమయం: 5.29`;
+const PASTE_SAMPLE_EN = `Saturday, October 31, 2026
+Parabhava samvatsaram
+Ashvayuja masam - Bahula paksham
+Tithi: Shashthi till 9:17 PM
+Nakshatra: Ardra till 12:04 PM
+Yogam: Siddha till 10:58 AM
+Karanam: Garaja till 10:30 AM
+Then Vanija till 9:17 PM
+Varjyam: 11:19 PM - 12:49 AM
+Durmuhurtham: 6:01 AM - 7:32 AM
+Amrutakalam: none
+Rahu kalam: 9:00 AM - 10:30 AM
+Yamagandam: 1:30 PM - 3:00 PM
+Sunrise: 6:00 AM
+Sunset: 5:29 PM`;
+const isPasteSample = (v) => [PASTE_SAMPLE, PASTE_SAMPLE_EN].some((x) => x.trim() === v.replace(/\r/g, "").trim());
 const I18N = {
   te: {
     title: "పంచాంగం - హోర చక్రం", date: "తేదీ", town: "మీ ఊరు", offset: "రాజమండ్రి నుండి దేశాంతరం (ని॥)", recalc: "మళ్ళీ లెక్కించు",
@@ -870,7 +885,8 @@ const I18N = {
     liveIn: (list) => `ఇప్పుడు ${list.join(", ")}`,
     horaNo: (day, n) => `${day ? "పగటి" : "రాత్రి"} హోర ${n}`, horaL: "హోర", taraL: "తార", clean: "దుర్ముహూర్తం, వర్జ్యం లేవు",
     pasteTitle: "ఆ రోజు పంచాంగం అతికించండి", pasteHint: "వాట్సాప్ ఛానెల్‌లోని ఆ రోజు పంచాంగం సందేశాన్ని పూర్తిగా ఇక్కడ అతికించి ‘వర్తింపజేయి’ నొక్కండి. ఆ తేదీకి లెక్కించిన విలువల బదులు ఇవే వాడబడతాయి.",
-    pasteFmt: "పెట్టెలో చూపిన నమూనాలో ఉన్న పంచాంగ సందేశాన్ని (వాట్సాప్ ఛానెల్ లేదా మరే చోటు నుండైనా) కాపీ చేసి ఇక్కడ అతికించండి:", pasteSample: PASTE_SAMPLE,
+    pasteFmt: "పెట్టెలోని నమూనా లాంటి పంచాంగ సందేశాన్ని (వాట్సాప్ ఛానెల్ లేదా మరే చోటు నుండైనా) కాపీ చేసి ఇక్కడ అతికించండి. లేదా నమూనాలోనే తేదీ, వివరాలు మార్చి ‘వర్తింపజేయి’ నొక్కండి:", pasteSample: PASTE_SAMPLE,
+    pasteIsSample: "ఇది నమూనా మాత్రమే. మీ సందేశాన్ని అతికించండి, లేదా నమూనాలో తేదీ, వివరాలు మార్చి ‘వర్తింపజేయి’ నొక్కండి.",
     pasteApply: "వర్తింపజేయి", pasteClear: "ఈ తేదీ వివరాలు తొలగించు", pasted: "అతికించినది", pastedChip: "అతికించిన వివరాలు",
     parsedOk: (d) => `${d} కి వివరాలు భద్రపరచబడ్డాయి:`, parseFail: "సందేశంలో తేదీ కనిపించలేదు. సందేశం మొత్తాన్ని అతికించండి.", cleared: "ఈ తేదీకి అతికించిన వివరాలు తొలగించబడ్డాయి. లెక్కించిన విలువలు చూపబడుతున్నాయి.",
     goodTitle: "శుభ సమయాలు", noGood: "ఈ రోజు శుభ సమయాలు లేవు", goodNow: "శుభ సమయం",
@@ -938,7 +954,8 @@ const I18N = {
     liveIn: (list) => `Now in ${list.join(" and ")}`,
     horaNo: (day, n) => `${day ? "day" : "night"} hora ${n}`, horaL: "Hora", taraL: "Tara", clean: "No Durmuhurtham or Varjyam",
     pasteTitle: "Paste the day's panchangam", pasteHint: "Paste the whole day's message from the WhatsApp channel and press Apply. For that date, the page uses these values instead of its own calculation.",
-    pasteFmt: "Copy a panchangam message laid out like the sample shown in the box (in Telugu, from the WhatsApp channel or any other source) and paste it here:", pasteSample: PASTE_SAMPLE,
+    pasteFmt: "Copy a panchangam message laid out like the sample in the box (from the WhatsApp channel or any other source) and paste it here. Or change the date and details in the sample itself and press Apply:", pasteSample: PASTE_SAMPLE_EN,
+    pasteIsSample: "This is only the sample. Paste your message, or change the date and details in the sample, then press Apply.",
     pasteApply: "Apply", pasteClear: "Clear pasted values for this date", pasted: "Pasted", pastedChip: "From pasted values",
     parsedOk: (d) => `Saved for ${d}:`, parseFail: "Couldn't find a date in the message. Please paste the whole message.", cleared: "Pasted values for this date removed. Showing calculated values.",
     goodTitle: "Good times", noGood: "No good times today", goodNow: "Good time",
@@ -976,7 +993,8 @@ function applyLang() {
   document.documentElement.lang = LANG;
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = L()[el.dataset.i18n]; });
   document.querySelectorAll("[data-i18n-html]").forEach((el) => { el.innerHTML = L()[el.dataset.i18nHtml]; });
-  $("pasteText").placeholder = L().pasteSample;
+  const box = $("pasteText");
+  if (!box.value.trim() || isPasteSample(box.value)) box.value = L().pasteSample;
   $("lang").value = LANG;
   fillTowns();
   fillJanma();
@@ -1419,21 +1437,30 @@ const PASTE_MONTHS = [
   ["అక్టోబర్", "అక్టోబరు", "october", "oct"], ["నవంబర్", "నవంబరు", "november", "nov"], ["డిసెంబర్", "డిసెంబరు", "december", "dec"],
 ];
 const PASTE_TITHI = [
-  [1, ["పాడ్యమి", "ప్రతిపత్", "ప్రతిపద", "పాడ్యమీ"]], [2, ["విదియ", "ద్వితీయ"]], [3, ["తదియ", "తృతీయ"]], [4, ["చవితి", "చతుర్థి"]],
-  [5, ["పంచమి"]], [6, ["షష్ఠి", "షష్టి"]], [7, ["సప్తమి"]], [8, ["అష్టమి"]], [9, ["నవమి"]], [10, ["దశమి"]],
-  [11, ["ఏకాదశి"]], [12, ["ద్వాదశి"]], [13, ["త్రయోదశి"]], [14, ["చతుర్దశి"]], [15, ["పౌర్ణమి", "పూర్ణిమ", "పౌర్ణిమ"]], [30, ["అమావాస్య", "అమావాశ్య"]],
+  [1, ["పాడ్యమి", "ప్రతిపత్", "ప్రతిపద", "పాడ్యమీ", "pratipada", "padyami", "prathama"]], [2, ["విదియ", "ద్వితీయ", "dwitiya", "dvitiya", "vidiya"]],
+  [3, ["తదియ", "తృతీయ", "tritiya", "tadiya", "thadiya"]], [4, ["చవితి", "చతుర్థి", "chaturthi", "chavithi", "chaviti"]],
+  [5, ["పంచమి", "panchami"]], [6, ["షష్ఠి", "షష్టి", "shashthi", "shashti", "sashti", "shasti"]], [7, ["సప్తమి", "saptami", "sapthami"]],
+  [8, ["అష్టమి", "ashtami"]], [9, ["నవమి", "navami"]], [10, ["దశమి", "dashami", "dasami"]], [11, ["ఏకాదశి", "ekadashi", "ekadasi"]],
+  [12, ["ద్వాదశి", "dwadashi", "dwadasi"]], [13, ["త్రయోదశి", "trayodashi", "trayodasi"]], [14, ["చతుర్దశి", "chaturdashi", "chaturdasi"]],
+  [15, ["పౌర్ణమి", "పూర్ణిమ", "పౌర్ణిమ", "purnima", "pournami", "pournima", "poornima"]], [30, ["అమావాస్య", "అమావాశ్య", "amavasya", "amavasai"]],
 ];
 const PASTE_NAK = [
-  [0, ["అశ్విని", "అశ్వని"]], [1, ["భరణి"]], [2, ["కృత్తిక", "కృత్తికా"]], [3, ["రోహిణి"]], [4, ["మృగశిర", "మృగశీర్ష"]],
-  [5, ["ఆర్ద్ర", "ఆరుద్ర"]], [6, ["పునర్వసు"]], [7, ["పుష్యమి", "పుష్య"]], [8, ["ఆశ్లేష", "ఆశ్రేష"]], [9, ["మఖ", "మఘ"]],
-  [10, ["పుబ్బ", "పూర్వఫల్గుణి", "పూర్వ ఫల్గుణి", "పూర్వఫాల్గుణి"]], [11, ["ఉత్తరఫల్గుణి", "ఉత్తర ఫల్గుణి", "ఉత్తరఫాల్గుణి", "ఉత్తర"]],
-  [12, ["హస్త"]], [13, ["చిత్త", "చిత్ర"]], [14, ["స్వాతి"]], [15, ["విశాఖ"]], [16, ["అనూరాధ", "అనురాధ"]], [17, ["జ్యేష్ఠ", "జ్యేష్ట"]],
-  [18, ["మూల"]], [19, ["పూర్వాషాఢ", "పూర్వాషాడ", "పూ.షా"]], [20, ["ఉత్తరాషాఢ", "ఉత్తరాషాడ", "ఉ.షా"]], [21, ["శ్రవణం", "శ్రవణ"]],
-  [22, ["ధనిష్ఠ", "ధనిష్ట"]], [23, ["శతభిషం", "శతభిష"]], [24, ["పూర్వాభాద్ర", "పూ.భా"]], [25, ["ఉత్తరాభాద్ర", "ఉ.భా"]], [26, ["రేవతి"]],
+  [0, ["అశ్విని", "అశ్వని", "ashwini", "aswini", "asvini"]], [1, ["భరణి", "bharani"]], [2, ["కృత్తిక", "కృత్తికా", "krittika", "kritika", "kruthika", "krithika"]],
+  [3, ["రోహిణి", "rohini"]], [4, ["మృగశిర", "మృగశీర్ష", "mrigashira", "mrigasira", "mrugasira", "mrigashirsha"]], [5, ["ఆర్ద్ర", "ఆరుద్ర", "ardra", "arudra"]],
+  [6, ["పునర్వసు", "punarvasu"]], [7, ["పుష్యమి", "పుష్య", "pushyami", "pushya", "pushyam"]], [8, ["ఆశ్లేష", "ఆశ్రేష", "ashlesha", "aslesha", "ashresha"]],
+  [9, ["మఖ", "మఘ", "magha", "makha"]], [10, ["పుబ్బ", "పూర్వఫల్గుణి", "పూర్వ ఫల్గుణి", "పూర్వఫాల్గుణి", "purva phalguni", "purvaphalguni", "pubba", "poorva phalguni"]],
+  [11, ["ఉత్తరఫల్గుణి", "ఉత్తర ఫల్గుణి", "ఉత్తరఫాల్గుణి", "ఉత్తర", "uttara phalguni", "uttaraphalguni", "uttara"]], [12, ["హస్త", "hasta", "hastha"]],
+  [13, ["చిత్త", "చిత్ర", "chitta", "chitra", "chittha"]], [14, ["స్వాతి", "swati", "swathi", "svati"]], [15, ["విశాఖ", "vishakha", "visakha", "vishaka"]],
+  [16, ["అనూరాధ", "అనురాధ", "anuradha", "anooradha"]], [17, ["జ్యేష్ఠ", "జ్యేష్ట", "jyeshtha", "jyeshta", "jyesta"]], [18, ["మూల", "mula", "moola"]],
+  [19, ["పూర్వాషాఢ", "పూర్వాషాడ", "పూ.షా", "purvashadha", "purva ashadha", "purvashada", "poorvashada"]],
+  [20, ["ఉత్తరాషాఢ", "ఉత్తరాషాడ", "ఉ.షా", "uttarashadha", "uttara ashadha", "uttarashada"]], [21, ["శ్రవణం", "శ్రవణ", "shravana", "sravana", "sravanam", "shravanam"]],
+  [22, ["ధనిష్ఠ", "ధనిష్ట", "dhanishtha", "dhanishta", "dhanista"]], [23, ["శతభిషం", "శతభిష", "shatabhisha", "satabhisha", "shatabhisham", "satabhisham"]],
+  [24, ["పూర్వాభాద్ర", "పూ.భా", "purvabhadra", "purva bhadrapada", "purva bhadra", "poorvabhadra"]],
+  [25, ["ఉత్తరాభాద్ర", "ఉ.భా", "uttarabhadra", "uttara bhadrapada", "uttara bhadra"]], [26, ["రేవతి", "revati", "revathi"]],
 ];
 // Longest spelling first, so "ఉత్తరాషాఢ" wins over "ఉత్తర"
 function findName(text, table) {
-  let best = null;
+  let best = null; text = text.toLowerCase();
   table.forEach(([v, names]) => names.forEach((n) => {
     const i = text.indexOf(n);
     if (i >= 0 && (!best || i < best.pos || (i === best.pos && n.length > best.len))) best = { v, pos: i, len: n.length };
@@ -1455,7 +1482,35 @@ function teToMin(pre, h, m) {
   }
   return h * 60 + m;
 }
-function parseRanges(line) {
+const EN_HAS_TIME = /\d{1,2}[.:]\d{2}\s*[ap]\.?\s*m/i;
+const EN_TIME_RE = /(\d{1,2})[.:](\d{2})\s*([ap])\.?\s*m\.?(\s*\(\+1\))?/gi;
+function enToMin(h, m, ap, plus1, srMin) {
+  let v = (+h % 12 + (ap.toLowerCase() === "p" ? 12 : 0)) * 60 + +m;
+  if (plus1 || (ap.toLowerCase() === "a" && v < srMin)) v += 1440;
+  return v;
+}
+// Times in a line, in order: [{ at, next, min }] (Telugu prefixes or English AM/PM)
+function timesIn(line, srMin) {
+  const out = []; let mt;
+  TIME_RE.lastIndex = 0;
+  while ((mt = TIME_RE.exec(line))) out.push({ at: mt.index, next: TIME_RE.lastIndex, min: teToMin(mt[1], mt[2], mt[3]) });
+  EN_TIME_RE.lastIndex = 0;
+  while ((mt = EN_TIME_RE.exec(line))) out.push({ at: mt.index, next: EN_TIME_RE.lastIndex, min: enToMin(mt[1], mt[2], mt[3], mt[4], srMin) });
+  return out.sort((a, b) => a.at - b.at);
+}
+// English yogam/karanam names are stored as the Telugu names the page uses
+function teNameOf(name) {
+  const n = name.toLowerCase(), hit = (en) => { const e = en.toLowerCase().split(" ")[0]; return n === e || (n.startsWith(e) && n.length - e.length <= 2); };
+  let i = YOGA.en.findIndex(hit); if (i >= 0) return YOGA.te[i];
+  i = KARANA.en.mov.findIndex((e) => hit(e) || (e.includes("Bhadra") && hit("Bhadra"))); if (i >= 0) return KARANA.te.mov[i];
+  i = KARANA.en.fix.findIndex(hit); return i >= 0 ? KARANA.te.fix[i] : name;
+}
+function parseRanges(line, srMin) {
+  if (EN_HAS_TIME.test(line)) {
+    const t = timesIn(line, srMin), out = [];
+    for (let i = 0; i + 1 < t.length; i += 2) { let e = t[i + 1].min; while (e <= t[i].min) e += 1440; out.push([t[i].min, e]); }
+    return out;
+  }
   const out = []; let mt;
   RANGE_RE.lastIndex = 0;
   while ((mt = RANGE_RE.exec(line))) {
@@ -1480,41 +1535,46 @@ function parsePanchangam(text) {
   }));
   if (!date) { const mt = clean.match(/(\d{1,2})[./-](\d{1,2})[./-](\d{4})/); if (mt) date = { Y: +mt[3], M: +mt[2], D: +mt[1] }; }
   if (!date) return { error: "date" };
-  const res = { date, tithi: [], nak: [], varj: null, dur: null, amrit: null, yama: null, rahu: null, yoga: [], karana: [], sr: null, ss: null, bahula: /బహుళ|కృష్ణ/.test(clean) && !/శుక్ల\s*పక్ష/.test(clean) };
-  let key = null;
-  clean.split(/\r?\n/).forEach((raw) => {
-    const line = raw.trim(); if (!line) return;
-    if (/^తిథి/.test(line)) key = "t";
-    else if (/^నక్షత్ర/.test(line)) key = "n";
-    else if (/^(యోగ|కరణ|వారం|వర్జ్య|దుర్ముహూర్త|అమృత|రాహు|యమ|సూర్య|చంద్ర)/.test(line)) key = /^యోగ/.test(line) ? "y" : /^కరణ/.test(line) ? "k" : null;
-    else if (!/^తదుపరి/.test(line)) key = null;
-    if (key === "t" || key === "n") {
-      const table = key === "t" ? PASTE_TITHI : PASTE_NAK;
-      let prev = 0, mt; TIME_RE.lastIndex = 0;
-      const body = line.replace(/^(తిథి|నక్షత్రం|నక్షత్ర)\s*:?/, "");
-      while ((mt = TIME_RE.exec(body))) {
-        const v = findName(body.slice(prev, mt.index), table);
-        if (v !== null) (key === "t" ? res.tithi : res.nak).push({ v, end: teToMin(mt[1], mt[2], mt[3]) });
-        prev = TIME_RE.lastIndex;
-      }
-    }
-    if (/^వర్జ్య/.test(line)) res.varj = /లేదు/.test(line) ? [] : parseRanges(line);
-    if (/^దుర్ముహూర్త/.test(line)) res.dur = parseRanges(line);
-    if (/^అమృత/.test(line)) res.amrit = /లేదు/.test(line) ? [] : parseRanges(line);
-    if (/^యమగండ/.test(line)) res.yama = parseRanges(line);
-    if (/^రాహు/.test(line)) res.rahu = parseRanges(line);
-    if (key === "y" || key === "k") {
-      const body = line.replace(/^(యోగం|యోగ|కరణం|కరణ|తదుపరి)\s*:?/, "");
-      let prev = 0, mt; TIME_RE.lastIndex = 0;
-      while ((mt = TIME_RE.exec(body))) {
-        const name = body.slice(prev, mt.index).replace(/తదుపరి|వరకు|[:,]/g, "").trim();
-        if (name) (key === "y" ? res.yoga : res.karana).push({ name, end: teToMin(mt[1], mt[2], mt[3]) });
-        prev = TIME_RE.lastIndex;
-      }
-    }
+  const bahula = /బహుళ|కృష్ణ/.test(clean) && !/శుక్ల\s*పక్ష/.test(clean) || /bahula|krishna/i.test(clean) && !/shukla\s*paksh/i.test(clean);
+  const res = { date, tithi: [], nak: [], varj: null, dur: null, amrit: null, yama: null, rahu: null, yoga: [], karana: [], sr: null, ss: null, bahula };
+  // Labels in Telugu (the WhatsApp channel) or English; "తదుపరి" / "Then" continues the line above
+  const lines = clean.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+  const is = (line, te, en) => te.test(line) || en.test(line);
+  const NONE = /లేదు|\bnone\b|\bnil\b|\bno\b/i;
+  // Sunrise first: an English AM time before it is the next morning
+  lines.forEach((line) => {
     let mt;
-    if (/^సూర్యోదయ/.test(line) && (mt = line.match(/(\d{1,2})[.:](\d{2})/))) res.sr = (+mt[1] % 12) * 60 + +mt[2];
-    if (/^సూర్యాస్తమయ/.test(line) && (mt = line.match(/(\d{1,2})[.:](\d{2})/))) res.ss = ((+mt[1] % 12) + 12) * 60 + +mt[2];
+    if (is(line, /^సూర్యోదయ/, /^sunrise/i) && (mt = line.match(/(\d{1,2})[.:](\d{2})\s*([ap])?/i))) res.sr = (+mt[1] % 12 + (/p/i.test(mt[3] || "") ? 12 : 0)) * 60 + +mt[2];
+    if (is(line, /^సూర్యాస్తమయ/, /^sunset/i) && (mt = line.match(/(\d{1,2})[.:](\d{2})\s*([ap])?/i))) res.ss = (+mt[1] % 12 + (/a/i.test(mt[3] || "") ? 0 : 12)) * 60 + +mt[2];
+  });
+  const sr = res.sr !== null ? res.sr : 360;
+  let key = null;
+  lines.forEach((line) => {
+    if (is(line, /^తిథి/, /^tithi/i)) key = "t";
+    else if (is(line, /^నక్షత్ర/, /^(nakshatra|star\b)/i)) key = "n";
+    else if (is(line, /^యోగ/, /^yoga/i)) key = "y";
+    else if (is(line, /^కరణ/, /^karana/i)) key = "k";
+    else if (!is(line, /^తదుపరి/, /^(then|next)\b/i)) key = null;
+    const body = line.replace(/^(తిథి|నక్షత్రం|నక్షత్ర|యోగం|యోగ|కరణం|కరణ|తదుపరి|tithi|nakshatram|nakshatra|star|yogam|yoga|karanam|karana|then|next)\s*:?/i, "");
+    if (key) {
+      let prev = 0;
+      timesIn(body, sr).forEach((x) => {
+        const part = body.slice(prev, x.at);
+        prev = x.next;
+        if (key === "t" || key === "n") {
+          const v = findName(part, key === "t" ? PASTE_TITHI : PASTE_NAK);
+          if (v !== null) (key === "t" ? res.tithi : res.nak).push({ v, end: x.min });
+        } else {
+          const name = part.replace(/తదుపరి|వరకు|\b(then|next|till|until|upto|up to)\b|[:,]/gi, "").trim();
+          if (name) (key === "y" ? res.yoga : res.karana).push({ name: teNameOf(name), end: x.min });
+        }
+      });
+    }
+    if (is(line, /^వర్జ్య/, /^varjy/i)) res.varj = NONE.test(line) && !/\d/.test(line) ? [] : parseRanges(line, sr);
+    if (is(line, /^దుర్ముహూర్త/, /^durmuhurt/i)) res.dur = parseRanges(line, sr);
+    if (is(line, /^అమృత/, /^(amruta|amrita|amrit)/i)) res.amrit = NONE.test(line) && !/\d/.test(line) ? [] : parseRanges(line, sr);
+    if (is(line, /^యమగండ/, /^yama/i)) res.yama = parseRanges(line, sr);
+    if (is(line, /^రాహు/, /^rahu/i)) res.rahu = parseRanges(line, sr);
   });
   return res;
 }
@@ -1597,6 +1657,7 @@ function pasteSummary(p) {
 }
 function applyPaste() {
   const msg = $("pasteMsg");
+  if (isPasteSample($("pasteText").value)) { msg.innerHTML = `<p class="err">${L().pasteIsSample}</p>`; return; }
   const p = parsePanchangam($("pasteText").value || "");
   if (p.error) { msg.innerHTML = `<p class="err">${L().parseFail}</p>`; return; }
   const iso = isoDate(p.date);
@@ -2138,6 +2199,11 @@ $("city").addEventListener("change", () => { nearestNote = false; chooseTown(+$(
 $("adjAll").addEventListener("change", render);
 $("bandScroll").addEventListener("scroll", () => { if (!$("gtip").hidden) hideTip(); }, { passive: true });
 $("pasteApply").addEventListener("click", applyPaste);
+$("pasteText").addEventListener("paste", (e) => {
+  const box = e.target, txt = e.clipboardData && e.clipboardData.getData("text");
+  if (txt && isPasteSample(box.value)) { e.preventDefault(); box.value = txt; box.setSelectionRange(0, 0); box.scrollTop = 0; }
+});
+$("pasteText").addEventListener("blur", (e) => { if (!e.target.value.trim()) e.target.value = L().pasteSample; });
 $("pasteClear").addEventListener("click", clearPaste);
 $("janma").addEventListener("change", () => { janma = +$("janma").value; render(); });
 $("daysRef").addEventListener("toggle", () => { try { renderDays(); } catch (e) { console.error(e); } });

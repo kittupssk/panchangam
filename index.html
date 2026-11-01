@@ -990,7 +990,7 @@ function curNakAt(naks, base, riseMin, toLocal, nowMs) {
 function renderTara(r) {
   const body = $("taraBody");
   if (janma < 0) { body.innerHTML = `<div class="hint">${L().taraHint}</div>`; return; }
-  const riseRef = r.base + r.sunrise * 60000, nextRiseRef = riseRef + 1440 * 60000;
+  const { rise: riseRef, next: nextRiseRef } = dayWindow(r.base, r.sunrise, r.off);
   const shift = $("adjAll").checked ? r.off : 0;
   const toLocal = (ms) => (ms - r.base) / 60000 + shift;
   const naks = dayNaks(r.base, riseRef, nextRiseRef);
@@ -1475,6 +1475,12 @@ function parsePanchangam(text) {
   return res;
 }
 
+// The day's window in real time: the town's sunrise to its next sunrise (riseMin = minutes from base).
+// With "apply to all" the shown times already move by the offset, so the real window is Rajahmundry's
+function dayWindow(base, srMin, off) {
+  const shift = $("adjAll").checked ? off : 0, riseMin = srMin + off - shift, rise = base + riseMin * 60000;
+  return { riseMin, rise, next: rise + 1440 * 60000 };
+}
 // Calculated segments with the pasted end times patched in
 function patchSegs(segs, ends, kind, base, bahula, nextRef) {
   if (!ends || !ends.length) return segs;
@@ -1579,11 +1585,9 @@ function bookSpan(x, toLocal) {
 }
 
 function panchangam(r) {
-  const riseRef = r.base + r.sunrise * 60000;            // reference (unadjusted) sunrise
-  const nextRiseRef = riseRef + 1440 * 60000;
+  const { rise: riseRef, next: nextRiseRef, riseMin: fromRise } = dayWindow(r.base, r.sunrise, r.off);
   const shift = $("adjAll").checked ? r.off : 0;
   const toLocal = (ms) => (ms - r.base) / 60000 + shift;
-  const fromRise = r.sunrise, toRise = r.sunrise + 1440;  // reference day window, minutes
   const live = [];
 
   const tithis = dayTithis(r.base, riseRef, nextRiseRef);
@@ -1804,11 +1808,11 @@ $("goodSet").addEventListener("click", (e) => {
   applyState();
 });
 function goodWindows(r) {
-  const riseRef = r.base + r.sunrise * 60000, nextRiseRef = riseRef + 1440 * 60000;
+  const { rise: riseRef, next: nextRiseRef, riseMin } = dayWindow(r.base, r.sunrise, r.off);
   const shift = $("adjAll").checked ? r.off : 0;
   const toLocal = (ms) => (ms - r.base) / 60000 + shift;
   const naks = dayNaks(r.base, riseRef, nextRiseRef);
-  const bad = GOOD.noVarj ? dayVarj(r.base, naks, r.sunrise).map((v) => [toLocal(v.start), toLocal(v.end)]) : [];
+  const bad = GOOD.noVarj ? dayVarj(r.base, naks, riseMin).map((v) => [toLocal(v.start), toLocal(v.end)]) : [];
   if (GOOD.noDur) dayDur(r.base, r.wd, r.sunrise, r.sunset, r.off).forEach((x) => bad.push([(x.start - r.base) / 60000, (x.end - r.base) / 60000]));
   if (janma >= 0) naks.forEach((s) => { if (!GOOD.tara.includes(taraOf(s.index).t)) bad.push([toLocal(s.start), toLocal(s.end)]); });
   const tithis = dayTithis(r.base, riseRef, nextRiseRef);
@@ -1920,12 +1924,12 @@ function dayInfoHTML(Y, M, D, isToday, nowMs = Date.now()) {
   const { base, sunrise: sr, sunset: ss } = daySun(Y, M, D);
   const off = -appliedOffset, shift = $("adjAll").checked ? off : 0;
   const keepSunrise = TE_SUNRISE; TE_SUNRISE = sr + off;
-  const riseRef = base + sr * 60000, nextRef = riseRef + 1440 * 60000;
+  const { rise: riseRef, next: nextRef, riseMin } = dayWindow(base, sr, off);
   const toLocal = (ms) => (ms - base) / 60000 + shift;
   const wd = new Date(Date.UTC(Y, M - 1, D)).getUTCDay();
   const tithis = dayTithis(base, riseRef, nextRef);
   const naks = dayNaks(base, riseRef, nextRef);
-  const varj = dayVarj(base, naks, sr);
+  const varj = dayVarj(base, naks, riseMin);
   const dm = dayDur(base, wd, sr, ss, off);
   const curI = isToday ? curNakAt(naks, base, sr + off, toLocal, nowMs) : -1;
   // Moments (ms) where today's current tara changes (town sunrise, nakshatra ends, next town sunrise),
@@ -1941,7 +1945,7 @@ function dayInfoHTML(Y, M, D, isToday, nowMs = Date.now()) {
       return `<span>${nakName(s.index)}: <b>${TARA_NAME[LANG][x.t]} (${x.t + 1})</b> <span class="chips"><span class="chip ${g ? "good" : "bad"}">${g ? L().good : L().bad}</span>${x.avoid ? ` <span class="chip bad">${L().avoid}</span>` : ""}${i === curI ? ` <span class="chip live">${L().now}</span>` : ""}</span></span>`; })) : ""}
     ${row(L().varj, varj.length ? varj.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noVarj}</span>`])}
     ${row(L().dur, dm.map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span>${x.night && !isTe() ? ` <span class="meta">${L().night}</span>` : ""}</span>`))}
-    ${(() => { const am = dayAmrit(base, naks, sr); return row(L().amrit, am.length ? am.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noAmrit}</span>`]); })()}
+    ${(() => { const am = dayAmrit(base, naks, riseMin); return row(L().amrit, am.length ? am.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noAmrit}</span>`]); })()}
     ${row(L().rahu, dayRahu(base, wd, sr, ss, off).map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span></span>`))}
     ${row(L().yama, dayYama(base, wd, sr, ss, off).map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span></span>`))}
     ${(() => { const ab = dayAbhijit(base, sr, ss, off); return row(L().abhS, [`<span><span class="when">${rangeHTML((ab.start - base) / 60000, (ab.end - base) / 60000)}</span></span>`, ...abhLagnaHTML(ab, base)]); })()}

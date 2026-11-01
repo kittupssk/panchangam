@@ -41,6 +41,8 @@ Screenshots from `npm run test:ui` land in `test-output/` (git-ignored). Look at
 - Towns table follows the book: "+" means earlier, "−" later; local time = Rajahmundry time − offset. Default town Hyderabad.
 - The offset applies to sunrise, sunset, horas, durmuhurtham, Rahu kalam, Yamagandam, Abhijit muhurtham and lagnam.
 - It does **not** apply to tithi, nakshatra, varjyam, amrutakalam, yogam, karanam (they are the same instant everywhere) unless the user ticks the "apply to all" box.
+- The day is the **town's** sunrise to its next sunrise (`dayWindow`): it decides which tithis, nakshatras, yogams, karanams, varjyams and amrutakalams are listed for a date, the taras, the masam/paksham line and the green bars. With "apply to all" ticked the shown times already move by the offset, so the real window stays Rajahmundry's.
+- Sunrise/sunset for a town = Rajahmundry's minus the offset (the book's method), not calculated from the town's latitude.
 
 ## Hora
 

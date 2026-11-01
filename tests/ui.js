@@ -67,6 +67,61 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
     await page.click("#goodReset"); await page.click("#goodApply");
     check((await bars()) === before, "Default rules + Apply should restore the original bars");
     await page.screenshot({ path: path.join(OUT, `${v.name}-${lang}.png`), fullPage: true });
+    // Current tara: with a janma nakshatra and the current Hindu day, exactly one tara is marked
+    await page.selectOption("#janma", "0");
+    await page.evaluate(() => jumpToNow());
+    await page.waitForTimeout(200);
+    const t = await page.evaluate(() => ({
+      items: document.querySelectorAll("#taraBody .tara-item").length,
+      cur: document.querySelectorAll("#taraBody .tara-item.cur").length,
+      chip: document.querySelectorAll("#taraBody .tara-item.cur .chip.live").length,
+      overflow: document.documentElement.scrollWidth - window.innerWidth,
+    }));
+    check(t.cur === 1 && t.chip === 1, `current tara: ${t.cur} marked (${t.chip} now chips) of ${t.items} items, expected exactly 1`);
+    check(t.overflow <= 1, `page scrolls sideways by ${t.overflow}px with janma set`);
+    // 10-day card for today: one now chip in its tara row when today's sunrise has passed (after jumpToNow, the date is then today)
+    const d = await page.evaluate(() => {
+      const tip = document.querySelector("#daysBody .drow .dlabel").dataset.tip, box = document.createElement("div");
+      box.innerHTML = tip;
+      const tara = [...box.querySelectorAll(".day-row")].find((r) => r.querySelector(".k").textContent === L().taraTitle);
+      const sd = systemDate();
+      return { chips: tara ? tara.querySelectorAll(".chip.live").length : -1, isToday: document.getElementById("date").value === isoDate(sd) };
+    });
+    check(d.isToday ? d.chips === 1 : d.chips <= 1, `10-day card for today has ${d.chips} tara now chips`);
+    await page.locator("#taraBody").locator("..").screenshot({ path: path.join(OUT, `${v.name}-${lang}-tara.png`) });
+    // Today's 10-day card (shown as a tooltip) with its tara now chip
+    await page.locator("#daysBody .drow .dlabel").first().click();
+    await page.waitForTimeout(150);
+    const tip = page.locator("#daysBody .gtip");
+    if (await tip.isVisible()) await tip.screenshot({ path: path.join(OUT, `${v.name}-${lang}-today-card.png`) });
+    await page.keyboard.press("Escape");
+    // A past date: nothing is marked
+    await page.fill("#date", "2026-10-31");
+    await page.dispatchEvent("#date", "input");
+    await page.waitForTimeout(100);
+    const past = await page.evaluate(() => document.querySelectorAll("#taraBody .tara-item.cur, #taraBody .chip.live").length);
+    check(past === 0, `tara marked as current on a past date (${past})`);
+    await ctx.close();
+  }
+  // Current tara at fixed times (fake clock), desktop, default town Hyderabad, janma Ashwini.
+  // 1 Nov 2026: Punarvasu ends 10.32 (book time); with "apply to all" the shown end moves to 10.45.
+  // At 06.08 Hyderabad's sunrise (06.15) has not come, so the page opens 31 Oct, still in Punarvasu.
+  console.log("current tara (fixed clock)");
+  for (const [hm, adj, want, wantDate] of [["10:31", false, "పునర్వసు"], ["10:33", false, "పుష్యమి"], ["10:44", true, "పునర్వసు"], ["10:46", true, "పుష్యమి"], ["06:08", false, "పునర్వసు", "2026-10-31"]]) {
+    const ctx = await browser.newContext({ ...VIEWS[0], timezoneId: "Asia/Kolkata" }), page = await ctx.newPage();
+    await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+    await page.clock.install({ time: new Date(`2026-11-01T${hm}:00+05:30`) });
+    await page.addInitScript(() => { try { localStorage.clear(); } catch (e) {} });
+    await page.goto(URL);
+    await page.selectOption("#janma", "0");
+    if (adj) await page.check("#adjAll");
+    if (wantDate) await page.evaluate(() => jumpToNow());
+    const got = await page.evaluate(() => ({
+      date: document.getElementById("date").value,
+      names: [...document.querySelectorAll("#taraBody .tara-item.cur .tara-top > b:first-child")].map((b) => b.textContent),
+    }));
+    if (wantDate) check(got.date === wantDate, `jumpToNow at ${hm} chose ${got.date}, expected ${wantDate}`);
+    check(got.names.length === 1 && got.names[0] === want, `current tara at ${hm}${adj ? " (apply to all)" : ""}: ${got.names.join(", ") || "none"}, expected ${want}`);
     await ctx.close();
   }
   await browser.close();

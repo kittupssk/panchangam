@@ -966,7 +966,7 @@ function renderTara(r) {
   let html = naks.map((s) => {
     const x = taraOf(s.index), good = TARA_GOOD[x.t];
     return `<div class="tara-item">
-      <div class="tara-top"><b>${nakName(s.index)}</b>${L().till(shortHTML(toLocal(s.end)))}<span class="arrow">→</span><b>${TARA_NAME[LANG][x.t]}</b>
+      <div class="tara-top"><b>${nakName(s.index)}</b>${L().till(shortHTML(toLocal(s.end)))}<span class="arrow">→</span><b>${TARA_NAME[LANG][x.t]} (${x.t + 1})</b>
         <span class="chip ${good ? "good" : "bad"}">${good ? L().good : L().bad}</span>${x.avoid ? `<span class="chip bad">${L().avoid}</span>` : ""}</div>
       <div class="fx">${TARA_FX[LANG][x.t]}</div>
       <div class="meta">${L().count(x.n, x.nav)}</div>
@@ -1695,7 +1695,7 @@ function goodNoteHTML() {
   const items = [L().gnHora(list(GOOD.hora.slice().sort((a, b) => a - b).map((i) => lordName(LORDS[i]))))];
   if (GOOD.noDur && GOOD.noVarj) items.push(L().gnBoth); else if (GOOD.noDur) items.push(L().gnDur); else if (GOOD.noVarj) items.push(L().gnVarj);
   items.push(L().gnTithi(GOOD.tithi.length === 30 ? L().gnAllT : list(GOOD.tithi.slice().sort((a, b) => a - b).map(tithiName))));
-  if (GOOD.tara.length < 9) items.push(L().gnTara(list(GOOD.tara.slice().sort((a, b) => a - b).map((i) => `${i + 1} (${TARA_NAME[LANG][i]})`))));
+  if (GOOD.tara.length < 9) items.push(L().gnTara(list(GOOD.tara.slice().sort((a, b) => a - b).map((i) => `${TARA_NAME[LANG][i]} (${i + 1})`))));
   return `<p>${L().gnIntro}</p><ol>${items.map((x) => `<li>${x}</li>`).join("")}</ol><p>${L().gnMin}</p>`;
 }
 function buildGood() {
@@ -1867,7 +1867,7 @@ function dayInfoHTML(Y, M, D, isToday) {
     ${row(L().tithi, bookList(tithis, nextRef).map((x) => `<span>${tithiName(x.s.index)} ${bookSpan(x, toLocal)}</span>`))}
     ${row(L().nak, bookList(naks, nextRef).map((x) => `<span>${nakName(x.s.index)} ${bookSpan(x, toLocal)}</span>`))}
     ${janma >= 0 ? row(L().taraTitle, naks.map((s) => { const x = taraOf(s.index), g = TARA_GOOD[x.t];
-      return `<span>${nakName(s.index)}: <b>${TARA_NAME[LANG][x.t]}</b> <span class="chip ${g ? "good" : "bad"}">${g ? L().good : L().bad}</span>${x.avoid ? ` <span class="chip bad">${L().avoid}</span>` : ""}</span>`; })) : ""}
+      return `<span>${nakName(s.index)}: <b>${TARA_NAME[LANG][x.t]} (${x.t + 1})</b> <span class="chip ${g ? "good" : "bad"}">${g ? L().good : L().bad}</span>${x.avoid ? ` <span class="chip bad">${L().avoid}</span>` : ""}</span>`; })) : ""}
     ${row(L().varj, varj.length ? varj.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noVarj}</span>`])}
     ${row(L().dur, dm.map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span>${x.night && !isTe() ? ` <span class="meta">${L().night}</span>` : ""}</span>`))}
     ${(() => { const am = dayAmrit(base, naks, sr); return row(L().amrit, am.length ? am.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noAmrit}</span>`]); })()}

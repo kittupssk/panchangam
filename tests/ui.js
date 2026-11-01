@@ -124,6 +124,24 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
     check(got.names.length === 1 && got.names[0] === want, `current tara at ${hm}${adj ? " (apply to all)" : ""}: ${got.names.join(", ") || "none"}, expected ${want}`);
     await ctx.close();
   }
+  // The day runs from the town's sunrise. Chitta ends about 06.06 on 8 Nov 2026: after Rajahmundry's
+  // sunrise (06.04) but before Hyderabad's (06.17), so for Hyderabad it belongs to 7 Nov's day.
+  // With "apply to all" the shown times move by the offset, so the Rajahmundry day is kept.
+  console.log("town day window");
+  for (const [place, date, adj, want] of [[null, "2026-11-08", false, false], [null, "2026-11-07", false, true], [{ city: 0, offset: 0 }, "2026-11-08", false, true], [null, "2026-11-08", true, true]]) {
+    const ctx = await browser.newContext({ ...VIEWS[0], timezoneId: "Asia/Kolkata" }), page = await ctx.newPage();
+    await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+    await page.addInitScript((p) => { try { localStorage.clear(); if (p) localStorage.setItem("hora-place", JSON.stringify(p)); } catch (e) {} }, place);
+    await page.goto(URL);
+    if (adj) await page.check("#adjAll");
+    await page.fill("#date", date);
+    await page.dispatchEvent("#date", "input");
+    await page.waitForTimeout(100);
+    const naks = await page.textContent("#pNak");
+    const where = `${place ? "Rajahmundry" : "Hyderabad"} ${date}${adj ? " (apply to all)" : ""}`;
+    check(naks.includes("చిత్త") === want, `${where}: Chitta ${want ? "missing from" : "listed in"} the nakshatra list (${naks.trim()})`);
+    await ctx.close();
+  }
   await browser.close();
   console.log(failures ? `${failures} UI check(s) failed` : "All UI checks passed");
   process.exit(failures ? 1 : 0);

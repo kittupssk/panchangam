@@ -28,6 +28,20 @@ const check = (ok, m) => { if (!ok) { failures++; console.log("  FAIL " + m); } 
   await page.click("#pasteClear");
   await page.waitForTimeout(200);
   check((await t("panchRange")).length === 0, "pasted-values tag should clear");
+  // The empty box shows the sample layout, with a headline above it; the sample itself must parse
+  const box = () => page.evaluate(() => ({ ph: document.getElementById("pasteText").placeholder, label: document.querySelector("label[for=pasteText]").textContent }));
+  let b = await box();
+  check(b.ph.includes("తిథి:") && b.ph.includes("సూర్యోదయం:") && b.label.includes("నమూనా"), "Telugu sample/headline missing: " + JSON.stringify(b));
+  await page.selectOption("#lang", "en");
+  b = await box();
+  check(b.ph.includes("తిథి:") && b.label.includes("sample"), "English headline/sample missing: " + JSON.stringify(b));
+  await page.selectOption("#lang", "te");
+  await page.fill("#pasteText", b.ph);
+  await page.click("#pasteApply");
+  await page.waitForTimeout(200);
+  check((await t("pasteMsg")).includes("31/10/2026") && (await t("pTithi")).includes("రా. 9.17"), "the sample itself should paste cleanly: " + (await t("pasteMsg")));
+  await page.click("#pasteClear");
+  await page.waitForTimeout(200);
   check(errors.length === 0, "page errors: " + errors.join(" | "));
   await browser.close();
   console.log(failures ? `${failures} paste check(s) failed` : "All paste checks passed");

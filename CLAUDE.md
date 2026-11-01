@@ -67,6 +67,7 @@ Screenshots from `npm run test:ui` land in `test-output/` (git-ignored). Look at
 - The 10-day section starts from the selected date (default today) and its heading names the start date (`dd/mm నుండి 10 రోజుల పంచాంగం`). The today label, highlight, now line and tara Now chip appear only on the current panchangam day's row, if it is among the 10 days.
 - 10-day day card (tooltip): line 1 date · day · sunrise/sunset; line 2 samvatsaram · ayanam · rutuvu · masam · paksham (each item kept on one line); then tithi, nakshatra and the other rows.
 - Tarabalam: a day can have 2–3 taras; the one running now is highlighted with a ఇప్పుడు / Now chip (panel and today's 10-day card). "Now" is inside the day from the town's sunrise to the next town sunrise.
+- Paste box: holds an editable sample in the page's language (the WhatsApp channel's Telugu layout, or its English translation with AM/PM times). Pasting over the untouched sample replaces it; applying the untouched sample saves nothing; the reader accepts either language.
 - No horizontal scrolling of the page itself at 390 px width.
 - The page is also published as a Claude artifact, where the frame grows to full height and blocks geolocation, so never rely on scrolling inside the page or on media queries for orientation.
 

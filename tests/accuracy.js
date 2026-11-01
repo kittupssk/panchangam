@@ -30,7 +30,7 @@ const KNOWN_OUTLIERS = {
   // Block web fonts so the test runs offline and fast
   await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
   await page.goto("file://" + path.join(__dirname, "..", "index.html"));
-  const res = await page.evaluate((B) => {
+  const { out: res, lagna: lagnaRes } = await page.evaluate((B) => {
     const H = 3600e3;
     const endNear = (fn, count, t, i) => {
       const segs = PJ.segments(fn, t - 36 * H, t + 36 * H, count).filter((s) => s.index === i);
@@ -50,11 +50,21 @@ const KNOWN_OUTLIERS = {
       const ev = PJ.sunEvents(x.y, x.m, x.d, REF.lat, REF.lon);
       return { label: x.label, d: Math.round((ev.rise - x.rise) / 60000) };
     });
-    return out;
+    // Lagna: at sunrise it must sit on the Sun (largest gap over the book's sunrise days, degrees);
+    // the book's note gives Vrishabha lagnam at 8.40 on 11 Apr 2027 at Rajahmundry
+    const sunGap = Math.max(...B.sun.map((x) => {
+      const t = PJ.sunEvents(x.y, x.m, x.d, REF.lat, REF.lon).rise, g = Math.abs(PJ.lagna(t, REF.lat, REF.lon) - PJ.longitudes(t).sun);
+      return Math.min(g, 360 - g);
+    }));
+    const apr11 = Math.floor(PJ.lagna(Date.UTC(2027, 3, 11, 8, 40) - IST * 60000, REF.lat, REF.lon) / 30);
+    return { out, lagna: { sunGap, apr11 } };
   }, { tithi: book.tithi, nak: book.nak, yoga: book.yoga, varj: book.varj, sun: book.sun });
   await browser.close();
   let fail = errors.length > 0;
   if (errors.length) console.error("Page errors:", errors);
+  const lagnaOk = lagnaRes.sunGap < 0.05 && lagnaRes.apr11 === 1;
+  if (!lagnaOk) fail = true;
+  console.log(`${lagnaOk ? "PASS" : "FAIL"} lagna    at sunrise within ${lagnaRes.sunGap.toFixed(3)}° of the Sun; 11 Apr 2027 8.40 = rashi ${lagnaRes.apr11} (book: 1, Vrishabha)`);
   for (let [k, list] of Object.entries(res)) {
     if (process.env.VERBOSE) console.log(k, list.slice().sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).slice(0, 6).map((x) => x.label + " " + x.d.toFixed(1)).join(", "));
     const skipped = list.filter((x) => KNOWN_OUTLIERS[k].includes(x.label));

@@ -32,13 +32,14 @@ Screenshots from `npm run test:ui` land in `test-output/` (git-ignored). Look at
 - Sunrise/sunset: Sun's centre, no refraction, at Rajahmundry.
 - Varjyam and Amrutakalam: start ghati tables per nakshatra, 4 ghatis long (tables in the source; verified against the book).
 - Durmuhurtham, Rahu kalam, Yamagandam: from **actual sunrise to sunset** (day in 8 parts for Rahu/Yama). Not the 6 AM–6 PM convention the channel uses. Pasted Rahu/Yama values are ignored on purpose.
+- Abhijit muhurtham: 8th of the 15 day muhurtas (sunrise to sunset). Abhijit lagnam: the rashi rising during it, worked out at Rajahmundry (ascendant from sidereal time; ayanamsa = modern tropical Sun − engine Sun, so lagna at sunrise = Sun). The town offset moves both, as the book does for muhurtham lagnas. Not yet checked against a book lagna table (only the 11 Apr 2027 Vrishabha example in the book's note).
 - Moudhyam: Guru within 11° of the Sun; Sukra within 10° (8° while retrograde). Precomputed table 2025–2040 from modern positions (may differ from the book by about a day).
 - Masam is amanta, named by the rashi the Sun enters; samvatsaram changes at Ugadi.
 
 ## Town offset (desantara)
 
 - Towns table follows the book: "+" means earlier, "−" later; local time = Rajahmundry time − offset. Default town Hyderabad.
-- The offset applies to sunrise, sunset, horas, durmuhurtham, Rahu kalam, Yamagandam.
+- The offset applies to sunrise, sunset, horas, durmuhurtham, Rahu kalam, Yamagandam, Abhijit muhurtham and lagnam.
 - It does **not** apply to tithi, nakshatra, varjyam, amrutakalam, yogam, karanam (they are the same instant everywhere) unless the user ticks the "apply to all" box.
 
 ## Hora
@@ -59,7 +60,7 @@ Screenshots from `npm run test:ui` land in `test-output/` (git-ignored). Look at
 ## Layout rules
 
 - Dark theme only. Default date = today. Telugu is the default language.
-- Panchangam: two columns on wide screens (main details left; yogam, karanam, Rahu kalam, Yamagandam, rashis, moudhyam right), one column on phones.
+- Panchangam: two columns on wide screens (main details left; yogam, karanam, Rahu kalam, Yamagandam, rashis, Abhijit, moudhyam right), one column on phones.
 - Main hora band and 10-day bands are the same size. On upright phones they scroll sideways and start at the current time. Phones held sideways (`html.land-phone`, set from the real screen orientation) show the band first and taller.
 - No horizontal scrolling of the page itself at 390 px width.
 - The page is also published as a Claude artifact, where the frame grows to full height and blocks geolocation, so never rely on scrolling inside the page or on media queries for orientation.

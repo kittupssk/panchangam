@@ -11,7 +11,7 @@ const VIEWS = [
   { name: "phone", viewport: { width: 390, height: 844 }, screen: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
   { name: "phone-sideways", viewport: { width: 844, height: 390 }, screen: { width: 844, height: 390 }, isMobile: true, hasTouch: true },
 ];
-const FIELDS = ["pDate", "pVara", "pSr", "pSs", "pTithi", "pNak", "pVarj", "pDur", "pYoga", "pKarana", "pRahu", "pYama", "pSunRasi", "pMoonRasi", "pMoodh"];
+const FIELDS = ["pDate", "pVara", "pSr", "pSs", "pTithi", "pNak", "pVarj", "pDur", "pYoga", "pKarana", "pRahu", "pYama", "pAbhijit", "pAbhLagna", "pSunRasi", "pMoonRasi", "pMoodh"];
 let failures = 0;
 const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg); } };
 

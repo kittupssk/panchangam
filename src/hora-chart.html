@@ -482,6 +482,8 @@ button.mini { padding: 3px 10px; font-size: 0.8rem; }
       <div class="prow"><div class="eyebrow" data-i18n="yama">యమగండం</div><div class="items" id="pYama"></div></div>
       <div class="prow"><div class="eyebrow" data-i18n="sunRasi">సూర్యరాశి</div><div class="items" id="pSunRasi"></div></div>
       <div class="prow"><div class="eyebrow" data-i18n="moonRasi">చంద్రరాశి</div><div class="items" id="pMoonRasi"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="abhijit">అభిజిత్ ముహూర్తం</div><div class="items" id="pAbhijit"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="abhLagna">అభిజిత్ లగ్నం</div><div class="items" id="pAbhLagna"></div></div>
           <div class="prow"><div class="eyebrow" data-i18n="moodh">మౌఢ్యమి</div><div class="items" id="pMoodh"></div></div>
       </div>
     </div>
@@ -651,7 +653,18 @@ const PJ = (() => {
       : { start: rise + (x.n - 1) * dm, end: rise + (x.n - 1 + (x.len || 1)) * dm });
   }
 
-  return { longitudes, tithiPos, nakPos, segments, sunEvents, varjyam, durmuhurtham };
+  // Lagna: sidereal longitude of the rising point. Ayanamsa = modern tropical Sun minus this engine's Sun,
+  // so the lagna at sunrise is exactly the Sun's position
+  function lagna(ms, lat, lon) {
+    const n = ms / 86400000 + 2440587.5 - 2451545;
+    const L = norm(280.460 + 0.9856474 * n), g = norm(357.528 + 0.9856003 * n) * R;
+    const sunTrop = L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g);
+    const lst = (280.46061837 + 360.98564736629 * n + lon) * R, eps = (23.439 - 0.0000004 * n) * R;
+    const asc = Math.atan2(Math.cos(lst), -(Math.sin(lst) * Math.cos(eps) + Math.tan(lat * R) * Math.sin(eps))) / R;
+    return norm(asc - sunTrop + longitudes(ms).sun);
+  }
+
+  return { longitudes, tithiPos, nakPos, segments, sunEvents, varjyam, durmuhurtham, lagna };
 })();
 if (typeof module !== "undefined") module.exports = PJ;
 
@@ -783,6 +796,7 @@ const I18N = {
     moodhRange: (a, b) => `${a} నుండి ${b} వరకు`, moodhNext: (a, b) => `తదుపరి ${a} నుండి ${b} వరకు`,
     yoga: "యోగం", karana: "కరణం", rahu: "రాహుకాలం", sunRasi: "సూర్యరాశి", moonRasi: "చంద్రరాశి",
     amrit: "అమృతకాలం", yama: "యమగండం", noAmrit: "అమృతకాలం లేదు",
+    abhijit: "అభిజిత్ ముహూర్తం", abhLagna: "అభిజిత్ లగ్నం", abhS: "అభిజిత్",
     noVarj: "వర్జ్యం లేదు", pending: "అమలు చేయడానికి ‘మళ్ళీ లెక్కించు’ నొక్కండి", nearest: " · మీకు దగ్గరలో",
     errFill: "తేదీ, సూర్యోదయం, సూర్యాస్తమయం, దేశాంతరం నింపండి.", errSet: "సూర్యాస్తమయం సూర్యోదయం తరువాత ఉండాలి. AM/PM సరిచూడండి.",
     goodNoteTitle: "శుభ సమయాలు (హోర పట్టీపై ఆకుపచ్చ గీతలు):",
@@ -849,6 +863,7 @@ const I18N = {
     moodhRange: (a, b) => `from ${a} to ${b}`, moodhNext: (a, b) => `next from ${a} to ${b}`,
     yoga: "Yogam", karana: "Karanam", rahu: "Rahu kalam", sunRasi: "Surya rashi", moonRasi: "Chandra rashi",
     amrit: "Amrutakalam", yama: "Yamagandam", noAmrit: "No Amrutakalam today",
+    abhijit: "Abhijit muhurtham", abhLagna: "Abhijit lagnam", abhS: "Abhijit",
     noVarj: "No Varjyam today", pending: "Press Recalculate to apply", nearest: " · nearest to you",
     errFill: "Fill in the date, sunrise, sunset and town offset.", errSet: "Sunset must be later than sunrise. Check the AM/PM on the sunset time.",
     goodNoteTitle: "Good times (green bars on the hora band):",
@@ -1274,6 +1289,17 @@ function dayRahu(base, wd, srMin, ssMin, off) {
   const part = (ssMin - srMin) / 8, s = srMin + off + (RAHU_PART[wd] - 1) * part;
   return [{ start: base + s * 60000, end: base + (s + part) * 60000 }];
 }
+// Abhijit muhurtham: 8th of the 15 day muhurtas (around midday). Lagna is worked out at Rajahmundry and the
+// town offset moves it with the window, as the book does for its muhurtham lagnas
+function dayAbhijit(base, srMin, ssMin, off) {
+  const part = (ssMin - srMin) / 15, s = srMin + 7 * part, a = base + s * 60000, b = base + (s + part) * 60000;
+  const lagnas = PJ.segments((ms) => PJ.lagna(ms, REF.lat, REF.lon) / 30, a, b, 12)
+    .filter((x) => x.end > a && x.start < b)
+    .map((x) => ({ index: x.index, start: Math.max(x.start, a) + off * 60000, end: Math.min(x.end, b) + off * 60000 }));
+  return { start: a + off * 60000, end: b + off * 60000, lagnas };
+}
+const abhLagnaHTML = (x, base) => x.lagnas.map((l, i) => `<span>${RASI[LANG][l.index]}${i < x.lagnas.length - 1 ? ` ${L().till(shortHTML((l.end - base) / 60000))}` : ""}</span>`);
+
 // Yogam / Karanam for the day: pasted names and times if given, else calculated (book listing convention)
 function dayYogaKarana(base, riseRef, nextRef, toLocal) {
   const b = bookFor(base);
@@ -1582,6 +1608,10 @@ function panchangam(r) {
     if (isLive) live.push(L().yama);
     return `<div class="item"><span class="when">${rangeHTML(a, b)}</span>${isLive ? `<span class="chip avoid">${L().now}</span>` : ""}</div>`;
   }).join("");
+  const abh = dayAbhijit(r.base, r.sunrise, r.sunset, r.off);
+  const abA = (abh.start - r.base) / 60000, abB = (abh.end - r.base) / 60000;
+  $("pAbhijit").innerHTML = `<div class="item"><span class="when">${rangeHTML(abA, abB)}</span>${now >= abA && now < abB ? `<span class="chip good">${L().now}</span>` : ""}</div>`;
+  $("pAbhLagna").innerHTML = abhLagnaHTML(abh, r.base).map((x) => `<div class="item">${x}</div>`).join("");
   $("panchCal").textContent = calLine(calInfo(r.base, riseRef));
   const p2 = (n) => String(n).padStart(2, "0");
   $("pDate").innerHTML = `<div class="item"><span class="name">${p2(r.D)}-${p2(r.M)}-${r.Y}</span></div>`;
@@ -1889,6 +1919,7 @@ function dayInfoHTML(Y, M, D, isToday) {
     ${(() => { const am = dayAmrit(base, naks, sr); return row(L().amrit, am.length ? am.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noAmrit}</span>`]); })()}
     ${row(L().rahu, dayRahu(base, wd, sr, ss, off).map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span></span>`))}
     ${row(L().yama, dayYama(base, wd, sr, ss, off).map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span></span>`))}
+    ${(() => { const ab = dayAbhijit(base, sr, ss, off); return row(L().abhS, [`<span><span class="when">${rangeHTML((ab.start - base) / 60000, (ab.end - base) / 60000)}</span></span>`, ...abhLagnaHTML(ab, base)]); })()}
     <div class="meta" style="margin-top:4px">${calLine(calInfo(base, riseRef))}</div>
   </div>`;
   TE_SUNRISE = keepSunrise;

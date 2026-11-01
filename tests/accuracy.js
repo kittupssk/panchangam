@@ -11,6 +11,7 @@ const BASELINE = { // allowed rms / max |residual| in minutes (current fit + a s
   yoga: { rms: 3.0, max: 6 },
   varj: { rms: 3.4, max: 11 },
   sunrise: { rms: 1.0, max: 2 },
+  lagna: { rms: 3.2, max: 7 },   // reference check only: lagna is not fitted to the book (book table steps ~4 min/day)
 };
 
 // Book entries that disagree with every reasonable fit (likely misprints or photo-reading slips).
@@ -19,11 +20,11 @@ const KNOWN_OUTLIERS = {
   tithi: ["11-10 12:56", "03-15 09:47", "11-27 14:46"], // ~42, ~26, ~19 min off; neighbours fit within 5 min
   nak: ["03-15 08:39"],                                 // ~22 min off
   varj: ["03-15 13:49", "03-15 00:56"],                 // follow from the 15 Mar nakshatra entry above
-  yoga: [], sunrise: [],
+  yoga: [], sunrise: [], lagna: [],
 };
 
 // Abhijit lagnam = 4th lagna from the lagna at sunrise (book's rule, confirmed by the owner). Times are an engine
-// snapshot at Rajahmundry (guards against regressions; the book has no lagna table transcribed yet):
+// snapshot at Rajahmundry (guards against regressions); the lagna times themselves are checked against the book below:
 // [year, month, day, rashi index, start, end]
 const ABHIJIT_LAGNA = [
   [2026, 11, 1, 9, "11:32", "13:23"],  // Sun Tula -> Makara
@@ -58,6 +59,7 @@ const ABHIJIT_LAGNA = [
       const d = v.map((y) => (y.start - x.t) / 60000).sort((a, b) => Math.abs(a) - Math.abs(b))[0];
       return { label: x.label, d };
     });
+    out.lagna = B.lagna.map((x) => ({ label: x.label, d: endNear((ms) => PJ.lagna(ms, REF.lat, REF.lon) / 30, 12, x.t, x.i) }));
     out.sunrise = B.sun.map((x) => {
       const ev = PJ.sunEvents(x.y, x.m, x.d, REF.lat, REF.lon);
       return { label: x.label, d: Math.round((ev.rise - x.rise) / 60000) };
@@ -84,7 +86,7 @@ const ABHIJIT_LAGNA = [
       if (x.index !== want || !(x.start < x.end) || !(x.start < ev.set && x.end > ev.rise)) yearBad.push(isoDate(p));
     }
     return { out, lagna: { sunGap, apr11, abh, yearBad } };
-  }, { tithi: book.tithi, nak: book.nak, yoga: book.yoga, varj: book.varj, sun: book.sun, abh: ABHIJIT_LAGNA.map((x) => x.slice(0, 3)) });
+  }, { tithi: book.tithi, nak: book.nak, yoga: book.yoga, varj: book.varj, sun: book.sun, lagna: book.lagna, abh: ABHIJIT_LAGNA.map((x) => x.slice(0, 3)) });
   await browser.close();
   let fail = errors.length > 0;
   if (errors.length) console.error("Page errors:", errors);

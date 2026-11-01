@@ -115,7 +115,7 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
       const tip = row.dataset.tip, box = document.createElement("div");
       box.innerHTML = tip;
       const tara = [...box.querySelectorAll(".day-row")].find((r) => r.querySelector(".k").textContent === L().taraTitle);
-      const sd = systemDate();
+      const sd = currentDay();
       return { chips: tara ? tara.querySelectorAll(".chip.live").length : -1, isToday: document.getElementById("date").value === isoDate(sd) };
     });
     check(d.isToday ? d.chips === 1 : d.chips <= 1, `10-day card for today has ${d.chips} tara now chips`);
@@ -235,6 +235,46 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
   // The day runs from the town's sunrise. Chitta ends about 06.06 on 8 Nov 2026: after Rajahmundry's
   // sunrise (06.04) but before Hyderabad's (06.17), so for Hyderabad it belongs to 7 Nov's day.
   // With "apply to all" the shown times move by the offset, so the Rajahmundry day is kept.
+  // Before sunrise the page opens on the previous day, whose night horas hold the current hora:
+  // band line, Now row and top card all show. Left open, it moves on to the new day at sunrise.
+  console.log("before sunrise (fixed clock)");
+  {
+    const ctx = await browser.newContext({ ...VIEWS[0], timezoneId: "Asia/Kolkata" }), page = await ctx.newPage();
+    await page.route(/fonts.(googleapis|gstatic).com/, (r) => r.abort());
+    await page.clock.install({ time: new Date("2026-11-02T00:30:00+05:30") });
+    await page.addInitScript(() => { try { localStorage.clear(); } catch (e) {} });
+    await page.goto(URL);
+    const st = () => page.evaluate(() => ({ date: document.getElementById("date").value, line: !document.getElementById("nowLine").hidden,
+      rows: document.querySelectorAll("#dayTbl tr.cur, #nightTbl tr.cur").length, night: document.querySelectorAll("#nightTbl tr.cur").length,
+      card: !document.getElementById("nowCard").hidden, today: [...document.querySelectorAll("#daysBody .drow")].findIndex((r) => r.classList.contains("today")) }));
+    let s = await st();
+    check(s.date === "2026-11-01" && s.line && s.rows === 1 && s.night === 1 && s.card, `00.30 on 2 Nov should open on 1 Nov with the current night hora marked: ${JSON.stringify(s)}`);
+    await page.click("#daysRef summary"); await page.waitForTimeout(100);
+    s = await st();
+    check(s.today === 0, `00.30 on 2 Nov: the 10-day "today" row should be 01/11 (row ${s.today})`);
+    // Calendar date chosen by hand: no line, but the card still shows last night's hora
+    await page.fill("#date", "2026-11-02"); await page.dispatchEvent("#date", "input"); await page.waitForTimeout(100);
+    s = await st();
+    check(!s.line && s.rows === 0 && s.card, `2 Nov chosen at 00.30: expected no line, no Now row, card shown: ${JSON.stringify(s)}`);
+    await ctx.close();
+  }
+  {
+    // Left open from 06.00 (before Hyderabad's 06.15 sunrise) to 06.30: moves on to 2 Nov
+    const ctx = await browser.newContext({ ...VIEWS[0], timezoneId: "Asia/Kolkata" }), page = await ctx.newPage();
+    await page.route(/fonts.(googleapis|gstatic).com/, (r) => r.abort());
+    await page.clock.install({ time: new Date("2026-11-02T06:00:00+05:30") });
+    await page.addInitScript(() => { try { localStorage.clear(); } catch (e) {} });
+    await page.goto(URL);
+    const d0 = await page.inputValue("#date");
+    await page.clock.runFor(30 * 60000);
+    const s = await page.evaluate(() => ({ date: document.getElementById("date").value, line: !document.getElementById("nowLine").hidden, rows: document.querySelectorAll("#dayTbl tr.cur").length }));
+    check(d0 === "2026-11-01" && s.date === "2026-11-02" && s.line && s.rows === 1, `left open 06.00 -> 06.30: ${d0} -> ${JSON.stringify(s)}`);
+    // A date picked by hand stays
+    await page.fill("#date", "2026-12-25"); await page.dispatchEvent("#date", "input");
+    await page.clock.runFor(2 * 60000);
+    check(await page.inputValue("#date") === "2026-12-25", "a date picked by hand must not be replaced by the refresh");
+    await ctx.close();
+  }
   console.log("town day window");
   for (const [place, date, adj, want] of [[null, "2026-11-08", false, false], [null, "2026-11-07", false, true], [{ city: 0, offset: 0 }, "2026-11-08", false, true], [null, "2026-11-08", true, true]]) {
     const ctx = await browser.newContext({ ...VIEWS[0], timezoneId: "Asia/Kolkata" }), page = await ctx.newPage();

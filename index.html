@@ -354,11 +354,29 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
 .days-inner { position: relative; }
 @media (max-width: 699px) {
   html:not(.land-phone) .days-inner { width: max-content; min-width: 100%; }
-  html:not(.land-phone) .drow { grid-template-columns: 3.6rem 900px; }
+  html:not(.land-phone) .drow { grid-template-columns: 3.6rem 1000px; }
   html:not(.land-phone) .drow .dlabel { position: sticky; left: 0; z-index: 4; background: var(--surface); margin-left: -10px; padding-left: 10px; box-shadow: 6px 0 8px -4px rgb(0 0 0 / 0.6); }
   html:not(.land-phone) .drow.today .dlabel { background: color-mix(in srgb, var(--accent-soft) 60%, var(--surface)); }
-  html:not(.land-phone) .band-wrap.mini .band div { font-size: 0.7rem; letter-spacing: 0; }
 }
+/* 10-day bands: same size and detail as the main band */
+.band-wrap.mini { --bh: 34px; padding-top: 12px; }
+.band-wrap.mini .gtrack { height: calc(12px + var(--bh) + 2px); }
+.band-wrap.mini .gbar { border-top-width: 9px; }
+.band-wrap.mini .nowline { height: calc(10px + var(--bh) + 8px); }
+.band-wrap.mini .band div, html[lang="te"] .band-wrap.mini .band div { font-size: 0.72rem; letter-spacing: 0; }
+@media (min-width: 700px) {
+  .band-wrap.mini { --bh: 50px; }
+  .band-wrap.mini .band .bt { display: block !important; }
+  .band-wrap.mini .band div, html[lang="te"] .band-wrap.mini .band div { font-size: 0.8rem; }
+}
+@media (max-width: 699px) {
+  html:not(.land-phone) .band-wrap.mini { --bh: 50px; }
+  html:not(.land-phone) .band-wrap.mini .band .bt { display: block !important; }
+  html:not(.land-phone) .band-wrap.mini .band div, html:not(.land-phone)[lang="te"] .band-wrap.mini .band div { font-size: 0.8rem; }
+}
+html.land-phone .band-wrap.mini { --bh: 64px; }
+html.land-phone .band-wrap.mini .band .bt { display: block !important; font-size: 0.66rem; }
+html.land-phone .band-wrap.mini .band div, html.land-phone[lang="te"] .band-wrap.mini .band div { font-size: 0.95rem; }
 </style>
 
 <div class="wrap">
@@ -1765,7 +1783,7 @@ function renderDays() {
   body.innerHTML = `<div class="days-scroll"><div class="days-inner">` + days.map((x, i) => `<div class="drow${i === 0 ? " today" : ""}" data-i="${i}">
       <div class="dlabel"><b>${pad(x.r.D)}/${pad(x.r.M)}</b><span>${L().varaS[x.r.wd]}</span>${i === 0 ? `<small>${L().today}</small>` : ""}${x.r.pasted ? `<small class="src">${L().pasted}</small>` : ""}</div>
       <div class="band-wrap mini">
-        <div class="band">${x.r.horas.map((h) => `<div class="${h.isDay ? "d" : "n"} ${qual(h.lord)}"><span>${abbr(h.lord)}</span></div>`).join("")}</div>
+        <div class="band">${x.r.horas.map((h) => `<div class="${h.isDay ? "d" : "n"} ${qual(h.lord)}"><span>${abbr(h.lord)}</span><span class="bt">${bandTime(h.start)}</span></div>`).join("")}</div>
         <div class="gtrack">${barsHTML(x.list, x.r)}</div>
         ${i === 0 ? `<div class="nowline" hidden></div>` : ""}
       </div>

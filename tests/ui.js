@@ -68,6 +68,15 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
     check(cards.every((c) => c.second === "day-cal" && c.has), "10-day card: second line is not the calendar line: " + JSON.stringify(cards[0]));
     check(cards.every((c) => c.count === 1), "10-day card: samvatsaram shown more than once: " + cards.map((c) => c.count).join(","));
     check(cards.every((c) => c.same), "10-day card: day label and band show different cards");
+    // Abhijit lagnam (31-10-2026, Sun in Tula): one item, Makara (4th from the sunrise lagna) with its rising period,
+    // and the 10-day card's Abhijit row shows the same text
+    const abl = await page.evaluate(() => { const b = document.createElement("div"), n = (s) => s.replace(/\s+/g, " ").trim();
+      b.innerHTML = document.querySelector("#daysBody .drow .dlabel").dataset.tip;
+      const row = [...b.querySelectorAll(".day-row")].find((r) => r.querySelector(".k").textContent === L().abhS);
+      const main = document.querySelectorAll("#pAbhLagna .item");
+      return { items: main.length, text: main.length ? n(main[0].querySelector("span").textContent) : "", card: row ? n(row.querySelector(".v").textContent) : "" }; });
+    check(abl.items === 1 && (lang === "te" ? /^మకరం ఉ\. 11\.\d\d ల 1\.\d\d$/ : /^Makara 11:\d\d AM – 01:\d\d PM$/).test(abl.text), "Abhijit lagnam: " + JSON.stringify(abl));
+    check(abl.text && abl.card.endsWith(abl.text), "10-day card Abhijit row lacks the Abhijit lagnam: " + abl.card);
     // Today's card shows the same calendar line as the panchangam (#panchCal)
     const todayIso = await page.evaluate(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; });
     await page.fill("#date", todayIso); await page.dispatchEvent("#date", "input"); await page.waitForTimeout(150);

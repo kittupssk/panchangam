@@ -22,6 +22,18 @@ const KNOWN_OUTLIERS = {
   yoga: [], sunrise: [],
 };
 
+// Abhijit lagnam = 4th lagna from the lagna at sunrise (book's rule, confirmed by the owner). Times are an engine
+// snapshot at Rajahmundry (guards against regressions; the book has no lagna table transcribed yet):
+// [year, month, day, rashi index, start, end]
+const ABHIJIT_LAGNA = [
+  [2026, 11, 1, 9, "11:32", "13:23"],  // Sun Tula -> Makara
+  [2026, 12, 15, 10, "10:29", "12:07"], // Vrischika -> Kumbha
+  [2027, 1, 15, 0, "11:40", "13:25"],  // Makara -> Mesha
+  [2027, 4, 11, 2, "09:47", "12:00"],  // Meena -> Mithuna
+  [2027, 6, 21, 5, "11:41", "13:46"],  // Mithuna -> Kanya
+  [2027, 9, 1, 7, "11:14", "13:28"],   // Simha -> Vrischika
+];
+
 (async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage();
@@ -57,14 +69,38 @@ const KNOWN_OUTLIERS = {
       return Math.min(g, 360 - g);
     }));
     const apr11 = Math.floor(PJ.lagna(Date.UTC(2027, 3, 11, 8, 40) - IST * 60000, REF.lat, REF.lon) / 30);
-    return { out, lagna: { sunGap, apr11 } };
-  }, { tithi: book.tithi, nak: book.nak, yoga: book.yoga, varj: book.varj, sun: book.sun });
+    // Abhijit lagnam (book rule): 4th lagna from the sunrise lagna, full rising period, Rajahmundry, offset 0
+    const abh = B.abh.map(([y, m, d]) => {
+      const base = istMidnight(y, m, d), ev = PJ.sunEvents(y, m, d, REF.lat, REF.lon);
+      const x = dayAbhijit(base, (ev.rise - base) / 60000, (ev.set - base) / 60000, 0).lagna;
+      return { label: `${y}-${m}-${d}`, index: x.index, start: (x.start - base) / 60000, end: (x.end - base) / 60000 };
+    });
+    // Every day for a year: rashi = Sun's rashi at sunrise + 3, and a daytime rising period
+    const yearBad = [];
+    for (let i = 0; i < 365; i++) {
+      const p = istParts(Date.UTC(2026, 10, 1, 12) + i * 86400000), base = istMidnight(p.Y, p.M, p.D), ev = PJ.sunEvents(p.Y, p.M, p.D, REF.lat, REF.lon);
+      const x = dayAbhijit(base, (ev.rise - base) / 60000, (ev.set - base) / 60000, 0).lagna;
+      const want = (Math.floor(PJ.longitudes(ev.rise).sun / 30) + 3) % 12;
+      if (x.index !== want || !(x.start < x.end) || !(x.start < ev.set && x.end > ev.rise)) yearBad.push(isoDate(p));
+    }
+    return { out, lagna: { sunGap, apr11, abh, yearBad } };
+  }, { tithi: book.tithi, nak: book.nak, yoga: book.yoga, varj: book.varj, sun: book.sun, abh: ABHIJIT_LAGNA.map((x) => x.slice(0, 3)) });
   await browser.close();
   let fail = errors.length > 0;
   if (errors.length) console.error("Page errors:", errors);
   const lagnaOk = lagnaRes.sunGap < 0.05 && lagnaRes.apr11 === 1;
   if (!lagnaOk) fail = true;
   console.log(`${lagnaOk ? "PASS" : "FAIL"} lagna    at sunrise within ${lagnaRes.sunGap.toFixed(3)}° of the Sun; 11 Apr 2027 8.40 = rashi ${lagnaRes.apr11} (book: 1, Vrishabha)`);
+  // Abhijit lagnam: rashi must match, start/end within 2 min of the expected values
+  const abhBad = [];
+  lagnaRes.abh.forEach((x, i) => {
+    const [, , , rashi, s, e] = ABHIJIT_LAGNA[i], hm = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+    const ds = Math.abs(x.start - hm(s)), de = Math.abs(x.end - hm(e));
+    if (x.index !== rashi || !(ds <= 2) || !(de <= 2)) abhBad.push(`${x.label}: rashi ${x.index} (want ${rashi}), start ${ds.toFixed(1)}, end ${de.toFixed(1)} min off`);
+  });
+  lagnaRes.yearBad.forEach((d) => abhBad.push(`${d}: wrong rashi or no daytime rising period`));
+  if (abhBad.length) fail = true;
+  console.log(`${abhBad.length ? "FAIL" : "PASS"} abhLagna ${ABHIJIT_LAGNA.length} dates + 365-day scan, 4th lagna from sunrise lagna, start/end within 2 min${abhBad.length ? ": " + abhBad.join("; ") : ""}`);
   for (let [k, list] of Object.entries(res)) {
     if (process.env.VERBOSE) console.log(k, list.slice().sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).slice(0, 6).map((x) => x.label + " " + x.d.toFixed(1)).join(", "));
     const skipped = list.filter((x) => KNOWN_OUTLIERS[k].includes(x.label));

@@ -1310,16 +1310,28 @@ function dayRahu(base, wd, srMin, ssMin, off) {
   const part = (ssMin - srMin) / 8, s = srMin + off + (RAHU_PART[wd] - 1) * part;
   return [{ start: base + s * 60000, end: base + (s + part) * 60000 }];
 }
-// Abhijit muhurtham: 8th of the 15 day muhurtas (around midday). Lagna is worked out at Rajahmundry and the
-// town offset moves it with the window, as the book does for its muhurtham lagnas
+// Abhijit muhurtham: 8th of the 15 day muhurtas (around midday).
+// Abhijit lagnam (book rule): the 4th lagna from the lagna at sunrise, with its full rising period that day
+// (it falls around midday). The sunrise lagna is taken at the engine's Rajahmundry sunrise, where it equals the
+// Sun's rashi; if the Sun changes rashi later in the day the sunrise lagna still decides, as the book says.
+// Times are worked out at Rajahmundry and the town offset moves them, as the book does for its muhurtham lagnas.
+const lagnaPos = (ms) => PJ.lagna(ms, REF.lat, REF.lon) / 30;
 function dayAbhijit(base, srMin, ssMin, off) {
   const part = (ssMin - srMin) / 15, s = srMin + 7 * part, a = base + s * 60000, b = base + (s + part) * 60000;
-  const lagnas = PJ.segments((ms) => PJ.lagna(ms, REF.lat, REF.lon) / 30, a, b, 12)
-    .filter((x) => x.end > a && x.start < b)
-    .map((x) => ({ index: x.index, start: Math.max(x.start, a) + off * 60000, end: Math.min(x.end, b) + off * 60000 }));
-  return { start: a + off * 60000, end: b + off * 60000, lagnas };
+  const p = istParts(base), rise = PJ.sunEvents(p.Y, p.M, p.D, REF.lat, REF.lon).rise;
+  const index = (Math.floor(lagnaPos(rise)) + 3) % 12;
+  // Rising periods of that lagna near the day; keep the one that overlaps daytime, nearest midday
+  const dayA = base + srMin * 60000, dayB = base + ssMin * 60000, mid = (dayA + dayB) / 2;
+  const seg = PJ.segments(lagnaPos, dayA - 6 * 3600000, dayB + 6 * 3600000, 12)
+    .filter((x) => x.index === index && x.end > dayA && x.start < dayB)
+    .sort((x, y) => Math.abs((x.start + x.end) / 2 - mid) - Math.abs((y.start + y.end) / 2 - mid))[0];
+  const lagna = seg ? { index, start: seg.start + off * 60000, end: seg.end + off * 60000 } : { index, start: null, end: null };
+  return { start: a + off * 60000, end: b + off * 60000, lagna };
 }
-const abhLagnaHTML = (x, base) => x.lagnas.map((l, i) => `<span>${RASI[LANG][l.index]}${i < x.lagnas.length - 1 ? ` ${L().till(shortHTML((l.end - base) / 60000))}` : ""}</span>`);
+const abhLagnaHTML = (x, base) => {
+  const l = x.lagna, name = RASI[LANG][l.index];
+  return l.start === null ? `<span>${name}</span>` : `<span>${name} <span class="when">${rangeHTML((l.start - base) / 60000, (l.end - base) / 60000)}</span></span>`;
+};
 
 // Yogam / Karanam for the day: pasted names and times if given, else calculated (book listing convention)
 function dayYogaKarana(base, riseRef, nextRef, toLocal) {
@@ -1636,7 +1648,8 @@ function panchangam(r) {
   const abh = dayAbhijit(r.base, r.sunrise, r.sunset, r.off);
   const abA = (abh.start - r.base) / 60000, abB = (abh.end - r.base) / 60000;
   $("pAbhijit").innerHTML = `<div class="item"><span class="when">${rangeHTML(abA, abB)}</span>${now >= abA && now < abB ? `<span class="chip good">${L().now}</span>` : ""}</div>`;
-  $("pAbhLagna").innerHTML = abhLagnaHTML(abh, r.base).map((x) => `<div class="item">${x}</div>`).join("");
+  const alA = (abh.lagna.start - r.base) / 60000, alB = (abh.lagna.end - r.base) / 60000, alLive = abh.lagna.start !== null && now >= alA && now < alB;
+  $("pAbhLagna").innerHTML = `<div class="item">${abhLagnaHTML(abh, r.base)}${alLive ? `<span class="chip good">${L().now}</span>` : ""}</div>`;
   $("panchCal").textContent = calLine(calInfo(r.base, riseRef));
   const p2 = (n) => String(n).padStart(2, "0");
   $("pDate").innerHTML = `<div class="item"><span class="name">${p2(r.D)}-${p2(r.M)}-${r.Y}</span></div>`;
@@ -1950,7 +1963,7 @@ function dayInfoHTML(Y, M, D, isToday, nowMs = Date.now()) {
     ${(() => { const am = dayAmrit(base, naks, riseMin); return row(L().amrit, am.length ? am.map((v) => `<span><span class="when">${rangeHTML(toLocal(v.start), toLocal(v.end))}</span></span>`) : [`<span class="meta">${L().noAmrit}</span>`]); })()}
     ${row(L().rahu, dayRahu(base, wd, sr, ss, off).map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span></span>`))}
     ${row(L().yama, dayYama(base, wd, sr, ss, off).map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span></span>`))}
-    ${(() => { const ab = dayAbhijit(base, sr, ss, off); return row(L().abhS, [`<span><span class="when">${rangeHTML((ab.start - base) / 60000, (ab.end - base) / 60000)}</span></span>`, ...abhLagnaHTML(ab, base)]); })()}
+    ${(() => { const ab = dayAbhijit(base, sr, ss, off); return row(L().abhS, [`<span><span class="when">${rangeHTML((ab.start - base) / 60000, (ab.end - base) / 60000)}</span></span>`, abhLagnaHTML(ab, base)]); })()}
   </div>`;
   TE_SUNRISE = keepSunrise;
   return html;

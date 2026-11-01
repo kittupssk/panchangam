@@ -377,6 +377,21 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
 html.land-phone .band-wrap.mini { --bh: 64px; }
 html.land-phone .band-wrap.mini .band .bt { display: block !important; font-size: 0.66rem; }
 html.land-phone .band-wrap.mini .band div, html.land-phone[lang="te"] .band-wrap.mini .band div { font-size: 0.95rem; }
+/* Good-time rules */
+.gset { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+.ghead { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.gtools { display: flex; gap: 6px; }
+button.mini { padding: 3px 10px; font-size: 0.8rem; }
+.gsub { color: var(--muted); font-size: 0.82rem; }
+.gopts { display: flex; flex-wrap: wrap; gap: 6px; }
+.gchk { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 8px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-size: 0.88rem; line-height: 1.4; }
+.gchk:has(input:checked) { border-color: var(--good); background: color-mix(in srgb, var(--good) 18%, transparent); }
+.gapply { align-items: center; }
+.gapply button:disabled { opacity: 0.45; cursor: default; }
+.gmsg { font-size: 0.85rem; color: var(--accent); }
+.gmsg.ok { color: var(--good); }
+.gchk input { accent-color: var(--good); margin: 0; }
+.gchk:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 
 <div class="wrap">
@@ -503,13 +518,14 @@ html.land-phone .band-wrap.mini .band div, html.land-phone[lang="te"] .band-wrap
     <div class="tbl-wrap"><table id="nightTbl"></table></div>
   </section>
 
+  <details class="ref" id="goodRef"><summary data-i18n="goodSetTitle">శుభ సమయాల నియమాలు</summary><div class="ref-body" id="goodSet"></div></details>
   <details class="ref" id="daysRef"><summary data-i18n="tenDays">రాబోయే 10 రోజుల పంచాంగం</summary><div class="days tip-host" id="daysBody"></div></details>
   <details class="ref" id="horaRef"><summary data-i18n="horaRef">హోరాధిపతులు - ఫలితములు</summary><div class="ref-body" id="horaRefBody"></div></details>
   <details class="ref" id="taraRef"><summary data-i18n="taraRef">తారలు, అధిపతులు - శాంతులు</summary><div class="ref-body" id="taraRefBody"></div></details>
 
   <div class="note">
     <p><b data-i18n="noteTitle">దేశాంతర కాలము:</b> <span data-i18n="note"></span></p>
-    <div class="good-note"><b data-i18n="goodNoteTitle"></b><div data-i18n-html="goodNote"></div></div>
+    <div class="good-note"><b data-i18n="goodNoteTitle"></b><div id="goodNoteBody"></div></div>
   </div>
 </div>
 
@@ -763,6 +779,19 @@ const I18N = {
     noVarj: "వర్జ్యం లేదు", pending: "అమలు చేయడానికి ‘మళ్ళీ లెక్కించు’ నొక్కండి", nearest: " · మీకు దగ్గరలో",
     errFill: "తేదీ, సూర్యోదయం, సూర్యాస్తమయం, దేశాంతరం నింపండి.", errSet: "సూర్యాస్తమయం సూర్యోదయం తరువాత ఉండాలి. AM/PM సరిచూడండి.",
     goodNoteTitle: "శుభ సమయాలు (హోర పట్టీపై ఆకుపచ్చ గీతలు):",
+    goodSetTitle: "శుభ సమయాల నియమాలు",
+    gsHint: "హోర పట్టీపై ఆకుపచ్చ గీతలు ఏ నియమాలతో చూపాలో ఇక్కడ ఎంచుకుని ‘వర్తింపజేయి’ నొక్కండి. ఎంచుకున్నవన్నీ ఒకేసారి వర్తించే సమయాలే శుభ సమయాలుగా చూపబడతాయి. మీ ఎంపికలు ఈ పరికరంలో భద్రపరచబడతాయి.",
+    gsHora: "హోరలు", gsTithi: "తిథులు", gsTara: "తారలు", gsAvoid: "వదిలివేయవలసినవి",
+    gsShukla: "శుక్ల పక్షం", gsBahula: "బహుళ పక్షం",
+    gsTaraNote: "జన్మ నక్షత్రం ఎంచుకుంటేనే తారల నియమం వర్తిస్తుంది.",
+    gsNoDur: "దుర్ముహూర్తం ఉన్న సమయం వదిలేయి", gsNoVarj: "వర్జ్యం ఉన్న సమయం వదిలేయి",
+    gsAll: "అన్నీ", gsNone: "ఏదీ వద్దు", gsReset: "సాధారణ నియమాలు",
+    gsApply: "వర్తింపజేయి", gsPending: "మార్పులు అమలు కావడానికి ‘వర్తింపజేయి’ నొక్కండి", gsApplied: "నియమాలు వర్తింపజేయబడ్డాయి",
+    gnIntro: "క్రింది నియమాలన్నీ ఒకేసారి వర్తించే సమయాలను శుభ సమయాలుగా చూపుతాము (‘శుభ సమయాల నియమాలు’ విభాగంలో మార్చుకోవచ్చు):",
+    gnHora: (l) => `హోర: ${l} హోరలు.`, gnTithi: (l) => `తిథి: ${l}.`, gnTara: (l) => `తారాబలం: జన్మ నక్షత్రం నుండి ${l}. జన్మ నక్షత్రం ఎంచుకుంటేనే ఈ నియమం వర్తిస్తుంది.`,
+    gnBoth: "దుర్ముహూర్తం, వర్జ్యం లేని సమయం.", gnDur: "దుర్ముహూర్తం లేని సమయం.", gnVarj: "వర్జ్యం లేని సమయం.",
+    gnAllT: "అన్ని తిథులు", gnNone: "ఏదీ ఎంచుకోలేదు – శుభ సమయాలు చూపబడవు", gnMin: "5 నిమిషాల కంటే తక్కువ ఉండే సమయాలు చూపబడవు.",
+    cleanDur: "దుర్ముహూర్తం లేదు", cleanVarj: "వర్జ్యం లేదు",
     goodNote: `<p>క్రింది నియమాలన్నీ ఒకేసారి వర్తించే సమయాలను శుభ సమయాలుగా చూపుతాము:</p><ol>
       <li>హోర: గురు, శుక్ర, బుధ, చంద్ర హోరలు.</li>
       <li>దుర్ముహూర్తం, వర్జ్యం లేని సమయం.</li>
@@ -814,6 +843,19 @@ const I18N = {
     noVarj: "No Varjyam today", pending: "Press Recalculate to apply", nearest: " · nearest to you",
     errFill: "Fill in the date, sunrise, sunset and town offset.", errSet: "Sunset must be later than sunrise. Check the AM/PM on the sunset time.",
     goodNoteTitle: "Good times (green bars on the hora band):",
+    goodSetTitle: "Good-time rules",
+    gsHint: "Choose the rules for the green good-time bars, then press Apply. A time is shown as good only when everything you choose holds at once. Your choices are saved on this device.",
+    gsHora: "Horas", gsTithi: "Tithis", gsTara: "Taras", gsAvoid: "Leave out",
+    gsShukla: "Shukla paksha", gsBahula: "Bahula paksha",
+    gsTaraNote: "The tara rule applies only when a birth nakshatra is chosen.",
+    gsNoDur: "Leave out Durmuhurtham", gsNoVarj: "Leave out Varjyam",
+    gsAll: "All", gsNone: "None", gsReset: "Default rules",
+    gsApply: "Apply", gsPending: "Press Apply for the changes to take effect", gsApplied: "Rules applied",
+    gnIntro: "A time is shown as good only when all of these hold at once (change them under ‘Good-time rules’):",
+    gnHora: (l) => `Hora: ${l} hora.`, gnTithi: (l) => `Tithi: ${l}.`, gnTara: (l) => `Tarabalam: ${l} counted from the birth nakshatra. This applies only when a birth nakshatra is chosen.`,
+    gnBoth: "No Durmuhurtham or Varjyam.", gnDur: "No Durmuhurtham.", gnVarj: "No Varjyam.",
+    gnAllT: "any tithi", gnNone: "none chosen, so no good times are shown", gnMin: "Windows shorter than 5 minutes are left out.",
+    cleanDur: "No Durmuhurtham", cleanVarj: "No Varjyam",
     goodNote: `<p>A time is shown as good only when all of these hold at once:</p><ol>
       <li>Hora: Guru, Sukra, Budha or Chandra hora.</li>
       <li>No Durmuhurtham or Varjyam.</li>
@@ -878,6 +920,7 @@ function applyLang() {
   fillTowns();
   fillJanma();
   buildRefs();
+  if (typeof buildGood === "function" && $("goodSet")) try { buildGood(); } catch (e) {}
   markManual();
   pendingState();
 }
@@ -1608,23 +1651,91 @@ function render() {
 }
 
 // ---------- Good times: good hora lord, no Durmuhurtham/Varjyam, good tara ----------
-const GOOD_HORA = [1, 2, 3, 5];          // Sukra, Budha, Chandra, Guru (index into LORDS)
-const GOOD_TARA = [1, 3, 5, 7, 8];       // taras 2, 4, 6, 8, 9 (0-based)
-// Tithis 2, 3, 5, 7, 10, 11, 13 of both pakshas, Shukla Chaturdashi, Purnima, Bahula Padyami (0 = Shukla Padyami)
-const GOOD_TITHI = [1, 2, 4, 6, 9, 10, 12, 13, 14, 15, 16, 17, 19, 21, 24, 25, 27];
+const GOOD_DEFAULT = { hora: [1, 2, 3, 5], tithi: [1, 2, 4, 6, 9, 10, 12, 13, 14, 15, 16, 17, 19, 21, 24, 25, 27], tara: [1, 3, 5, 7, 8], noDur: true, noVarj: true };
+let GOOD = JSON.parse(JSON.stringify(GOOD_DEFAULT));
+try {
+  const g = JSON.parse(localStorage.getItem("hora-good") || "null");
+  if (g && Array.isArray(g.hora) && Array.isArray(g.tithi) && Array.isArray(g.tara)) GOOD = { hora: g.hora, tithi: g.tithi, tara: g.tara, noDur: g.noDur !== false, noVarj: g.noVarj !== false };
+} catch (e) {}
+const cloneGood = (g) => JSON.parse(JSON.stringify(g));
+let DRAFT = cloneGood(GOOD);
+const sameGood = (a, b) => ["hora", "tithi", "tara"].every((k) => a[k].slice().sort().join() === b[k].slice().sort().join()) && a.noDur === b.noDur && a.noVarj === b.noVarj;
+function saveGood() { try { localStorage.setItem("hora-good", JSON.stringify(GOOD)); } catch (e) {} }
+const tShort = (i) => i === 14 ? (isTe() ? "పౌర్ణమి" : "Purnima") : i === 29 ? (isTe() ? "అమావాస్య" : "Amavasya") : TITHI[i % 15][isTe() ? 1 : 0];
+function goodSetHTML() {
+  const box = (grp, v, label, on) => `<label class="gchk"><input type="checkbox" data-g="${grp}" value="${v}"${on ? " checked" : ""}><span>${label}</span></label>`;
+  const tools = (grp) => `<span class="gtools"><button type="button" class="ghost mini" data-all="${grp}">${L().gsAll}</button><button type="button" class="ghost mini" data-none="${grp}">${L().gsNone}</button></span>`;
+  const tRow = (from) => Array.from({ length: 15 }, (_, k) => box("tithi", from + k, tShort(from + k), DRAFT.tithi.includes(from + k))).join("");
+  return `<p class="muted">${L().gsHint}</p>
+    <div class="gset"><div class="ghead"><b>${L().gsHora}</b>${tools("hora")}</div><div class="gopts">${LORDS.map((l, i) => box("hora", i, lordName(l), DRAFT.hora.includes(i))).join("")}</div></div>
+    <div class="gset"><div class="ghead"><b>${L().gsTithi}</b>${tools("tithi")}</div>
+      <div class="gsub">${L().gsShukla}</div><div class="gopts">${tRow(0)}</div>
+      <div class="gsub">${L().gsBahula}</div><div class="gopts">${tRow(15)}</div></div>
+    <div class="gset"><div class="ghead"><b>${L().gsTara}</b>${tools("tara")}</div><div class="gopts">${TARA_NAME[LANG].map((n, i) => box("tara", i, `${i + 1}. ${n}`, DRAFT.tara.includes(i))).join("")}</div><div class="gsub">${L().gsTaraNote}</div></div>
+    <div class="gset"><div class="ghead"><b>${L().gsAvoid}</b></div><div class="gopts">
+      <label class="gchk"><input type="checkbox" data-g="noDur"${DRAFT.noDur ? " checked" : ""}><span>${L().gsNoDur}</span></label>
+      <label class="gchk"><input type="checkbox" data-g="noVarj"${DRAFT.noVarj ? " checked" : ""}><span>${L().gsNoVarj}</span></label></div></div>
+    <div class="btns gapply"><button type="button" id="goodApply">${L().gsApply}</button><button type="button" class="ghost" id="goodReset">${L().gsReset}</button><span class="gmsg" id="goodMsg" aria-live="polite"></span></div>`;
+}
+function goodNoteHTML() {
+  const list = (a) => a.length ? a.join(isTe() ? ", " : ", ") : L().gnNone;
+  const items = [L().gnHora(list(GOOD.hora.slice().sort((a, b) => a - b).map((i) => lordName(LORDS[i]))))];
+  if (GOOD.noDur && GOOD.noVarj) items.push(L().gnBoth); else if (GOOD.noDur) items.push(L().gnDur); else if (GOOD.noVarj) items.push(L().gnVarj);
+  items.push(L().gnTithi(GOOD.tithi.length === 30 ? L().gnAllT : list(GOOD.tithi.slice().sort((a, b) => a - b).map(tithiName))));
+  if (GOOD.tara.length < 9) items.push(L().gnTara(list(GOOD.tara.slice().sort((a, b) => a - b).map((i) => `${i + 1} (${TARA_NAME[LANG][i]})`))));
+  return `<p>${L().gnIntro}</p><ol>${items.map((x) => `<li>${x}</li>`).join("")}</ol><p>${L().gnMin}</p>`;
+}
+function buildGood() {
+  $("goodSet").innerHTML = goodSetHTML();
+  $("goodNoteBody").innerHTML = goodNoteHTML();
+  applyState();
+}
+// Changes stay in the form until Apply is pressed
+function applyState(msg) {
+  const dirty = !sameGood(DRAFT, GOOD);
+  $("goodApply").disabled = !dirty;
+  $("goodMsg").textContent = msg || (dirty ? L().gsPending : "");
+  $("goodMsg").className = "gmsg" + (msg ? " ok" : "");
+}
+function goodChanged() { applyState(); }
+function applyGood() {
+  GOOD = cloneGood(DRAFT);
+  saveGood(); daysKey = ""; barsKey = "";
+  $("goodNoteBody").innerHTML = goodNoteHTML();
+  render();
+  applyState(L().gsApplied);
+}
+$("goodSet").addEventListener("change", (e) => {
+  const el = e.target, g = el.dataset.g;
+  if (!g) return;
+  if (g === "noDur" || g === "noVarj") DRAFT[g] = el.checked;
+  else { const v = +el.value; DRAFT[g] = DRAFT[g].filter((x) => x !== v); if (el.checked) DRAFT[g].push(v); }
+  goodChanged();
+});
+$("goodSet").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.id === "goodApply") { applyGood(); return; }
+  if (b.id === "goodReset") DRAFT = cloneGood(GOOD_DEFAULT);
+  else if (b.dataset.all) DRAFT[b.dataset.all] = Array.from({ length: { hora: 7, tithi: 30, tara: 9 }[b.dataset.all] }, (_, i) => i);
+  else if (b.dataset.none) DRAFT[b.dataset.none] = [];
+  else return;
+  $("goodSet").innerHTML = goodSetHTML();
+  applyState();
+});
 function goodWindows(r) {
   const riseRef = r.base + r.sunrise * 60000, nextRiseRef = riseRef + 1440 * 60000;
   const shift = $("adjAll").checked ? r.off : 0;
   const toLocal = (ms) => (ms - r.base) / 60000 + shift;
   const naks = dayNaks(r.base, riseRef, nextRiseRef);
-  const bad = dayVarj(r.base, naks, r.sunrise).map((v) => [toLocal(v.start), toLocal(v.end)]);
-  dayDur(r.base, r.wd, r.sunrise, r.sunset, r.off).forEach((x) => bad.push([(x.start - r.base) / 60000, (x.end - r.base) / 60000]));
-  if (janma >= 0) naks.forEach((s) => { if (!GOOD_TARA.includes(taraOf(s.index).t)) bad.push([toLocal(s.start), toLocal(s.end)]); });
+  const bad = GOOD.noVarj ? dayVarj(r.base, naks, r.sunrise).map((v) => [toLocal(v.start), toLocal(v.end)]) : [];
+  if (GOOD.noDur) dayDur(r.base, r.wd, r.sunrise, r.sunset, r.off).forEach((x) => bad.push([(x.start - r.base) / 60000, (x.end - r.base) / 60000]));
+  if (janma >= 0) naks.forEach((s) => { if (!GOOD.tara.includes(taraOf(s.index).t)) bad.push([toLocal(s.start), toLocal(s.end)]); });
   const tithis = dayTithis(r.base, riseRef, nextRiseRef);
-  tithis.forEach((s) => { if (!GOOD_TITHI.includes(s.index)) bad.push([toLocal(s.start), toLocal(s.end)]); });
+  tithis.forEach((s) => { if (!GOOD.tithi.includes(s.index)) bad.push([toLocal(s.start), toLocal(s.end)]); });
   const out = [];
   r.horas.forEach((hr) => {
-    if (!GOOD_HORA.includes(LORDS.indexOf(hr.lord))) return;
+    if (!GOOD.hora.includes(LORDS.indexOf(hr.lord))) return;
     let segs = [[hr.start, hr.end]];
     bad.forEach(([a, b]) => {
       segs = segs.flatMap(([s, e]) => (b <= s || a >= e) ? [[s, e]] : [...(a > s ? [[s, a]] : []), ...(b < e ? [[b, e]] : [])]);
@@ -1641,7 +1752,7 @@ function tipHTML(w, r) {
   // Order: time, no Durmuhurtham/Varjyam, tithi, hora + result, nakshatra/tara + result
   const hr = r.horas[w.i], t = w.nak !== null && janma >= 0 ? taraOf(w.nak).t : null;
   return `<div class="t">${rangeHTML(w.s, w.e)} · ${L().minsF(w.e - w.s)}</div>
-    <div>${L().clean}</div>
+    ${GOOD.noDur && GOOD.noVarj ? `<div>${L().clean}</div>` : GOOD.noDur ? `<div>${L().cleanDur}</div>` : GOOD.noVarj ? `<div>${L().cleanVarj}</div>` : ""}
     ${w.tithi !== null ? `<div>${L().tithi}: <b>${tithiName(w.tithi)}</b></div>` : ""}
     <div class="sec">${L().horaL}: <b>${lordName(w.lord)}</b> (${L().horaNo(hr.isDay, hr.isDay ? hr.i + 1 : hr.i - 11)})</div>
     <div class="fx">${HORA_FX[LANG][LORDS.indexOf(w.lord)]}</div>
@@ -1696,7 +1807,7 @@ function barsHTML(list, r) {
 let barsKey = "";
 function renderBars(list, r) {
   // Rebuild only when the windows change, so an open tooltip survives the 30-second refresh
-  const key = [LANG, janma, r.base, list.map((w) => w.s.toFixed(2) + "-" + w.e.toFixed(2)).join(",")].join("|");
+  const key = [LANG, janma, JSON.stringify(GOOD), r.base, list.map((w) => w.s.toFixed(2) + "-" + w.e.toFixed(2)).join(",")].join("|");
   if (key === barsKey) return;
   barsKey = key;
   const track = $("gtrack");
@@ -1765,7 +1876,7 @@ function placeNowLine(line, r) {
 function renderDays() {
   if (!$("daysRef").open) return;
   const t = systemDate();
-  const key = [isoDate(t), appliedOffset, $("adjAll").checked, LANG, janma, JSON.stringify(BOOKDATA).length].join("|");
+  const key = [isoDate(t), appliedOffset, $("adjAll").checked, LANG, janma, JSON.stringify(GOOD), JSON.stringify(BOOKDATA).length].join("|");
   if (key === daysKey) { if (daysToday) placeNowLine(daysToday.line, daysToday.r); return; }
   daysKey = key;
   const keepSunrise = TE_SUNRISE;

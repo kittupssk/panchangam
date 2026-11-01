@@ -9,7 +9,7 @@ Owner: Krishna. Users read it mostly in Telugu, often on phones.
 |---|---|
 | `src/hora-chart.html` | **The source. Edit this.** Page body: styles, markup, the calculation engine (script 1, `PJ`) and the app (script 2). |
 | `index.html` | **Built file. Never edit by hand.** `npm run build` wraps `src/hora-chart.html` in a full HTML document. GitHub Pages serves it. |
-| `data/book-data.js` | Times transcribed from the reference book (30 Oct 2026 – 7 Apr 2027): tithi, nakshatra, yogam end times, varjyam starts, sunrise/sunset. |
+| `data/book-data.js` | Times transcribed from the reference book (30 Oct 2026 – 7 Apr 2027): tithi, nakshatra, yogam end times, varjyam starts, sunrise/sunset, lagna end times (14 Oct 2026 – 6 Apr 2027). |
 | `data/book-pages/` | Photos of the book pages the data came from. Check these when a book value looks wrong. |
 | `tests/` | `accuracy.js` (engine vs book), `ui.js` (layout/behaviour on desktop, phone, phone sideways, te/en), `paste.js` (WhatsApp paste). |
 | `tools/build.js` | Build / `--check` that `index.html` matches the source. |
@@ -28,11 +28,11 @@ Screenshots from `npm run test:ui` land in `test-output/` (git-ignored). Look at
 
 - The reference is a Telugu panchangam book for **Rajahmundry** (lat 17.50, lon 82.45). When the WhatsApp channel and the book differ, **follow the book**.
 - The engine is Surya Siddhanta with constants fitted to the book (`MOON_FIX`, `SUN_FIX`, `EOT_K`, `SHIFT_MIN` …). Do not change them without running `npm run test:accuracy` before and after, and only keep a change that improves it.
-- Current fit (page minus book): tithi rms ≈1.8 min, nakshatra ≈3.0, varjyam ≈2.9, yogam ≈2.3, sunrise ≈0.8. A few book entries are known outliers (listed in `tests/accuracy.js` with reasons).
+- Current fit (page minus book): tithi rms ≈1.8 min, nakshatra ≈3.0, varjyam ≈2.9, yogam ≈2.3, sunrise ≈0.8, lagna ≈2.8 (not fitted). A few book entries are known outliers (listed in `tests/accuracy.js` with reasons).
 - Sunrise/sunset: Sun's centre, no refraction, at Rajahmundry.
 - Varjyam and Amrutakalam: start ghati tables per nakshatra, 4 ghatis long (tables in the source; verified against the book).
 - Durmuhurtham, Rahu kalam, Yamagandam: from **actual sunrise to sunset** (day in 8 parts for Rahu/Yama). Not the 6 AM–6 PM convention the channel uses. Pasted Rahu/Yama values are ignored on purpose.
-- Abhijit muhurtham: 8th of the 15 day muhurtas (sunrise to sunset). Abhijit lagnam (book's definition): the **4th lagna from the lagna at sunrise**, i.e. 4th rashi from the Sun's rashi at the Rajahmundry sunrise, shown as one item with its full rising period that day (around midday). Not the lagna(s) during the muhurtham window. Lagna is worked out at Rajahmundry (ascendant from sidereal time; ayanamsa = modern tropical Sun − engine Sun, so lagna at sunrise = Sun). The town offset moves both, as the book does for muhurtham lagnas. Lagna times not yet checked against a book lagna table (only the 11 Apr 2027 Vrishabha example in the book's note).
+- Abhijit muhurtham: 8th of the 15 day muhurtas (sunrise to sunset). Abhijit lagnam (book's definition): the **4th lagna from the lagna at sunrise**, i.e. 4th rashi from the Sun's rashi at the Rajahmundry sunrise, shown as one item with its full rising period that day (around midday). Not the lagna(s) during the muhurtham window. Lagna is worked out at Rajahmundry (ascendant from sidereal time; ayanamsa = modern tropical Sun − engine Sun, so lagna at sunrise = Sun). The town offset moves both, as the book does for muhurtham lagnas. Lagna end times checked against the book's lagnantha table (1,656 times, 14 Oct 2026 - 6 Apr 2027): rms ≈2.8 min, max ≈5.8; the engine runs ≈2.4 min early on average (likely a small ayanamsa difference plus the book's simplified ~4 min/day table). This is a reference check only: the owner does not want the lagna adjusted to match the book.
 - Moudhyam: Guru within 11° of the Sun; Sukra within 10° (8° while retrograde). Precomputed table 2025–2040 from modern positions (may differ from the book by about a day).
 - Masam is amanta, named by the rashi the Sun enters; samvatsaram changes at Ugadi.
 

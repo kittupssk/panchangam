@@ -56,6 +56,26 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
     await page.waitForTimeout(200);
     const rows = await page.evaluate(() => document.querySelectorAll("#daysBody .drow").length);
     check(rows === 10, `10-day section has ${rows} rows`);
+    // Day card: the calendar line (samvatsaram · ayanam · rutuvu · masam · paksham) comes right after the head, once
+    const samvWord = lang === "te" ? "నామ సంవత్సరం" : "samvatsaram";
+    const cards = await page.evaluate((w) => [...document.querySelectorAll("#daysBody .drow")].map((r) => {
+      const box = document.createElement("div");
+      box.innerHTML = r.querySelector(".dlabel").dataset.tip;
+      const day = box.querySelector(".day"), second = day && day.children[1];
+      return { second: second ? second.className : "", has: second ? second.textContent.includes(w) : false, count: day ? day.textContent.split(w).length - 1 : 0,
+        same: r.querySelector(".band").dataset.tip === r.querySelector(".dlabel").dataset.tip };
+    }), samvWord);
+    check(cards.every((c) => c.second === "day-cal" && c.has), "10-day card: second line is not the calendar line: " + JSON.stringify(cards[0]));
+    check(cards.every((c) => c.count === 1), "10-day card: samvatsaram shown more than once: " + cards.map((c) => c.count).join(","));
+    check(cards.every((c) => c.same), "10-day card: day label and band show different cards");
+    // Today's card shows the same calendar line as the panchangam (#panchCal)
+    const todayIso = await page.evaluate(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; });
+    await page.fill("#date", todayIso); await page.dispatchEvent("#date", "input"); await page.waitForTimeout(150);
+    const calCmp = await page.evaluate(() => { const b = document.createElement("div"), n = (s) => s.replace(/\s+/g, " ").trim();
+      b.innerHTML = document.querySelector("#daysBody .drow .dlabel").dataset.tip;
+      return [n(b.querySelector(".day-cal").textContent), n(document.getElementById("panchCal").textContent)]; });
+    check(calCmp[0] === calCmp[1], "today's 10-day card calendar line differs from #panchCal: " + calCmp.join(" vs "));
+    await page.fill("#date", "2026-10-31"); await page.dispatchEvent("#date", "input"); await page.waitForTimeout(150);
     // Good-time rules: nothing changes until Apply
     await page.evaluate(() => { document.getElementById("goodRef").open = true; });
     const bars = () => page.evaluate(() => document.querySelectorAll("#gtrack .gbar").length);
@@ -93,7 +113,16 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
     await page.locator("#daysBody .drow .dlabel").first().click();
     await page.waitForTimeout(150);
     const tip = page.locator("#daysBody .gtip");
-    if (await tip.isVisible()) await tip.screenshot({ path: path.join(OUT, `${v.name}-${lang}-today-card.png`) });
+    if (await tip.isVisible()) {
+      await tip.screenshot({ path: path.join(OUT, `${v.name}-${lang}-today-card.png`) });
+      const o = await page.evaluate(() => ({ second: (document.querySelector("#daysBody .gtip:not([hidden]) .day > :nth-child(2)") || {}).className,
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        itemOut: (() => { const c = document.querySelector("#daysBody .gtip:not([hidden]) .day-cal"); if (!c) return -1; const r = c.getBoundingClientRect();
+          return [...c.querySelectorAll(".ci")].filter((s) => s.getBoundingClientRect().right > r.right + 1).length; })() }));
+      check(o.itemOut === 0, `open 10-day card: ${o.itemOut} calendar items stick out of the card`);
+      check(o.second === "day-cal", "open 10-day card: second line is " + o.second);
+      check(o.overflow <= 1, `page scrolls sideways by ${o.overflow}px with a 10-day card open`);
+    }
     await page.keyboard.press("Escape");
     // A past date: nothing is marked
     await page.fill("#date", "2026-10-31");

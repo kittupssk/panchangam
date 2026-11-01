@@ -232,6 +232,8 @@ details.ref summary:focus-visible { outline: 2px solid var(--accent); outline-of
 .day-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
 .day-head b { font-size: 1.02rem; }
 .day-head .sun { color: var(--muted); font: 0.85rem var(--font-mono); }
+.day-cal { color: var(--muted); font-size: 0.82rem; line-height: 1.5; overflow-wrap: break-word; margin-bottom: 2px; }
+.day-cal .ci { display: inline-block; max-width: 100%; }   /* one item per unit; wraps inside only if wider than the card */
 .day-row { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 2px 10px; font-size: 0.92rem; }
 .day-row .k { color: var(--muted); font-size: 0.82rem; padding-top: 2px; }
 .day-row .v { display: grid; gap: 2px; min-width: 0; }
@@ -1248,10 +1250,17 @@ function calInfo(base, riseRef) {
   const shaka = p.M <= 4 && masa >= 8 ? p.Y - 79 : p.Y - 78;
   return { samv: (shaka + 11) % 60, masa, adhika, rutu: Math.floor(masa / 2), uttara, bahula: tIdx >= 15 };
 }
-function calLine(c) {
+// Calendar line items (samvatsaram, ayanam, rutuvu, masam, paksham)
+function calParts(c) {
   return isTe()
-    ? `శ్రీ ${SAMV.te[c.samv]} నామ సంవత్సరం · ${c.uttara ? "ఉత్తరాయణం" : "దక్షిణాయనం"} · ${RUTU.te[c.rutu]} ఋతువు · ${c.adhika ? "అధిక " : ""}${MASA.te[c.masa]} మాసం · ${c.bahula ? "బహుళ" : "శుక్ల"} పక్షం`
-    : `${SAMV.en[c.samv]} samvatsaram · ${c.uttara ? "Uttarayana" : "Dakshinayana"} · ${RUTU.en[c.rutu]} ritu · ${c.adhika ? "Adhika " : ""}${MASA.en[c.masa]} masam · ${c.bahula ? "Bahula" : "Shukla"} paksham`;
+    ? [`శ్రీ ${SAMV.te[c.samv]} నామ సంవత్సరం`, `${c.uttara ? "ఉత్తరాయణం" : "దక్షిణాయనం"}`, `${RUTU.te[c.rutu]} ఋతువు`, `${c.adhika ? "అధిక " : ""}${MASA.te[c.masa]} మాసం`, `${c.bahula ? "బహుళ" : "శుక్ల"} పక్షం`]
+    : [`${SAMV.en[c.samv]} samvatsaram`, `${c.uttara ? "Uttarayana" : "Dakshinayana"}`, `${RUTU.en[c.rutu]} ritu`, `${c.adhika ? "Adhika " : ""}${MASA.en[c.masa]} masam`, `${c.bahula ? "Bahula" : "Shukla"} paksham`];
+}
+function calLine(c) { return calParts(c).join(" · "); }
+// Day-card version: each item kept together, separator at the end of the item before it
+function calLineHTML(c) {
+  const p = calParts(c);
+  return p.map((x, i) => `<span class="ci">${x}${i < p.length - 1 ? " ·" : ""}</span>`).join(" ");
 }
 
 // Amrutakalam: starting ghati (of 60) from the nakshatra's start, 4 ghatis long (checked against the book)
@@ -1939,6 +1948,7 @@ function dayInfoHTML(Y, M, D, isToday, nowMs = Date.now()) {
   const html = `<div class="day">
     <div class="day-head"><b>${pad(D)}/${pad(M)} · ${L().varaS[wd]}${isToday ? ` · ${L().today}` : ""}</b>
       <span class="sun">${isTe() ? `సూ.ఉ. ${fmt(sr + off).te} · సూ.అ. ${fmt(ss + off).te}` : `${L().srS} ${bareTime(sr + off)} · ${L().ssS} ${bareTime(ss + off)}`}</span></div>
+    <div class="day-cal">${calLineHTML(calInfo(base, riseRef))}</div>
     ${row(L().tithi, bookList(tithis, nextRef).map((x) => `<span>${tithiName(x.s.index)} ${bookSpan(x, toLocal)}</span>`))}
     ${row(L().nak, bookList(naks, nextRef).map((x) => `<span>${nakName(x.s.index)} ${bookSpan(x, toLocal)}</span>`))}
     ${janma >= 0 ? row(L().taraTitle, naks.map((s, i) => { const x = taraOf(s.index), g = TARA_GOOD[x.t];
@@ -1949,7 +1959,6 @@ function dayInfoHTML(Y, M, D, isToday, nowMs = Date.now()) {
     ${row(L().rahu, dayRahu(base, wd, sr, ss, off).map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span></span>`))}
     ${row(L().yama, dayYama(base, wd, sr, ss, off).map((x) => `<span><span class="when">${rangeHTML((x.start - base) / 60000, (x.end - base) / 60000)}</span></span>`))}
     ${(() => { const ab = dayAbhijit(base, sr, ss, off); return row(L().abhS, [`<span><span class="when">${rangeHTML((ab.start - base) / 60000, (ab.end - base) / 60000)}</span></span>`, ...abhLagnaHTML(ab, base)]); })()}
-    <div class="meta" style="margin-top:4px">${calLine(calInfo(base, riseRef))}</div>
   </div>`;
   TE_SUNRISE = keepSunrise;
   return html;

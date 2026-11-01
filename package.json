@@ -1,0 +1,18 @@
+{
+  "name": "panchangam-hora-chakram",
+  "private": true,
+  "description": "Panchangam - Hora Chakram: Telugu panchangam and daily hora chart (Rajahmundry reference)",
+  "scripts": {
+    "build": "node tools/build.js",
+    "check-build": "node tools/build.js --check",
+    "test:accuracy": "node tests/accuracy.js",
+    "test:ui": "node tests/ui.js",
+    "test:paste": "node tests/paste.js",
+    "test": "node tools/build.js --check && node tests/accuracy.js && node tests/ui.js && node tests/paste.js",
+    "moodham": "node tools/moodham-gen.js"
+  },
+  "devDependencies": {
+    "astronomy-engine": "2.1.19",
+    "playwright": "^1.40.0"
+  }
+}

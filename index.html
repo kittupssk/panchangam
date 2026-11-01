@@ -349,6 +349,16 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
   html:not(.land-phone) #bandWrap .band .bt { display: block; }
   html:not(.land-phone) #bandWrap .band div, html:not(.land-phone)[lang="te"] #bandWrap .band div { font-size: 0.8rem; letter-spacing: 0; }
 }
+/* 10-day bands scroll sideways on phones, date labels stay pinned on the left */
+.days-scroll { overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.days-inner { position: relative; }
+@media (max-width: 699px) {
+  html:not(.land-phone) .days-inner { width: max-content; min-width: 100%; }
+  html:not(.land-phone) .drow { grid-template-columns: 3.6rem 900px; }
+  html:not(.land-phone) .drow .dlabel { position: sticky; left: 0; z-index: 4; background: var(--surface); margin-left: -10px; padding-left: 10px; box-shadow: 6px 0 8px -4px rgb(0 0 0 / 0.6); }
+  html:not(.land-phone) .drow.today .dlabel { background: color-mix(in srgb, var(--accent-soft) 60%, var(--surface)); }
+  html:not(.land-phone) .band-wrap.mini .band div { font-size: 0.7rem; letter-spacing: 0; }
+}
 </style>
 
 <div class="wrap">
@@ -1497,7 +1507,7 @@ function panchangam(r) {
 function rowHTML(h, cur) {
   return `<tr class="${cur ? "cur" : ""} ${qual(h.lord)}">
     <td class="n">${h.isDay ? h.i + 1 : h.i - 11}</td>
-    <td><span class="lord"><span class="glyph">${abbr(h.lord)}</span><b>${lordName(h.lord)}</b>${LANG === "en" ? `<em>${h.lord.e}</em>` : ""}${cur ? `<span class="tag">${L().now}</span>` : ""}</span></td>
+    <td><span class="lord"><span class="glyph">${abbr(h.lord)}</span><b>${lordName(h.lord)}</b>${LANG === "en" ? `<em>${h.lord.e}</em>` : ""}</span></td>
     <td class="t">${timeHTML(h.start)}</td>
     <td class="t">${timeHTML(h.end)}</td>
   </tr>`;
@@ -1752,14 +1762,14 @@ function renderDays() {
   }
   TE_SUNRISE = keepSunrise;
   const body = $("daysBody");
-  body.innerHTML = days.map((x, i) => `<div class="drow${i === 0 ? " today" : ""}" data-i="${i}">
+  body.innerHTML = `<div class="days-scroll"><div class="days-inner">` + days.map((x, i) => `<div class="drow${i === 0 ? " today" : ""}" data-i="${i}">
       <div class="dlabel"><b>${pad(x.r.D)}/${pad(x.r.M)}</b><span>${L().varaS[x.r.wd]}</span>${i === 0 ? `<small>${L().today}</small>` : ""}${x.r.pasted ? `<small class="src">${L().pasted}</small>` : ""}</div>
       <div class="band-wrap mini">
         <div class="band">${x.r.horas.map((h) => `<div class="${h.isDay ? "d" : "n"} ${qual(h.lord)}"><span>${abbr(h.lord)}</span></div>`).join("")}</div>
         <div class="gtrack">${barsHTML(x.list, x.r)}</div>
         ${i === 0 ? `<div class="nowline" hidden></div>` : ""}
       </div>
-    </div>`).join("") + `<div class="gtip" role="tooltip" hidden></div>`;
+    </div>`).join("") + `</div></div><div class="gtip" role="tooltip" hidden></div>`;
   body.querySelectorAll(".drow").forEach((row) => {
     const x = days[+row.dataset.i];
     [row.querySelector(".dlabel"), row.querySelector(".band")].forEach((el) => { el.dataset.tip = x.info; el.dataset.wide = "1"; });
@@ -1768,6 +1778,13 @@ function renderDays() {
   bindTips(body);
   daysToday = { r: days[0].r, line: body.querySelector(".nowline") };
   if (daysToday.line) placeNowLine(daysToday.line, daysToday.r);
+  // On phones the bands scroll sideways together; start near the current time
+  const sc = body.querySelector(".days-scroll"), band0 = body.querySelector(".drow .band");
+  sc.addEventListener("scroll", () => { if (!body.querySelector(".gtip").hidden) hideTip(); }, { passive: true });
+  if (sc.scrollWidth > sc.clientWidth + 4 && daysToday.line && !daysToday.line.hidden) {
+    const x = band0.offsetLeft + band0.offsetWidth * parseFloat(daysToday.line.style.left) / 100;
+    sc.scrollLeft = Math.max(0, x - sc.clientWidth / 2);
+  }
 }
 
 // Horas of the day before the selected date, from calculated sunrise/sunset, for the pre-sunrise "now" card

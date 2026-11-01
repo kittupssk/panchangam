@@ -64,6 +64,7 @@ Screenshots from `npm run test:ui` land in `test-output/` (git-ignored). Look at
 - Dark theme only. Default date = today. Telugu is the default language.
 - Panchangam: two columns on wide screens (main details left; yogam, karanam, Rahu kalam, Yamagandam, rashis, Abhijit, moudhyam right), one column on phones.
 - Main hora band and 10-day bands are the same size. On upright phones they scroll sideways and start at the current time. Phones held sideways (`html.land-phone`, set from the real screen orientation) show the band first and taller.
+- The 10-day section starts from the selected date (default today) and its heading names the start date (`dd/mm నుండి 10 రోజుల పంచాంగం`). The today label, highlight, now line and tara Now chip appear only on the real today's row, if it is among the 10 days.
 - 10-day day card (tooltip): line 1 date · day · sunrise/sunset; line 2 samvatsaram · ayanam · rutuvu · masam · paksham (each item kept on one line); then tithi, nakshatra and the other rows.
 - Tarabalam: a day can have 2–3 taras; the one running now is highlighted with a ఇప్పుడు / Now chip (panel and today's 10-day card). "Now" is inside the day from the town's sunrise to the next town sunrise.
 - No horizontal scrolling of the page itself at 390 px width.

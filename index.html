@@ -7,7 +7,7 @@
 <style>:root{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;background:#12111d;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>Daily Hora Chart</title>
+<title>Panchangam - Hora Chakram</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -328,11 +328,32 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
 .good-note { display: grid; gap: 4px; }
 .good-note p { margin: 0; }
 .good-note ol { margin: 2px 0 2px 1.2em; padding: 0; display: grid; gap: 2px; }
+/* Panchangam in two columns: main details left, the rest right */
+.pcols { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); border-top: 1px solid var(--line); }
+.pcol > .prow:first-child { border-top: 0; }
+.pcol.more { border-left: 1px solid var(--line); }
+.pcol.more .prow { grid-template-columns: 7.5rem minmax(0, 1fr); }
+@media (max-width: 760px) {
+  .pcols { grid-template-columns: minmax(0, 1fr); }
+  .pcol.more { border-left: 0; border-top: 1px solid var(--line); }
+  .pcol.more .prow { grid-template-columns: 9.5rem minmax(0, 1fr); }
+}
+@media (max-width: 520px) { .pcol.more .prow { grid-template-columns: minmax(0, 1fr); } }
+/* Main hora band: fits on wide screens, scrolls sideways on phones */
+#bandWrap { padding-top: 0; }
+.band-scroll { overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.band-inner { position: relative; padding-top: 12px; padding-bottom: 4px; }
+@media (max-width: 699px) {
+  html:not(.land-phone) .band-inner { width: 1000px; }
+  html:not(.land-phone) #bandWrap { --bh: 50px; }
+  html:not(.land-phone) #bandWrap .band .bt { display: block; }
+  html:not(.land-phone) #bandWrap .band div, html:not(.land-phone)[lang="te"] #bandWrap .band div { font-size: 0.8rem; letter-spacing: 0; }
+}
 </style>
 
 <div class="wrap">
   <header class="top">
-    <h1 data-i18n="title">హోర చక్రం</h1>
+    <h1 data-i18n="title">పంచాంగం - హోర చక్రం</h1>
     <select id="lang" class="lang" aria-label="Language / భాష">
       <option value="te">తెలుగు</option>
       <option value="en">English</option>
@@ -395,17 +416,27 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
       <span id="panchRange"></span>
       <div class="cal-line" id="panchCal"></div>
     </div>
-    <div class="prow"><div class="eyebrow" data-i18n="tithi">తిథి</div><div class="items" id="pTithi"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="nak">నక్షత్రం</div><div class="items" id="pNak"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="yoga">యోగం</div><div class="items" id="pYoga"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="karana">కరణం</div><div class="items" id="pKarana"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="varj">వర్జ్యం</div><div class="items" id="pVarj"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="dur">దుర్ముహూర్తం</div><div class="items" id="pDur"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="amrit">అమృతకాలం</div><div class="items" id="pAmrit"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="rahu">రాహుకాలం</div><div class="items" id="pRahu"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="yama">యమగండం</div><div class="items" id="pYama"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="sunRasi">సూర్యరాశి</div><div class="items" id="pSunRasi"></div></div>
-    <div class="prow"><div class="eyebrow" data-i18n="moonRasi">చంద్రరాశి</div><div class="items" id="pMoonRasi"></div></div>
+    <div class="pcols">
+      <div class="pcol">
+      <div class="prow"><div class="eyebrow" data-i18n="date">తేదీ</div><div class="items" id="pDate"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="varaL">వారం</div><div class="items" id="pVara"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="srL">సూర్యోదయం</div><div class="items" id="pSr"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="ssL">సూర్యాస్తమయం</div><div class="items" id="pSs"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="tithi">తిథి</div><div class="items" id="pTithi"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="nak">నక్షత్రం</div><div class="items" id="pNak"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="varj">వర్జ్యం</div><div class="items" id="pVarj"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="dur">దుర్ముహూర్తం</div><div class="items" id="pDur"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="amrit">అమృతకాలం</div><div class="items" id="pAmrit"></div></div>
+      </div>
+      <div class="pcol more">
+      <div class="prow"><div class="eyebrow" data-i18n="yoga">యోగం</div><div class="items" id="pYoga"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="karana">కరణం</div><div class="items" id="pKarana"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="rahu">రాహుకాలం</div><div class="items" id="pRahu"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="yama">యమగండం</div><div class="items" id="pYama"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="sunRasi">సూర్యరాశి</div><div class="items" id="pSunRasi"></div></div>
+      <div class="prow"><div class="eyebrow" data-i18n="moonRasi">చంద్రరాశి</div><div class="items" id="pMoonRasi"></div></div>
+      </div>
+    </div>
     <div class="panch-foot">
       <label class="check"><input type="checkbox" id="adjAll"> <span data-i18n="adjAll">తిథి, నక్షత్ర, వర్జ్యాలకు కూడా దేశాంతరం కలుపు</span></label>
     </div>
@@ -425,10 +456,12 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
   <div class="stats" id="stats"></div>
 
   <div class="band-wrap tip-host" id="bandWrap">
+    <div class="band-scroll" id="bandScroll"><div class="band-inner">
     <div class="band" id="band" aria-hidden="true"></div>
     <div class="gtrack" id="gtrack"></div>
     <div class="nowline" id="nowLine" hidden></div>
     <div class="band-legend" id="bandLegend"></div>
+    </div></div>
     <div class="gtip" id="gtip" role="tooltip" hidden></div>
   </div>
 
@@ -689,13 +722,14 @@ const MASA_GOOD = [true, true, false, true, true, true, false, true, true];
 // ---------- Language ----------
 const I18N = {
   te: {
-    title: "హోర చక్రం", date: "తేదీ", town: "మీ ఊరు", offset: "రాజమండ్రి నుండి దేశాంతరం (ని॥)", recalc: "మళ్ళీ లెక్కించు",
+    title: "పంచాంగం - హోర చక్రం", date: "తేదీ", town: "మీ ఊరు", offset: "రాజమండ్రి నుండి దేశాంతరం (ని॥)", recalc: "మళ్ళీ లెక్కించు",
     sunrise: "రాజమండ్రి<br>సూర్యోదయం", sunset: "రాజమండ్రి<br>సూర్యాస్తమయం", useCalc: "లెక్కించిన సమయం వాడు", jump: "ప్రస్తుత హోర చూపు",
     panch: "పంచాంగం", tithi: "తిథి", nak: "నక్షత్రం", varj: "వర్జ్యం", dur: "దుర్ముహూర్తం",
     adjAll: "తిథి, నక్షత్ర, వర్జ్యాలకు కూడా దేశాంతరం కలుపు", dayH: "పగటి హోరలు", nightH: "రాత్రి హోరలు",
     lordH: "హోరాధిపతి", starts: "ప్రారంభం", ends: "ముగింపు", now: "ఇప్పుడు", night: "రాత్రి",
     calc: "లెక్కించినది", entered: "మీరు మార్చినది",
     dayLen: "పగటి కాలం", dayHora: "పగటి హోర", nightHora: "రాత్రి హోర", curHora: "ప్రస్తుత హోర", notIn: "ఈ పట్టికలో లేదు",
+    varaL: "వారం", srL: "సూర్యోదయం", ssL: "సూర్యాస్తమయం",
     yoga: "యోగం", karana: "కరణం", rahu: "రాహుకాలం", sunRasi: "సూర్యరాశి", moonRasi: "చంద్రరాశి",
     amrit: "అమృతకాలం", yama: "యమగండం", noAmrit: "అమృతకాలం లేదు",
     noVarj: "వర్జ్యం లేదు", pending: "అమలు చేయడానికి ‘మళ్ళీ లెక్కించు’ నొక్కండి", nearest: " · మీకు దగ్గరలో",
@@ -739,13 +773,14 @@ const I18N = {
     padyami: (d, t, nk) => `శుద్ధ పాడ్యమి ప్రవేశం ${d} ${t} · ${nk} నక్షత్రం`,
   },
   en: {
-    title: "Daily Hora Chart", date: "Date", town: "Your town", offset: "Offset from Rajahmundry (min)", recalc: "Recalculate",
+    title: "Panchangam - Hora Chakram", date: "Date", town: "Your town", offset: "Offset from Rajahmundry (min)", recalc: "Recalculate",
     sunrise: "Rajahmundry<br>sunrise", sunset: "Rajahmundry<br>sunset", useCalc: "Use calculated sunrise", jump: "Jump to current hora",
     panch: "Panchangam", tithi: "Tithi", nak: "Nakshatra", varj: "Varjyam", dur: "Durmuhurtham",
     adjAll: "Apply the town offset to tithi, nakshatra and Varjyam too", dayH: "Day horas", nightH: "Night horas",
     lordH: "Hora lord", starts: "Starts", ends: "Ends", now: "Now", night: "night",
     calc: "Calculated", entered: "Entered by you",
     dayLen: "Day length", dayHora: "Day hora", nightHora: "Night hora", curHora: "Current hora", notIn: "Not in this chart",
+    varaL: "Varam", srL: "Sunrise", ssL: "Sunset",
     yoga: "Yogam", karana: "Karanam", rahu: "Rahu kalam", sunRasi: "Surya rashi", moonRasi: "Chandra rashi",
     amrit: "Amrutakalam", yama: "Yamagandam", noAmrit: "No Amrutakalam today",
     noVarj: "No Varjyam today", pending: "Press Recalculate to apply", nearest: " · nearest to you",
@@ -1122,8 +1157,7 @@ function dayAmrit(base, naks, srMin) {
 // Yamagandam: daytime in 8 parts; part by weekday (Sun 5, Mon 4, Tue 3, Wed 2, Thu 1, Fri 7, Sat 6)
 const YAMA_PART = [5, 4, 3, 2, 1, 7, 6];
 function dayYama(base, wd, srMin, ssMin, off) {
-  const b = bookFor(base);
-  if (b && b.yama && b.yama.length) return b.yama.map(([s, e]) => ({ start: base + (s + off) * 60000, end: base + (e + off) * 60000 }));
+  // Always sunrise-to-sunset (same principle as the book's durmuhurtham); pasted 6-to-6 values are not used
   const part = (ssMin - srMin) / 8, s = srMin + off + (YAMA_PART[wd] - 1) * part;
   return [{ start: base + s * 60000, end: base + (s + part) * 60000 }];
 }
@@ -1156,8 +1190,7 @@ function karanaName(k) {
 // Rahu kalam: daytime in 8 parts; part by weekday (Sun 8, Mon 2, Tue 7, Wed 5, Thu 6, Fri 4, Sat 3)
 const RAHU_PART = [8, 2, 7, 5, 6, 4, 3];
 function dayRahu(base, wd, srMin, ssMin, off) {
-  const b = bookFor(base);
-  if (b && b.rahu && b.rahu.length) return b.rahu.map(([s, e]) => ({ start: base + (s + off) * 60000, end: base + (e + off) * 60000 }));
+  // Always sunrise-to-sunset (same principle as the book's durmuhurtham); pasted 6-to-6 values are not used
   const part = (ssMin - srMin) / 8, s = srMin + off + (RAHU_PART[wd] - 1) * part;
   return [{ start: base + s * 60000, end: base + (s + part) * 60000 }];
 }
@@ -1452,7 +1485,12 @@ function panchangam(r) {
     return `<div class="item"><span class="when">${rangeHTML(a, b)}</span>${isLive ? `<span class="chip avoid">${L().now}</span>` : ""}</div>`;
   }).join("");
   $("panchCal").textContent = calLine(calInfo(r.base, riseRef));
-  $("panchRange").innerHTML = L().range(plainShort(r.sunrise + r.off), plainShort(r.sunrise + r.off + 1440)) + (bookFor(r.base) ? ` <span class="chip good">${L().pastedChip}</span>` : "");
+  const p2 = (n) => String(n).padStart(2, "0");
+  $("pDate").innerHTML = `<div class="item"><span class="name">${p2(r.D)}-${p2(r.M)}-${r.Y}</span></div>`;
+  $("pVara").innerHTML = `<div class="item"><span class="name">${VARA[LANG][r.wd]}${isTe() ? ` (${VASARA[r.wd]})` : ""}</span></div>`;
+  $("pSr").innerHTML = `<div class="item"><span class="when">${shortHTML(r.sunrise + r.off)}</span></div>`;
+  $("pSs").innerHTML = `<div class="item"><span class="when">${shortHTML(r.sunset + r.off)}</span></div>`;
+  $("panchRange").innerHTML = bookFor(r.base) ? `<span class="chip good">${L().pastedChip}</span>` : "";
   return live;
 }
 
@@ -1527,6 +1565,12 @@ function render() {
     nl.style.left = ((curIdx + (now - hc.start) / (hc.end - hc.start)) * 100 / 24) + "%";
     nl.hidden = false;
   } else nl.hidden = true;
+  const sc = $("bandScroll"), sKey = [r.base, r.off].join("|");
+  if (sc.scrollWidth > sc.clientWidth + 4 && sc.dataset.k !== sKey) {
+    sc.dataset.k = sKey;
+    const at = curIdx >= 0 ? parseFloat(nl.style.left) / 100 : 0;
+    sc.scrollLeft = Math.max(0, at * sc.scrollWidth - sc.clientWidth / 3);
+  }
   $("bandLegend").innerHTML = `<span>${plainShort(r.horas[0].start)}</span><span>${plainShort(r.horas[12].start)}</span><span>${plainShort(r.horas[23].end)}</span>`;
 
   $("dayRange").textContent = `${plain(r.horas[0].start)} – ${plain(r.horas[11].end)}`;
@@ -1788,6 +1832,7 @@ $("offset").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.prev
 $("apply").addEventListener("click", applyOffset);
 $("city").addEventListener("change", () => { nearestNote = false; chooseTown(+$("city").value); render(); });
 $("adjAll").addEventListener("change", render);
+$("bandScroll").addEventListener("scroll", () => { if (!$("gtip").hidden) hideTip(); }, { passive: true });
 $("pasteApply").addEventListener("click", applyPaste);
 $("pasteClear").addEventListener("click", clearPaste);
 $("janma").addEventListener("change", () => { janma = +$("janma").value; render(); });

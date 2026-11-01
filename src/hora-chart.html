@@ -531,7 +531,7 @@ button.mini { padding: 3px 10px; font-size: 0.8rem; }
   </section>
 
   <details class="ref" id="goodRef"><summary data-i18n="goodSetTitle">శుభ సమయాల నియమాలు</summary><div class="ref-body" id="goodSet"></div></details>
-  <details class="ref" id="daysRef"><summary data-i18n-html="tenDays">రాబోయే 10 రోజుల పంచాంగం</summary><div class="days tip-host" id="daysBody"></div></details>
+  <details class="ref" id="daysRef"><summary id="daysTitle">10 రోజుల పంచాంగం</summary><div class="days tip-host" id="daysBody"></div></details>
   <details class="ref" id="horaRef"><summary data-i18n="horaRef">హోరాధిపతులు - ఫలితములు</summary><div class="ref-body" id="horaRefBody"></div></details>
   <details class="ref" id="taraRef"><summary data-i18n="taraRef">తారలు, అధిపతులు - శాంతులు</summary><div class="ref-body" id="taraRefBody"></div></details>
 
@@ -848,7 +848,7 @@ const I18N = {
     needJanma: "తారాబలం కూడా చూడాలంటే క్రింద జన్మ నక్షత్రం ఎంచుకోండి.",
     goodTotalF: (n, m) => `${n} సమయాలు · మొత్తం ${Math.floor(m / 60)} గం ${pad(Math.round(m % 60))} ని`,
     minsF: (m) => `${Math.round(m)} ని`,
-    tenDays: "రాబోయే 10 రోజుల పంచాంగం", srS: "సూ.ఉ", ssS: "సూ.అ", varaS: ["ఆది", "సోమ", "మంగళ", "బుధ", "గురు", "శుక్ర", "శని"], today: "ఈ రోజు",
+    tenDays: (d) => `${pad(d.D)}/${pad(d.M)} నుండి 10 రోజుల పంచాంగం`, srS: "సూ.ఉ", ssS: "సూ.అ", varaS: ["ఆది", "సోమ", "మంగళ", "బుధ", "గురు", "శుక్ర", "శని"], today: "ఈ రోజు",
     taraTitle: "తారాబలం", janma: "జన్మ నక్షత్రం", choose: "ఎంచుకోండి", taraHint: "జన్మ నక్షత్రం ఎంచుకుంటే, ఈ రోజు నక్షత్రాలకు తారాబలం చూపుతుంది.",
     good: "మంచిది", bad: "చెడ్డది", avoid: "పూర్తిగా విసర్జించాలి", masa: "మాసఫలము",
     horaRef: "హోరాధిపతులు - ఫలితములు", taraRef: "తారలు, అధిపతులు - శాంతులు", masaRef: "మాసఫలము జూచు క్రమము",
@@ -915,7 +915,7 @@ const I18N = {
     needJanma: "Choose a birth nakshatra below to include tarabalam too.",
     goodTotalF: (n, m) => `${n} windows · ${Math.floor(m / 60)}h ${pad(Math.round(m % 60))}m in all`,
     minsF: (m) => `${Math.round(m)} min`,
-    tenDays: 'Panchangam for the next <span class="num">10</span> days', srS: "Sunrise", ssS: "Sunset", varaS: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], today: "Today",
+    tenDays: (d) => `Panchangam for <span class="num">10</span> days from <span class="num">${pad(d.D)}/${pad(d.M)}</span>`, srS: "Sunrise", ssS: "Sunset", varaS: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], today: "Today",
     taraTitle: "Tarabalam", janma: "Birth nakshatra", choose: "Choose…", taraHint: "Choose a birth nakshatra to see the tara for each of today's nakshatras.",
     good: "Good", bad: "Bad", avoid: "Avoid completely", masa: "Month's result",
     horaRef: "Hora lords – results", taraRef: "Taras, lords – remedies", masaRef: "How to see the month's result",
@@ -1660,6 +1660,7 @@ const head = () => `<thead><tr><th>#</th><th>${L().lordH}</th><th>${L().starts}<
 function render() {
   const r = compute();
   const msg = $("msg");
+  renderDaysTitle();
   if (r.error) { msg.textContent = r.error; msg.hidden = false; return; }
   msg.hidden = true;
   save();
@@ -1962,32 +1963,44 @@ function placeNowLine(line, r) {
   line.style.left = ((i + (now - h.start) / (h.end - h.start)) * 100 / 24) + "%";
   line.hidden = false;
 }
+// The 10 days start from the selected date (today when none is chosen)
+const daysStart = () => selectedDate() || systemDate();
+// The heading names the date the rows were built from (kept as is while the date box is empty)
+let daysTitleStart = null;
+function renderDaysTitle(t = daysTitleStart) {
+  if (!t) return;
+  daysTitleStart = t;
+  const html = L().tenDays(t);
+  if ($("daysTitle").innerHTML !== html) $("daysTitle").innerHTML = html;
+}
 function renderDays() {
+  const t = daysStart(), sd = systemDate();
+  renderDaysTitle(t);
   if (!$("daysRef").open) return;
-  const t = systemDate();
   // The last part changes when today's current tara changes, so its "now" chip moves
   const nowMs = Date.now();   // one reading for both the card's now chip and the key
-  const keyOf = () => [isoDate(t), appliedOffset, $("adjAll").checked, LANG, janma, JSON.stringify(GOOD), JSON.stringify(BOOKDATA).length, janma >= 0 ? todayTaraEdges.filter((e) => nowMs >= e).length : 0].join("|");
+  const keyOf = () => [isoDate(t), isoDate(sd), appliedOffset, $("adjAll").checked, LANG, janma, JSON.stringify(GOOD), JSON.stringify(BOOKDATA).length, janma >= 0 ? todayTaraEdges.filter((e) => nowMs >= e).length : 0].join("|");
   if (keyOf() === daysKey) { if (daysToday) placeNowLine(daysToday.line, daysToday.r); return; }
   const keepSunrise = TE_SUNRISE;
   const days = [];
+  todayTaraEdges = [];   // refilled only if the real today is one of the 10 days
   for (let i = 0; i < 10; i++) {
     const d = new Date(Date.UTC(t.Y, t.M - 1, t.D + i));
     const Y = d.getUTCFullYear(), M = d.getUTCMonth() + 1, D = d.getUTCDate();
     const r = dayChart(Y, M, D);
     TE_SUNRISE = r.sunrise + r.off;
-    const list = goodWindows(r);
-    days.push({ r, list, info: dayInfoHTML(Y, M, D, i === 0, nowMs), tips: list.map((w) => tipHTML(w, r)) });
+    const list = goodWindows(r), today = Y === sd.Y && M === sd.M && D === sd.D;
+    days.push({ r, list, today, info: dayInfoHTML(Y, M, D, today, nowMs), tips: list.map((w) => tipHTML(w, r)) });
   }
   TE_SUNRISE = keepSunrise;
   daysKey = keyOf();   // after dayInfoHTML has refreshed todayTaraEdges
   const body = $("daysBody");
-  body.innerHTML = `<div class="days-scroll"><div class="days-inner">` + days.map((x, i) => `<div class="drow${i === 0 ? " today" : ""}" data-i="${i}">
-      <div class="dlabel"><b>${pad(x.r.D)}/${pad(x.r.M)}</b><span>${L().varaS[x.r.wd]}</span>${i === 0 ? `<small>${L().today}</small>` : ""}${x.r.pasted ? `<small class="src">${L().pasted}</small>` : ""}</div>
+  body.innerHTML = `<div class="days-scroll"><div class="days-inner">` + days.map((x, i) => `<div class="drow${x.today ? " today" : ""}" data-i="${i}">
+      <div class="dlabel"><b>${pad(x.r.D)}/${pad(x.r.M)}</b><span>${L().varaS[x.r.wd]}</span>${x.today ? `<small>${L().today}</small>` : ""}${x.r.pasted ? `<small class="src">${L().pasted}</small>` : ""}</div>
       <div class="band-wrap mini">
         <div class="band">${x.r.horas.map((h) => `<div class="${h.isDay ? "d" : "n"} ${qual(h.lord)}"><span>${abbr(h.lord)}</span><span class="bt">${bandTime(h.start)}</span></div>`).join("")}</div>
         <div class="gtrack">${barsHTML(x.list, x.r)}</div>
-        ${i === 0 ? `<div class="nowline" hidden></div>` : ""}
+        ${x.today ? `<div class="nowline" hidden></div>` : ""}
       </div>
     </div>`).join("") + `</div></div><div class="gtip" role="tooltip" hidden></div>`;
   body.querySelectorAll(".drow").forEach((row) => {
@@ -1996,12 +2009,13 @@ function renderDays() {
     row.querySelectorAll(".gbar").forEach((b) => { b.dataset.tip = x.tips[+b.dataset.k]; });
   });
   bindTips(body);
-  daysToday = { r: days[0].r, line: body.querySelector(".nowline") };
-  if (daysToday.line) placeNowLine(daysToday.line, daysToday.r);
-  // On phones the bands scroll sideways together; start near the current time
+  const td = days.find((x) => x.today);
+  daysToday = td ? { r: td.r, line: body.querySelector(".nowline") } : null;
+  if (daysToday) placeNowLine(daysToday.line, daysToday.r);
+  // On phones the bands scroll sideways together; start near the current time when today is shown, else at sunrise
   const sc = body.querySelector(".days-scroll"), band0 = body.querySelector(".drow .band");
   sc.addEventListener("scroll", () => { if (!body.querySelector(".gtip").hidden) hideTip(); }, { passive: true });
-  if (sc.scrollWidth > sc.clientWidth + 4 && daysToday.line && !daysToday.line.hidden) {
+  if (sc.scrollWidth > sc.clientWidth + 4 && daysToday && !daysToday.line.hidden) {
     const x = band0.offsetLeft + band0.offsetWidth * parseFloat(daysToday.line.style.left) / 100;
     sc.scrollLeft = Math.max(0, x - sc.clientWidth / 2);
   }

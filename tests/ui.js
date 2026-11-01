@@ -101,7 +101,9 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
     check(t.overflow <= 1, `page scrolls sideways by ${t.overflow}px with janma set`);
     // 10-day card for today: one now chip in its tara row when today's sunrise has passed (after jumpToNow, the date is then today)
     const d = await page.evaluate(() => {
-      const tip = document.querySelector("#daysBody .drow .dlabel").dataset.tip, box = document.createElement("div");
+      const row = document.querySelector("#daysBody .drow.today .dlabel");
+      if (!row) return { chips: -1, isToday: true };
+      const tip = row.dataset.tip, box = document.createElement("div");
       box.innerHTML = tip;
       const tara = [...box.querySelectorAll(".day-row")].find((r) => r.querySelector(".k").textContent === L().taraTitle);
       const sd = systemDate();
@@ -151,6 +153,74 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
     }));
     if (wantDate) check(got.date === wantDate, `jumpToNow at ${hm} chose ${got.date}, expected ${wantDate}`);
     check(got.names.length === 1 && got.names[0] === want, `current tara at ${hm}${adj ? " (apply to all)" : ""}: ${got.names.join(", ") || "none"}, expected ${want}`);
+    await ctx.close();
+  }
+  // 10 days start from the selected date; "today" marks only the real today (fake clock: 1 Nov 2026, noon)
+  console.log("10 days from the selected date (fixed clock)");
+  for (const v of [VIEWS[0], VIEWS[1]]) {
+    const ctx = await browser.newContext({ ...v, timezoneId: "Asia/Kolkata" }), page = await ctx.newPage();
+    await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+    await page.clock.install({ time: new Date("2026-11-01T12:00:00+05:30") });
+    await page.addInitScript(() => { try { localStorage.clear(); } catch (e) {} });
+    await page.goto(URL);
+    await page.evaluate(() => { const d = document.getElementById("daysRef"); d.open = true; d.dispatchEvent(new Event("toggle")); });
+    const state = () => page.evaluate(() => ({
+      title: document.getElementById("daysTitle").textContent.replace(/\s+/g, " ").trim(),
+      dates: [...document.querySelectorAll("#daysBody .drow .dlabel b")].map((b) => b.textContent),
+      today: [...document.querySelectorAll("#daysBody .drow")].map((r, i) => r.classList.contains("today") ? i : -1).filter((i) => i >= 0),
+      labels: [...document.querySelectorAll("#daysBody .drow .dlabel small:not(.src)")].length,
+      lines: document.querySelectorAll("#daysBody .nowline").length,
+      cardToday: [...document.querySelectorAll("#daysBody .drow .dlabel")].filter((el) => el.dataset.tip.includes(" · " + L().today + "</b>")).length,
+      scroll: document.querySelector("#daysBody .days-scroll").scrollLeft,
+      overflow: document.documentElement.scrollWidth - window.innerWidth,
+    }));
+    const pick = async (iso) => { await page.fill("#date", iso); await page.dispatchEvent("#date", "input"); };
+    let s = await state();
+    check(s.dates[0] === "01/11" && s.dates.length === 10 && s.today.join() === "0" && s.labels === 1 && s.lines === 1 && s.cardToday === 1,
+      `${v.name} default: 10 days should start today (01/11) with today on row 1: ${JSON.stringify(s)}`);
+    check(s.title === "01/11 నుండి 10 రోజుల పంచాంగం", `${v.name} default heading: ${s.title}`);
+    // The 30 s refresh must not rebuild the rows (keeps the sideways scroll)
+    await page.evaluate(() => { document.querySelector("#daysBody .drow").dataset.mark = "1"; });
+    await page.clock.runFor(31000);
+    check(await page.evaluate(() => document.querySelector("#daysBody .drow").dataset.mark === "1"), `${v.name}: 10-day rows rebuilt by the 30 s refresh`);
+    await pick("2026-12-25");
+    s = await state();
+    check(s.dates.join() === "25/12,26/12,27/12,28/12,29/12,30/12,31/12,01/01,02/01,03/01", `${v.name} 25 Dec: rows ${s.dates.join()}`);
+    check(s.title === "25/12 నుండి 10 రోజుల పంచాంగం", `${v.name} 25 Dec heading: ${s.title}`);
+    check(s.today.length === 0 && s.labels === 0 && s.lines === 0 && s.cardToday === 0, `${v.name} 25 Dec: today marked although not in range: ${JSON.stringify(s)}`);
+    check(s.scroll === 0, `${v.name} 25 Dec: bands should start at sunrise, scrollLeft ${s.scroll}`);
+    check(s.overflow <= 1, `${v.name} 25 Dec: page scrolls sideways by ${s.overflow}px`);
+    if (v.name === "phone") {
+      // Today out of range: the refresh must not rebuild the rows or lose the sideways scroll
+      await page.evaluate(() => { document.querySelector("#daysBody .days-scroll").scrollLeft = 99; document.querySelector("#daysBody .drow").dataset.mark = "2"; });
+      await page.clock.runFor(61000);
+      const kept = await page.evaluate(() => ({ mark: document.querySelector("#daysBody .drow").dataset.mark, scroll: document.querySelector("#daysBody .days-scroll").scrollLeft }));
+      check(kept.mark === "2" && kept.scroll === 99, `${v.name} 25 Dec: 10-day rows rebuilt or scroll lost by the refresh: ${JSON.stringify(kept)}`);
+      // One line: no taller than the one-line heading of the hora reference
+      const oneLine = async (lang) => {
+        const h = await page.evaluate(() => [document.getElementById("daysTitle"), document.querySelector("#horaRef > summary")].map((e) => Math.round(e.getBoundingClientRect().height)));
+        check(h[0] <= h[1] + 2, `${v.name} ${lang} heading wraps (${h.join(" vs ")}px)`);
+      };
+      await oneLine("Telugu");
+      await page.selectOption("#lang", "en");
+      s = await state();
+      check(s.title === "Panchangam for 10 days from 25/12", `${v.name} English heading: ${s.title}`);
+      await oneLine("English");
+      await page.locator("#daysRef").screenshot({ path: path.join(OUT, `days-from-selected-${v.name}-en.png`) });
+      await page.selectOption("#lang", "te");
+    }
+    await pick("2026-10-29");
+    s = await state();
+    check(s.dates[0] === "29/10" && s.today.join() === "3" && s.labels === 1 && s.lines === 1 && s.cardToday === 1, `${v.name} 29 Oct: today should be row 4: ${JSON.stringify(s)}`);
+    await page.locator("#daysRef").screenshot({ path: path.join(OUT, `days-from-selected-${v.name}-te.png`) });
+    // An empty date box: heading and rows keep the same start date
+    await pick("");
+    s = await state();
+    check(s.title.startsWith(s.dates[0]), `${v.name} empty date: heading "${s.title}" does not match first row ${s.dates[0]}`);
+    await page.evaluate(() => jumpToNow());
+    s = await state();
+    check(s.dates[0] === "01/11" && s.today.join() === "0" && s.title === "01/11 నుండి 10 రోజుల పంచాంగం", `${v.name} jumpToNow: ${JSON.stringify(s)}`);
+    if (v.name === "phone") check(s.scroll > 0, `${v.name} jumpToNow: bands should start near the current time (scrollLeft ${s.scroll})`);
     await ctx.close();
   }
   // The day runs from the town's sunrise. Chitta ends about 06.06 on 8 Nov 2026: after Rajahmundry's

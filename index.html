@@ -1582,7 +1582,7 @@ function applyPaste() {
   const keep = TE_SUNRISE; TE_SUNRISE = p.sr !== null ? p.sr : 360;
   msg.innerHTML = pasteSummary(p);
   TE_SUNRISE = keep;
-  $("date").value = iso;
+  $("date").value = iso; followNow = false;
   manual = { sunrise: false, sunset: false };
   daysKey = ""; barsKey = "";
   fillSun(); render();
@@ -1697,8 +1697,8 @@ function render() {
   try { renderTara(r); } catch (e) { console.error(e); }
   try { renderDays(); } catch (e) { console.error(e); }
 
-  // Current hora is shown only when the selected date is today's date
-  const sd = systemDate(), isToday = r.Y === sd.Y && r.M === sd.M && r.D === sd.D;
+  // Current hora is shown only when the selected date is the current panchangam day (sunrise to sunrise)
+  const isToday = sameDay(r, currentDay()), isCal = sameDay(r, istParts(Date.now()));
   const cur = isToday && curIdx >= 0 ? r.horas[curIdx] : null;
   const card = $("nowCard");
   if (cur) {
@@ -1711,8 +1711,8 @@ function render() {
       <div class="effect">${HORA_FX[LANG][LORDS.indexOf(cur.lord)]}</div>`;
     card.hidden = false;
   }
-  // Before sunrise the current hora belongs to the previous day's chart
-  const prev = cur || !isToday ? null : prevChartNow(r);
+  // The calendar date before sunrise: the current hora belongs to the previous day's chart
+  const prev = cur || isToday || !isCal ? null : prevChartNow(r);
   if (!cur) {
     if (prev) {
       card.className = "now-card " + qual(prev.h.lord);
@@ -1986,7 +1986,7 @@ function placeNowLine(line, r) {
   line.hidden = false;
 }
 // The 10 days start from the selected date (today when none is chosen)
-const daysStart = () => selectedDate() || systemDate();
+const daysStart = () => selectedDate() || currentDay();
 // The heading names the date the rows were built from (kept as is while the date box is empty)
 let daysTitleStart = null;
 function renderDaysTitle(t = daysTitleStart) {
@@ -1996,7 +1996,7 @@ function renderDaysTitle(t = daysTitleStart) {
   if ($("daysTitle").innerHTML !== html) $("daysTitle").innerHTML = html;
 }
 function renderDays() {
-  const t = daysStart(), sd = systemDate();
+  const t = daysStart(), sd = currentDay();
   renderDaysTitle(t);
   if (!$("daysRef").open) return;
   // The last part changes when today's current tara changes, so its "now" chip moves
@@ -2059,11 +2059,19 @@ function prevChartNow(r) {
   }
   return null;
 }
-const systemDate = () => { const d = new Date(); return { Y: d.getFullYear(), M: d.getMonth() + 1, D: d.getDate() }; };
+// The current panchangam day: today's date from the town's sunrise, else yesterday's (IST)
+function currentDay() {
+  const now = Date.now(), p = istParts(now), s = daySun(p.Y, p.M, p.D);
+  return (now - s.base) / 60000 < s.sunrise - appliedOffset ? istParts(now - 86400000) : p;
+}
+const sameDay = (a, b) => a.Y === b.Y && a.M === b.M && a.D === b.D;
+// Until the user picks a date, the page follows the current day (moves on at sunrise)
+let followNow = true;
 
 // A Hindu day runs sunrise to sunrise: before today's first hora, the current hora belongs to yesterday's chart.
 function jumpToNow() {
   manual = { sunrise: false, sunset: false };
+  followNow = true;
   $("date").value = isoDate(istParts(Date.now()));
   fillSun();
   const r = compute();
@@ -2092,12 +2100,12 @@ window.addEventListener("orientationchange", updateOrientation);
 window.addEventListener("resize", updateOrientation);
 
 loadPrefs();
-// Open on the device's own date
-$("date").value = isoDate(systemDate());
+// Open on the current panchangam day (before sunrise, that is yesterday's date)
+$("date").value = isoDate(currentDay());
 fillSun();
 render();
 $("lang").addEventListener("change", () => { LANG = $("lang").value; applyLang(); render(); });
-$("date").addEventListener("input", () => { manual = { sunrise: false, sunset: false }; fillSun(); render(); });
+$("date").addEventListener("input", () => { followNow = false; manual = { sunrise: false, sunset: false }; fillSun(); render(); });
 $("sunrise").addEventListener("input", () => { manual.sunrise = true; markManual(); render(); });
 $("sunset").addEventListener("input", () => { manual.sunset = true; markManual(); render(); });
 $("offset").addEventListener("input", pendingState);
@@ -2112,7 +2120,11 @@ $("janma").addEventListener("change", () => { janma = +$("janma").value; render(
 $("daysRef").addEventListener("toggle", () => { try { renderDays(); } catch (e) { console.error(e); } });
 $("form").addEventListener("submit", (e) => e.preventDefault());
 $("recalc").addEventListener("click", () => { manual = { sunrise: false, sunset: false }; fillSun(); render(); });
-setInterval(render, 30000);
+setInterval(() => {
+  const d = isoDate(currentDay());
+  if (followNow && $("date").value !== d) { $("date").value = d; manual = { sunrise: false, sunset: false }; fillSun(); }
+  render();
+}, 30000);
 </script>
 
 </body>

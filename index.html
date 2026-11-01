@@ -491,6 +491,7 @@ button.mini { padding: 3px 10px; font-size: 0.8rem; }
       <div class="prow"><div class="eyebrow" data-i18n="yama">యమగండం</div><div class="items" id="pYama"></div></div>
       <div class="prow"><div class="eyebrow" data-i18n="sunRasi">సూర్యరాశి</div><div class="items" id="pSunRasi"></div></div>
       <div class="prow"><div class="eyebrow" data-i18n="moonRasi">చంద్రరాశి</div><div class="items" id="pMoonRasi"></div></div>
+          <div class="prow"><div class="eyebrow" data-i18n="moodh">మౌఢ్యమి</div><div class="items" id="pMoodh"></div></div>
       </div>
     </div>
     <div class="panch-foot">
@@ -787,6 +788,8 @@ const I18N = {
     calc: "లెక్కించినది", entered: "మీరు మార్చినది",
     dayLen: "పగటి కాలం", dayHora: "పగటి హోర", nightHora: "రాత్రి హోర", curHora: "ప్రస్తుత హోర", notIn: "ఈ పట్టికలో లేదు",
     varaL: "వారం", srL: "సూర్యోదయం", ssL: "సూర్యాస్తమయం",
+    moodh: "మౌఢ్యమి", moodhName: { guru: "గురు మౌఢ్యమి", sukra: "శుక్ర మౌఢ్యమి" }, moodhNone: "లేదు",
+    moodhRange: (a, b) => `${a} నుండి ${b} వరకు`, moodhNext: (a, b) => `తదుపరి ${a} నుండి ${b} వరకు`,
     yoga: "యోగం", karana: "కరణం", rahu: "రాహుకాలం", sunRasi: "సూర్యరాశి", moonRasi: "చంద్రరాశి",
     amrit: "అమృతకాలం", yama: "యమగండం", noAmrit: "అమృతకాలం లేదు",
     noVarj: "వర్జ్యం లేదు", pending: "అమలు చేయడానికి ‘మళ్ళీ లెక్కించు’ నొక్కండి", nearest: " · మీకు దగ్గరలో",
@@ -851,6 +854,8 @@ const I18N = {
     calc: "Calculated", entered: "Entered by you",
     dayLen: "Day length", dayHora: "Day hora", nightHora: "Night hora", curHora: "Current hora", notIn: "Not in this chart",
     varaL: "Varam", srL: "Sunrise", ssL: "Sunset",
+    moodh: "Moudhyam", moodhName: { guru: "Guru moudhyam", sukra: "Sukra moudhyam" }, moodhNone: "none",
+    moodhRange: (a, b) => `from ${a} to ${b}`, moodhNext: (a, b) => `next from ${a} to ${b}`,
     yoga: "Yogam", karana: "Karanam", rahu: "Rahu kalam", sunRasi: "Surya rashi", moonRasi: "Chandra rashi",
     amrit: "Amrutakalam", yama: "Yamagandam", noAmrit: "No Amrutakalam today",
     noVarj: "No Varjyam today", pending: "Press Recalculate to apply", nearest: " · nearest to you",
@@ -1300,6 +1305,23 @@ function rasiHTML(pos, riseRef, nextRef, toLocal) {
   return segs.map((s, i) => `<span>${RASI[LANG][s.index]}${i < segs.length - 1 ? ` ${L().till(shortHTML(toLocal(s.end)))}` : ""}</span>`);
 }
 
+// ---------- Guru / Sukra moudhyam ----------
+// Periods when the planet is too close to the Sun (Guru within 11°; Sukra within 10°, or 8° while retrograde),
+// worked out ahead of time from modern planetary positions for 2025–2040 (IST instants, ms)
+const MOODHAM = { guru: [[1749471120000,1752086880000],[1784032380000,1786616580000],[1818425580000,1820958180000],[1852686300000,1855163820000],[1886876880000,1889309520000],[1921073220000,1923481320000],[1955349660000,1957761240000],[1989772800000,1992220020000],[2024371860000,2026880580000],[2059112520000,2061686460000],[2093891880000,2096506200000],[2128589220000,2131202760000],[2163128760000,2165707140000],[2197503780000,2200029120000],[2231753400000,2234224020000]], sukra: [[1742262240000,1743123780000],[1764137880000,1771321020000],[1792377660000,1793246760000],[1814886540000,1821201480000],[1843026180000,1843906860000],[1865486280000,1872349080000],[1893507840000,1894364520000],[1915451280000,1922184240000],[1943741520000,1944624960000],[1966528980000,1972935120000],[1994518320000,1995378900000],[2016380280000,2023561080000],[2044626780000,2045496780000],[2067154020000,2073463380000],[2095286940000,2096167560000],[2117725860000,2124607320000],[2145753060000,2146610100000],[2167714080000,2174425560000],[2196000780000,2196884100000],[2218786080000,2225203080000]] };
+function moodhamFmt(ms) {
+  const p = istParts(ms), m = (ms - istMidnight(p.Y, p.M, p.D)) / 60000, two = (n) => String(n).padStart(2, "0");
+  return `${two(p.D)}-${two(p.M)}-${p.Y} ${plainShort(m).replace(/\s*\(\+1\)$/, "")}`;
+}
+function moodhamHTML(dayStart, dayEnd) {
+  return ["guru", "sukra"].map((k) => {
+    const name = L().moodhName[k], cur = MOODHAM[k].find(([a, b]) => a < dayEnd && b > dayStart);
+    if (cur) return `<span><b>${name}</b> ${L().moodhRange(moodhamFmt(cur[0]), moodhamFmt(cur[1]))}</span>`;
+    const next = MOODHAM[k].find(([a]) => a >= dayEnd);
+    return `<span>${name}: ${L().moodhNone}${next ? ` <span class="muted">· ${L().moodhNext(moodhamFmt(next[0]), moodhamFmt(next[1]))}</span>` : ""}</span>`;
+  });
+}
+
 // ---------- Pasted panchangam (WhatsApp channel / book) ----------
 // Saved per date as Rajahmundry times in minutes from that date's midnight (IST)
 let BOOKDATA = {};
@@ -1563,6 +1585,7 @@ function panchangam(r) {
   }).join("");
   $("pSunRasi").innerHTML = rasiHTML(sunRasiPos, riseRef, nextRiseRef, toLocal).map((x) => `<div class="item">${x}</div>`).join("");
   $("pMoonRasi").innerHTML = rasiHTML(moonRasiPos, riseRef, nextRiseRef, toLocal).map((x) => `<div class="item">${x}</div>`).join("");
+  $("pMoodh").innerHTML = moodhamHTML(riseRef, nextRiseRef).map((x) => `<div class="item">${x}</div>`).join("");
   $("pYama").innerHTML = dayYama(r.base, r.wd, r.sunrise, r.sunset, r.off).map((x) => {
     const a = (x.start - r.base) / 60000, b = (x.end - r.base) / 60000, isLive = now >= a && now < b;
     if (isLive) live.push(L().yama);
@@ -1605,7 +1628,9 @@ function render() {
   try { renderTara(r); } catch (e) { console.error(e); }
   try { renderDays(); } catch (e) { console.error(e); }
 
-  const cur = curIdx >= 0 ? r.horas[curIdx] : null;
+  // Current hora is shown only when the selected date is today's date
+  const sd = systemDate(), isToday = r.Y === sd.Y && r.M === sd.M && r.D === sd.D;
+  const cur = isToday && curIdx >= 0 ? r.horas[curIdx] : null;
   const card = $("nowCard");
   if (cur) {
     const nx = r.horas[curIdx + 1];
@@ -1618,7 +1643,7 @@ function render() {
     card.hidden = false;
   }
   // Before sunrise the current hora belongs to the previous day's chart
-  const prev = cur ? null : prevChartNow(r);
+  const prev = cur || !isToday ? null : prevChartNow(r);
   if (!cur) {
     if (prev) {
       card.className = "now-card " + qual(prev.h.lord);
@@ -1637,7 +1662,7 @@ function render() {
     <div class="stat"><span>${L().dayLen}</span><b>${L().hm(Math.floor(r.dayLen / 60), pad(r.dayLen % 60))}</b></div>
     <div class="stat"><span>${L().dayHora}</span><b>${dur(r.dayHora)}</b></div>
     <div class="stat"><span>${L().nightHora}</span><b>${dur(r.nightHora)}</b></div>
-    <div class="stat now"><span>${L().curHora}</span><b>${cur ? L().curTill(lordName(cur.lord), bareTime(cur.end)) : prev ? L().curTill(lordName(prev.h.lord), bareTime(prev.h.end)) : L().notIn}</b></div>`;
+    <div class="stat now"><span>${L().curHora}</span><b>${cur ? L().curTill(lordName(cur.lord), bareTime(cur.end)) : prev ? L().curTill(lordName(prev.h.lord), bareTime(prev.h.end)) : "-"}</b></div>`;
 
   $("band").innerHTML = r.horas.map((h, i) =>
     `<div class="${h.isDay ? "d" : "n"} ${qual(h.lord)}${i === curIdx ? " cur" : ""}" title="${lordName(h.lord)}: ${plain(h.start)} – ${plain(h.end)}"><span>${abbr(h.lord)}</span><span class="bt">${bandTime(h.start)}</span></div>`

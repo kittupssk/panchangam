@@ -11,7 +11,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Telugu:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Telugu:wght@400;500;600&display=swap">
 <style>
 /* Layout: a single instrument column — inputs, the day's panchangam, a 24-segment day/night band, then the two hora tables */
 :root {
@@ -335,6 +335,24 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
 .good-note p { margin: 0; line-height: 1.6; }
 .good-note ol { margin: 0 0 0 1.4em; padding: 0; display: grid; gap: 0.5em; line-height: 1.6; }
 .good-note li b { color: var(--ink); }
+/* Small headings (bottom note, book tables): accent, semi-bold, own line - like the bold labels in the reference sections */
+.sub-h { margin: 0; font: 600 0.95rem/1.5 var(--font-body); color: var(--accent); }
+html[lang="te"] .sub-h { font-family: var(--font-te), var(--font-body); }
+.note-sec { display: grid; gap: 0.35em; }
+/* Guidance (book pages): section headings, numbered list, wrapping tables that fit a 390 px phone */
+.ref-body h3 { margin: 6px 0 0; padding-top: 12px; border-top: 1px solid var(--line); font: 600 1.05rem var(--font-body); color: var(--ink); }
+html[lang="te"] .ref-body h3 { font-family: var(--font-te), var(--font-body); }
+.ref-body ol { margin: 0 0 0 1.4em; padding: 0; display: grid; gap: 0.5em; }
+.ref-body .tbl-wrap { background: var(--bg); }
+.btbl th, .btbl td { white-space: normal; vertical-align: top; padding: 7px 10px; font-size: 0.88rem; line-height: 1.45; }
+.btbl th { font-size: 0.8rem; letter-spacing: 0; text-transform: none; }
+.btbl th:first-child { display: table-cell; }
+html[lang="te"] .btbl th { font-size: 0.82rem; }
+@media (max-width: 520px) {
+  .ref-body .tbl-wrap { margin-inline: -10px; }   /* use most of the card's side padding on phones */
+  .btbl th, .btbl td { padding: 6px 4px; font-size: 0.76rem; }
+  html[lang="te"] .btbl th, html[lang="te"] .btbl td { font-size: 0.74rem; }
+}
 /* Panchangam in two columns: main details left, the rest right */
 .pcols { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); border-top: 1px solid var(--line); }
 .pcol > .prow:first-child { border-top: 0; }
@@ -547,9 +565,11 @@ button.mini { padding: 3px 10px; font-size: 0.8rem; }
   <details class="ref" id="horaRef"><summary data-i18n="horaRef">హోరాధిపతులు - ఫలితములు</summary><div class="ref-body" id="horaRefBody"></div></details>
   <details class="ref" id="taraRef"><summary data-i18n="taraRef">తారలు, అధిపతులు - శాంతులు</summary><div class="ref-body" id="taraRefBody"></div></details>
 
+  <details class="ref" id="guideRef"><summary data-i18n="guideRef">సూచనలు</summary><div class="ref-body" id="guideRefBody"></div></details>
+
   <div class="note">
-    <p><b data-i18n="noteTitle">దేశాంతర కాలము:</b> <span data-i18n="note"></span></p>
-    <div class="good-note"><b data-i18n="goodNoteTitle"></b><div id="goodNoteBody"></div></div>
+    <div class="note-sec"><h3 class="sub-h" data-i18n="noteTitle">దేశాంతర కాలము</h3><p data-i18n="note"></p></div>
+    <div class="note-sec good-note"><h3 class="sub-h" data-i18n="goodNoteTitle"></h3><div id="goodNoteBody"></div></div>
   </div>
 </div>
 
@@ -849,7 +869,7 @@ const I18N = {
     abhijit: "అభిజిత్ ముహూర్తం", abhLagna: "అభిజిత్ లగ్నం", abhS: "అభిజిత్",
     noVarj: "వర్జ్యం లేదు", pending: "అమలు చేయడానికి ‘మళ్ళీ లెక్కించు’ నొక్కండి", nearest: " · మీకు దగ్గరలో",
     errFill: "తేదీ, సూర్యోదయం, సూర్యాస్తమయం, దేశాంతరం నింపండి.", errSet: "సూర్యాస్తమయం సూర్యోదయం తరువాత ఉండాలి. సూర్యాస్తమయ సమయం సరిచూడండి.",
-    goodNoteTitle: "శుభ సమయాలు (హోర పట్టీపై ఆకుపచ్చ గీతలు):",
+    goodNoteTitle: "శుభ సమయాలు (హోర పట్టీపై ఆకుపచ్చ గీతలు)",
     goodSetTitle: "శుభ సమయాల నియమాలు",
     gsHint: "హోర పట్టీపై ఆకుపచ్చ గీతలు ఏ నియమాలతో చూపాలో ఇక్కడ ఎంచుకుని ‘వర్తింపజేయి’ నొక్కండి. ఎంచుకున్నవన్నీ ఒకేసారి వర్తించే సమయాలే శుభ సమయాలుగా చూపబడతాయి. మీ ఎంపికలు ఈ పరికరంలో భద్రపరచబడతాయి.",
     gsHora: "హోరలు", gsTithi: "తిథులు", gsTara: "తారలు", gsAvoid: "వదిలివేయవలసినవి",
@@ -863,8 +883,8 @@ const I18N = {
     gnBoth: "దుర్ముహూర్తం, వర్జ్యం లేని సమయం.", gnDur: "దుర్ముహూర్తం లేని సమయం.", gnVarj: "వర్జ్యం లేని సమయం.",
     gnAllT: "అన్ని తిథులు", gnNone: "ఏదీ ఎంచుకోలేదు – శుభ సమయాలు చూపబడవు", gnMin: (m) => `కనీసం ${m} నిమిషాలు ఉండే సమయాలు మాత్రమే చూపబడతాయి.`,
     cleanDur: "దుర్ముహూర్తం లేదు", cleanVarj: "వర్జ్యం లేదు",
-    noteTitle: "దేశాంతర కాలము:",
-    note: "సూర్యోదయ, సూర్యాస్తమయములందు ఆయా పట్టణములకు గల దేశాంతర నిమిషములను సంస్కరించుకొనవలెను. ఉదాహరణకు రాజమండ్రికి ఏప్రిల్ 11వ తేదీ వృషభ లగ్నము ఉదయము గం॥ 8.40 ని॥లు శుభ ముహూర్త కాలము. అయితే విశాఖపట్టణమునకు +6 అనగా 8.34 ని॥లు అగును. హైదరాబాద్‌నకు –13 ని॥లు. అనగా 8.53 ని॥లు అగును. (గుర్తులు “+” అనగా ముందు, “–” అనగా ఆలస్యము అని గ్రహించవలెను.)",
+    noteTitle: "దేశాంతర కాలము",
+    note: "సూర్యోదయ, సూర్యాస్తమయములందు ఆయా పట్టణములకు గల దేశాంతర నిమిషములను సంస్కరించుకొనవలెను. ఉదాహరణకు రాజమండ్రికి ఏప్రిల్ 11వ తేదీ వృషభ లగ్నము ఉ.\u00a08.40 శుభ ముహూర్త కాలము. అయితే విశాఖపట్టణమునకు +6 ని॥ అనగా ఉ.\u00a08.34 అగును. హైదరాబాద్‌నకు −13 ని॥ అనగా ఉ.\u00a08.53 అగును. (‘+’ అనగా ముందు, ‘−’ అనగా ఆలస్యము అని గ్రహించవలెను.)",
     vara: (v, l, wd) => `వారం: <b>${v}</b> (${VASARA[wd]}) · మొదటి హోర ${l}`,
     till: (t) => `<span class="when">${t}</span>`,
     purti: "పూర్తి",
@@ -892,6 +912,7 @@ const I18N = {
     tenDays: (d) => `${pad(d.D)}/${pad(d.M)} నుండి 10 రోజుల పంచాంగం`, srS: "సూ.ఉ", ssS: "సూ.అ", varaS: ["ఆది", "సోమ", "మంగళ", "బుధ", "గురు", "శుక్ర", "శని"], today: "ఈ రోజు",
     taraTitle: "తారాబలం", janma: "జన్మ నక్షత్రం", choose: "ఎంచుకోండి", taraHint: "జన్మ నక్షత్రం ఎంచుకుంటే, ఈ రోజు నక్షత్రాలకు తారాబలం చూపుతుంది.",
     good: "మంచిది", bad: "చెడ్డది", avoid: "పూర్తిగా విసర్జించాలి", masa: "మాసఫలము",
+    guideRef: "సూచనలు",
     horaRef: "హోరాధిపతులు - ఫలితములు", taraRef: "తారలు, అధిపతులు - శాంతులు", masaRef: "మాసఫలము జూచు క్రమము",
     count: (n, nav) => `జన్మ నక్షత్రం నుండి ${n}వ నక్షత్రం · ${nav}వ నవకం`,
     padyami: (d, t, nk) => `శుద్ధ పాడ్యమి ప్రవేశం ${d} ${t} · ${nk} నక్షత్రం`,
@@ -912,7 +933,7 @@ const I18N = {
     abhijit: "Abhijit muhurtham", abhLagna: "Abhijit lagnam", abhS: "Abhijit",
     noVarj: "No Varjyam today", pending: "Press Recalculate to apply", nearest: " · nearest to you",
     errFill: "Fill in the date, sunrise, sunset and town offset.", errSet: "Sunset must be later than sunrise. Check the sunset time.",
-    goodNoteTitle: "Good times (green bars on the hora band):",
+    goodNoteTitle: "Good times (green bars on the hora band)",
     goodSetTitle: "Good-time rules",
     gsHint: "Choose the rules for the green good-time bars, then press Apply. A time is shown as good only when everything you choose holds at once. Your choices are saved on this device.",
     gsHora: "Horas", gsTithi: "Tithis", gsTara: "Taras", gsAvoid: "Leave out",
@@ -926,8 +947,8 @@ const I18N = {
     gnBoth: "No Durmuhurtham or Varjyam.", gnDur: "No Durmuhurtham.", gnVarj: "No Varjyam.",
     gnAllT: "any tithi", gnNone: "none chosen, so no good times are shown", gnMin: (m) => `Only windows of at least ${m} minutes are shown.`,
     cleanDur: "No Durmuhurtham", cleanVarj: "No Varjyam",
-    noteTitle: "Town offset:",
-    note: "Apply each town’s desantara (time-difference) minutes to sunrise and sunset. For example, on 11 April the auspicious muhurtham in Vrishabha lagna at Rajahmundry is at 8:40 in the morning. For Visakhapatnam, +6 makes it 8:34. For Hyderabad, −13 makes it 8:53. (The sign “+” means earlier and “−” means later.)",
+    noteTitle: "Town offset (desantara)",
+    note: "Apply each town’s desantara minutes to sunrise and sunset. For example, on 11 April the auspicious muhurtham in Vrishabha lagna at Rajahmundry is 08:40\u00a0AM. For Visakhapatnam it is +6 min, that is 08:34\u00a0AM. For Hyderabad it is −13 min, that is 08:53\u00a0AM. (Read ‘+’ as earlier and ‘−’ as later.)",
     vara: (v, l) => `Vara: <b>${v}</b> · first hora ${l}`,
     till: (t) => `till <span class="when">${t}</span>`,
     purti: "all day",
@@ -955,6 +976,7 @@ const I18N = {
     tenDays: (d) => `Panchangam for <span class="num">10</span> days from <span class="num">${pad(d.D)}/${pad(d.M)}</span>`, srS: "Sunrise", ssS: "Sunset", varaS: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], today: "Today",
     taraTitle: "Tarabalam", janma: "Birth nakshatra", choose: "Choose…", taraHint: "Choose a birth nakshatra to see the tara for each of today's nakshatras.",
     good: "Good", bad: "Bad", avoid: "Avoid completely", masa: "Month's result",
+    guideRef: "Guidance",
     horaRef: "Hora lords – results", taraRef: "Taras, lords – remedies", masaRef: "How to see the month's result",
     count: (n, nav) => `${n}${["th","st","nd","rd"][(n % 100 > 10 && n % 100 < 14) ? 0 : (n % 10 < 4 ? n % 10 : 0)]} from birth nakshatra · set ${nav} of 3`,
     padyami: (d, t, nk) => `Shukla Padyami began ${d} ${t} in ${nk}`,
@@ -992,6 +1014,96 @@ function applyLang() {
   markManual();
   pendingState();
 }
+// Book pages "ప్రయాణమునకు శుభ సమయములు" and "గృహోపయోగ విషయ శుభాశుభములు" (data/book-pages/p092, p106).
+// The book numbers the household list 1, 2, 3, 5, 6 (no 4); the page numbers it 1-5.
+const GUIDE = {
+  te: [
+    { title: "ప్రయాణమునకు శుభ సమయములు",
+      paras: [
+        ["శుభతారలు :-", "అశ్విని, మృగశిర, పునర్వసు, పుష్యమి, హస్త, అనూరాధ, మూల, శ్రవణం, ధనిష్ఠ, రేవతీ నక్షత్రములు శ్రేష్ఠములు. రోహిణి, ఉత్తర, ఉత్తరాషాఢ, ఉత్తరాభాద్ర, శతభిషం మధ్యమములు. తక్కిన తారలు నిషిద్ధములు. మంచి నక్షత్రములందు వారశూలలూ, ఆనందాదియోగములూ చూచుకొని ప్రయాణించవలెను. ఉభయ పక్షములందలి 2, 3, 5, 7, 10, 11, 13 తిథులు మరియు కృష్ణ 1 మంచివి."],
+        ["శుభవారాలు :-", "తూర్పునకు మంగళవారం, దక్షిణమునకు సోమ, శనివారములు, పడమరకు బుధ, గురువారములు, ఉత్తరమునకు ఆది, శుక్రవారములు మంచివి."],
+      ],
+      table: { cap: "ప్రయాణమునకు కూడని తిథి వార శూలలు",
+        head: ["దిక్కు", "తిథులు", "వారములు", "నక్షత్రములు", "లగ్నములు"],
+        rows: [
+          ["తూర్పు", "1-9", "శని-సోమ", "జ్యేష్ఠ-ధనిష్ఠ", "తుల-కుంభం"],
+          ["ఆగ్నేయం", "3-11", "శని-గురు", "—", "మకరం"],
+          ["దక్షిణం", "5-13", "గురు", "శ్రవణం-అశ్విని", "మీనం-వృశ్చికం"],
+          ["నైఋతి", "4-12", "సోమ-శుక్ర", "—", "కర్కాటకం"],
+          ["పడమర", "6-14", "ఆది-శుక్ర", "రోహిణి-పుష్యమి", "ధనుస్సు, సింహం"],
+          ["వాయవ్యం", "7-15", "ఆది-మంగళ", "—", "మేషం"],
+          ["ఉత్తరం", "2-10", "బుధ-మంగళ", "పుబ్బ-హస్త", "కన్య, వృషభం"],
+          ["ఈశాన్యం", "8-30", "బుధ", "—", "మిధునం"],
+        ] },
+      after: "పై చక్రమందు చెప్పబడిన శూలలలో ప్రయాణము చేయరాదు. మరియు ఏకాదశి సోమవారం, ద్వాదశి శనివారం, షష్ఠి గురువారం, తదియ బుధవారం, అష్టమీ శుక్రవారం, నవమి ఆదివారం, పంచమీ మంగళవారం. ఇవి దగ్ధయోగములు. కావున ఆ రోజులలో అస్సలు ప్రయాణము చేయరాదు." },
+    { title: "గృహోపయోగ విషయ శుభాశుభములు",
+      list: [
+        ["బంగారం, వెండి, స్టీలు పాత్రలు వాడుటకు :", "బుధ, గురు, శుక్రవారములు - అశ్వి, రో, మృగ, పున, పుష్య, ఉత్తరాత్రయం, హ, చి, స్వా, అనూ, శ్ర, శత, రేవతి తారలుండగా - అమృతయోగ ఘడియలలో భుజించుట ఆరంభించవలెను."],
+        ["క్రొత్తవాహనములు వాడుట ప్రారంభించుటకు :", "2, 3, 5, 7, 10 శు-11, 13, తిథులును, సో, బు, గు, శుక్రవారాలు - రో, పున, పుష్య, ఉత్తరాత్రయ, హ, చి, స్వా, అనూ, జ్యే, శ్ర, రేవతీ తారలు - అష్టమ శుద్ధిగల వృష, మిధు, కట, కన్యా, తులా, ధనుర్మీన లగ్నాలు మంచివి. బుధహోర ప్రశస్తంగా చెప్పబడినది."],
+        ["గ్యాస్‌స్టౌ, ఫ్రిజ్, మిక్సీలవంటి ఆధునిక పరికరాల వాడకం మొదలుపెట్టుటకు :", "2, 3, 5, 7, 10, 11, 13, తిథులూ మం, బు, గు, శుక్రవారములు వర్జ్య, దుర్ముహూర్తాలు లేని కుజహోరలో మంచివి."],
+        ["ఇండ్లు, స్థలములు, భూమి రిజిస్ట్రేషన్‌కు :", "భద్ర, పూర్ణతిథులు, 2, 3, 5, 7, 10, 13, 15 తిథులు, అశ్వని, రోహిణి, మృగ, పుష్య, ఆశ్రే, ఉత్తరాత్రయం, చిత్ర, అనూ, మూల, రేవతీ నక్షత్రములు మంచివి. బుధ, గురు, శుక్రవారములు శ్రేష్ఠము."],
+        ["ఇతర వస్తువులు కొనుటకు :", "అశ్వి, చి, స్వా, శ్ర, శత, రేవతి ఈ నక్షత్రములతో కూడిన గురువారం సర్వశ్రేష్ఠం. ఇతర తారలు అశ్శ్రేయాలు."],
+      ],
+      table: { cap: "తలంటు, నేత, నూతన వస్త్రధారణలకు వార ఫలములు",
+        head: ["వారములు", "తలంటు", "మంచంనేత", "వస్త్రధారణ"],
+        rows: [
+          ["ఆదివారము", "సంతానం", "ధనలాభం", "చిరుగుట"],
+          ["సోమవారము", "శాంతి", "సౌఖ్యం", "చింతన"],
+          ["మంగళవారము", "అల్పాయువు", "దుఃఖం", "శుభహాని"],
+          ["బుధవారము", "ధనలాభం", "పీడ", "ధనప్రాప్తి"],
+          ["గురువారము", "ధననష్టం", "సౌఖ్యం", "జ్ఞానవృద్ధి"],
+          ["శుక్రవారము", "సౌఖ్యహాని", "రాజ్యలాభం", "మిత్రప్రాప్తి"],
+          ["శనివారము", "సర్వలాభం", "నాశనం", "మాలిన్యత"],
+        ] } },
+  ],
+  en: [
+    { title: "Auspicious times for travel",
+      paras: [
+        ["Auspicious nakshatras :-", "Ashwini, Mrigashira, Punarvasu, Pushyami, Hasta, Anuradha, Moola, Shravanam, Dhanishta and Revati are the best. Rohini, Uttara Phalguni, Uttarashadha, Uttarabhadra and Shatabhisham are middling. The other nakshatras are forbidden. On a good nakshatra, check the weekday shoolas and the Anandadi yogas too before setting out. Tithis 2, 3, 5, 7, 10, 11 and 13 of both pakshas, and Krishna (Bahula) 1, are good."],
+        ["Auspicious weekdays :-", "For the east Mangalavara (Tue); for the south Somavara (Mon) and Sanivara (Sat); for the west Budhavara (Wed) and Guruvara (Thu); for the north Ravivara (Sun) and Sukravara (Fri) are good."],
+      ],
+      table: { cap: "Tithi and weekday shoolas unfit for travel",
+        head: ["Direction", "Tithis", "Weekdays", "Nakshatras", "Lagnas"],
+        rows: [
+          ["East", "1, 9", "Sat, Mon", "Jyeshtha, Dhanishta", "Tula, Kumbha"],
+          ["South-east", "3, 11", "Sat, Thu", "—", "Makara"],
+          ["South", "5, 13", "Thu", "Shravanam, Ashwini", "Meena, Vrischika"],
+          ["South-west", "4, 12", "Mon, Fri", "—", "Karkataka"],
+          ["West", "6, 14", "Sun, Fri", "Rohini, Pushyami", "Dhanus, Simha"],
+          ["North-west", "7, 15", "Sun, Tue", "—", "Mesha"],
+          ["North", "2, 10", "Wed, Tue", "Purva Phalguni, Hasta", "Kanya, Vrishabha"],
+          ["North-east", "8, 30", "Wed", "—", "Mithuna"],
+        ] },
+      after: "Do not travel in the shoolas given in the table above. Also Ekadashi on a Somavara (Mon), Dwadashi on a Sanivara (Sat), Shashthi on a Guruvara (Thu), Tritiya on a Budhavara (Wed), Ashtami on a Sukravara (Fri), Navami on a Ravivara (Sun) and Panchami on a Mangalavara (Tue): these are dagdha yogas, so do not travel at all on those days." },
+    { title: "Household matters – auspicious and inauspicious",
+      list: [
+        ["To use gold, silver and steel vessels :", "On a Budhavara (Wed), Guruvara (Thu) or Sukravara (Fri), while Ashwini, Rohini, Mrigashira, Punarvasu, Pushyami, the three Uttaras (Uttara Phalguni, Uttarashadha, Uttarabhadra), Hasta, Chitta, Swati, Anuradha, Shravanam, Shatabhisham or Revati is running, begin eating from them in the ghatis of Amruta yoga."],
+        ["To start using a new vehicle :", "Tithis 2, 3, 5, 7, 10, Shukla 11 and 13; Somavara (Mon), Budhavara (Wed), Guruvara (Thu) and Sukravara (Fri); the nakshatras Rohini, Punarvasu, Pushyami, the three Uttaras, Hasta, Chitta, Swati, Anuradha, Jyeshtha, Shravanam and Revati; and the Vrishabha, Mithuna, Karkataka, Kanya, Tula, Dhanus and Meena lagnas with a clear 8th house are good. Budha hora is said to be the best."],
+        ["To start using modern appliances such as a gas stove, fridge or mixer :", "Tithis 2, 3, 5, 7, 10, 11 and 13, and Mangalavara (Tue), Budhavara (Wed), Guruvara (Thu) and Sukravara (Fri), are good, in a Kuja hora free of Varjyam and Durmuhurtham."],
+        ["To register a house, site or land :", "Bhadra and Purna tithis, tithis 2, 3, 5, 7, 10, 13 and 15, and the nakshatras Ashwini, Rohini, Mrigashira, Pushyami, Ashlesha, the three Uttaras, Chitta, Anuradha, Moola and Revati are good. Budhavara (Wed), Guruvara (Thu) and Sukravara (Fri) are the best."],
+        ["To buy other things :", "A Guruvara (Thu) with Ashwini, Chitta, Swati, Shravanam, Shatabhisham or Revati is the very best. The other nakshatras are not auspicious."],
+      ],
+      table: { cap: "Weekday results for an oil bath, weaving a cot and wearing new clothes",
+        head: ["Weekday", "Oil bath", "Weaving a cot", "New clothes"],
+        rows: [
+          ["Ravivara (Sun)", "Children", "Gain of wealth", "Tearing"],
+          ["Somavara (Mon)", "Peace", "Comfort", "Worry"],
+          ["Mangalavara (Tue)", "Short life", "Sorrow", "Loss of good fortune"],
+          ["Budhavara (Wed)", "Gain of wealth", "Affliction", "Getting wealth"],
+          ["Guruvara (Thu)", "Loss of wealth", "Comfort", "Growth of knowledge"],
+          ["Sukravara (Fri)", "Loss of comfort", "Gain of power", "Gaining friends"],
+          ["Sanivara (Sat)", "Gain in everything", "Ruin", "Soiling"],
+        ] } },
+  ],
+};
+function guideHTML(k) {
+  const tbl = (t) => `<p class="sub-h">${t.cap}</p><div class="tbl-wrap"><table class="btbl"><thead><tr>${t.head.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>` +
+    `<tbody>${t.rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  return GUIDE[k].map((g) => `<h3>${g.title}</h3>` +
+    (g.paras || []).map(([h, t]) => `<p><b>${h}</b> ${t}</p>`).join("") +
+    (g.list ? `<ol>${g.list.map(([h, t]) => `<li><b>${h}</b> ${t}</li>`).join("")}</ol>` : "") +
+    tbl(g.table) + (g.after ? `<p>${g.after}</p>` : "")).join("");
+}
 let janma = -1;
 function fillJanma() {
   const sel = $("janma");
@@ -1005,6 +1117,7 @@ function buildRefs() {
   $("taraRefBody").innerHTML = `<p class="muted">${TARA_INTRO[k]}</p>` +
     TARA_NAME[k].map((t, i) => `<p><b>${i + 1}. ${t} :-</b> ${TARA_FX[k][i]}</p>`).join("") +
     `<p>${TARA_RULE[k]}</p><p><b>10. ${L().masaRef} :-</b> ${MASA_RULE[k]}</p>`;
+  $("guideRefBody").innerHTML = guideHTML(k);
 }
 function taraOf(nak) {
   const n = ((nak - janma + 27) % 27) + 1, t = (n - 1) % 9, nav = Math.ceil(n / 9);

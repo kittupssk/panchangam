@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(gh pr list --state all --limit 5 --json number,state,headRefName)",
+      "PowerShell(git checkout -b feature/day-card-calendar-line)"
+    ]
+  }
+}

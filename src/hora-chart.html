@@ -163,7 +163,7 @@ tr.cur.flash td { animation: flash 1.6s ease-out; }
 @media (prefers-reduced-motion: reduce) { tr.cur.flash td { animation: none; } }
 .tag { font: 700 0.65rem var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-left: 8px; }
 
-.note { color: var(--muted); font-size: 0.85rem; max-width: 72ch; display: grid; gap: 8px; }
+.note { color: var(--muted); font-size: 0.85rem; max-width: 72ch; display: grid; gap: 0.9em; }
 .note p { margin: 0; }
 .note code { font-family: var(--font-mono); font-size: 0.9em; }
 .err { color: var(--warn); font-weight: 600; }
@@ -322,9 +322,10 @@ html.land-phone .band div, html.land-phone[lang="te"] .band div { font-size: 0.9
 /* Keep the sunrise and sunset boxes level when one label wraps */
 .field.sunf label { display: block; }
 .cal-line { flex-basis: 100%; color: var(--ink); font-size: 0.92rem; line-height: 1.6; }
-.good-note { display: grid; gap: 4px; }
-.good-note p { margin: 0; }
-.good-note ol { margin: 2px 0 2px 1.2em; padding: 0; display: grid; gap: 2px; }
+.good-note { display: grid; gap: 0.6em; }
+.good-note p { margin: 0; line-height: 1.6; }
+.good-note ol { margin: 0 0 0 1.4em; padding: 0; display: grid; gap: 0.5em; line-height: 1.6; }
+.good-note li b { color: var(--ink); }
 /* Panchangam in two columns: main details left, the rest right */
 .pcols { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); border-top: 1px solid var(--line); }
 .pcol > .prow:first-child { border-top: 0; }
@@ -692,7 +693,7 @@ const VARA = {
   te: ["ఆదివారం", "సోమవారం", "మంగళవారం", "బుధవారం", "గురువారం", "శుక్రవారం", "శనివారం"],
 };
 const TITHI = [
-  ["Pratipada", "పాడ్యమి"], ["Dwitiya", "విదియ"], ["Tritiya", "తదియ"], ["Chaturthi", "చవితి"], ["Panchami", "పంచమి"],
+  ["Padyami", "పాడ్యమి"], ["Dwitiya", "విదియ"], ["Tritiya", "తదియ"], ["Chaturthi", "చవితి"], ["Panchami", "పంచమి"],
   ["Shashthi", "షష్ఠి"], ["Saptami", "సప్తమి"], ["Ashtami", "అష్టమి"], ["Navami", "నవమి"], ["Dashami", "దశమి"],
   ["Ekadashi", "ఏకాదశి"], ["Dwadashi", "ద్వాదశి"], ["Trayodashi", "త్రయోదశి"], ["Chaturdashi", "చతుర్దశి"],
 ];
@@ -838,7 +839,7 @@ const I18N = {
     amrit: "అమృతకాలం", yama: "యమగండం", noAmrit: "అమృతకాలం లేదు",
     abhijit: "అభిజిత్ ముహూర్తం", abhLagna: "అభిజిత్ లగ్నం", abhS: "అభిజిత్",
     noVarj: "వర్జ్యం లేదు", pending: "అమలు చేయడానికి ‘మళ్ళీ లెక్కించు’ నొక్కండి", nearest: " · మీకు దగ్గరలో",
-    errFill: "తేదీ, సూర్యోదయం, సూర్యాస్తమయం, దేశాంతరం నింపండి.", errSet: "సూర్యాస్తమయం సూర్యోదయం తరువాత ఉండాలి. AM/PM సరిచూడండి.",
+    errFill: "తేదీ, సూర్యోదయం, సూర్యాస్తమయం, దేశాంతరం నింపండి.", errSet: "సూర్యాస్తమయం సూర్యోదయం తరువాత ఉండాలి. సూర్యాస్తమయ సమయం సరిచూడండి.",
     goodNoteTitle: "శుభ సమయాలు (హోర పట్టీపై ఆకుపచ్చ గీతలు):",
     goodSetTitle: "శుభ సమయాల నియమాలు",
     gsHint: "హోర పట్టీపై ఆకుపచ్చ గీతలు ఏ నియమాలతో చూపాలో ఇక్కడ ఎంచుకుని ‘వర్తింపజేయి’ నొక్కండి. ఎంచుకున్నవన్నీ ఒకేసారి వర్తించే సమయాలే శుభ సమయాలుగా చూపబడతాయి. మీ ఎంపికలు ఈ పరికరంలో భద్రపరచబడతాయి.",
@@ -848,17 +849,11 @@ const I18N = {
     gsNoDur: "దుర్ముహూర్తం ఉన్న సమయం వదిలేయి", gsNoVarj: "వర్జ్యం ఉన్న సమయం వదిలేయి",
     gsAll: "అన్నీ", gsNone: "ఏదీ వద్దు", gsReset: "సాధారణ నియమాలు",
     gsApply: "వర్తింపజేయి", gsPending: "మార్పులు అమలు కావడానికి ‘వర్తింపజేయి’ నొక్కండి", gsApplied: "నియమాలు వర్తింపజేయబడ్డాయి",
-    gnIntro: "క్రింది నియమాలన్నీ ఒకేసారి వర్తించే సమయాలను శుభ సమయాలుగా చూపుతాము (‘శుభ సమయాల నియమాలు’ విభాగంలో మార్చుకోవచ్చు):",
-    gnHora: (l) => `హోర: ${l} హోరలు.`, gnTithi: (l) => `తిథి: ${l}.`, gnTara: (l) => `తారాబలం: జన్మ నక్షత్రం నుండి ${l}. జన్మ నక్షత్రం ఎంచుకుంటేనే ఈ నియమం వర్తిస్తుంది.`,
+    gnIntro: (own) => `క్రింది నియమాలన్నీ ఒకేసారి వర్తించే సమయాలను శుభ సమయాలుగా చూపుతాము. ${own ? "ఇవి మీరు ఎంచుకున్న నియమాలు" : "ఇవి సాధారణ నియమాలు"}; వీటిని ‘శుభ సమయాల నియమాలు’ విభాగంలో మార్చుకోవచ్చు:`,
+    gnHora: (l) => `<b>హోర:</b> ${l} హోరలు.`, gnTithi: (l) => `<b>తిథి:</b> ${l}.`, gnTara: (l) => `<b>తారాబలం:</b> జన్మ నక్షత్రం నుండి ${l}. జన్మ నక్షత్రం ఎంచుకుంటేనే ఈ నియమం వర్తిస్తుంది.`,
     gnBoth: "దుర్ముహూర్తం, వర్జ్యం లేని సమయం.", gnDur: "దుర్ముహూర్తం లేని సమయం.", gnVarj: "వర్జ్యం లేని సమయం.",
-    gnAllT: "అన్ని తిథులు", gnNone: "ఏదీ ఎంచుకోలేదు – శుభ సమయాలు చూపబడవు", gnMin: "5 నిమిషాల కంటే తక్కువ ఉండే సమయాలు చూపబడవు.",
+    gnAllT: "అన్ని తిథులు", gnNone: "ఏదీ ఎంచుకోలేదు – శుభ సమయాలు చూపబడవు", gnMin: (m) => `కనీసం ${m} నిమిషాలు ఉండే సమయాలు మాత్రమే చూపబడతాయి.`,
     cleanDur: "దుర్ముహూర్తం లేదు", cleanVarj: "వర్జ్యం లేదు",
-    goodNote: `<p>క్రింది నియమాలన్నీ ఒకేసారి వర్తించే సమయాలను శుభ సమయాలుగా చూపుతాము:</p><ol>
-      <li>హోర: గురు, శుక్ర, బుధ, చంద్ర హోరలు.</li>
-      <li>దుర్ముహూర్తం, వర్జ్యం లేని సమయం.</li>
-      <li>తిథి: విదియ, తదియ, పంచమి, సప్తమి, దశమి, ఏకాదశి, త్రయోదశి (రెండు పక్షాలలో), శుక్ల చతుర్దశి, పౌర్ణమి, బహుళ పాడ్యమి.</li>
-      <li>తారాబలం: జన్మ నక్షత్రం నుండి 2, 4, 6, 8, 9వ తారలు (సంపత్, క్షేమ, సాధన, మిత్ర, పరమమిత్ర). జన్మ నక్షత్రం ఎంచుకుంటేనే ఈ నియమం వర్తిస్తుంది.</li></ol>
-      <p>5 నిమిషాల కంటే తక్కువ ఉండే సమయాలు చూపబడవు.</p>`,
     noteTitle: "దేశాంతర కాలము:",
     note: "సూర్యోదయ, సూర్యాస్తమయములందు ఆయా పట్టణములకు గల దేశాంతర నిమిషములను సంస్కరించుకొనవలెను. ఉదాహరణకు రాజమండ్రికి ఏప్రిల్ 11వ తేదీ వృషభ లగ్నము ఉదయము గం॥ 8.40 ని॥లు శుభ ముహూర్త కాలము. అయితే విశాఖపట్టణమునకు +6 అనగా 8.34 ని॥లు అగును. హైదరాబాద్‌నకు –13 ని॥లు. అనగా 8.53 ని॥లు అగును. (గుర్తులు “+” అనగా ముందు, “–” అనగా ఆలస్యము అని గ్రహించవలెను.)",
     vara: (v, l, wd) => `వారం: <b>${v}</b> (${VASARA[wd]}) · మొదటి హోర ${l}`,
@@ -907,7 +902,7 @@ const I18N = {
     amrit: "Amrutakalam", yama: "Yamagandam", noAmrit: "No Amrutakalam today",
     abhijit: "Abhijit muhurtham", abhLagna: "Abhijit lagnam", abhS: "Abhijit",
     noVarj: "No Varjyam today", pending: "Press Recalculate to apply", nearest: " · nearest to you",
-    errFill: "Fill in the date, sunrise, sunset and town offset.", errSet: "Sunset must be later than sunrise. Check the AM/PM on the sunset time.",
+    errFill: "Fill in the date, sunrise, sunset and town offset.", errSet: "Sunset must be later than sunrise. Check the sunset time.",
     goodNoteTitle: "Good times (green bars on the hora band):",
     goodSetTitle: "Good-time rules",
     gsHint: "Choose the rules for the green good-time bars, then press Apply. A time is shown as good only when everything you choose holds at once. Your choices are saved on this device.",
@@ -917,17 +912,11 @@ const I18N = {
     gsNoDur: "Leave out Durmuhurtham", gsNoVarj: "Leave out Varjyam",
     gsAll: "All", gsNone: "None", gsReset: "Default rules",
     gsApply: "Apply", gsPending: "Press Apply for the changes to take effect", gsApplied: "Rules applied",
-    gnIntro: "A time is shown as good only when all of these hold at once (change them under ‘Good-time rules’):",
-    gnHora: (l) => `Hora: ${l} hora.`, gnTithi: (l) => `Tithi: ${l}.`, gnTara: (l) => `Tarabalam: ${l} counted from the birth nakshatra. This applies only when a birth nakshatra is chosen.`,
+    gnIntro: (own) => `A time is shown as good only when all of these rules hold at once. ${own ? "These are the rules you chose" : "These are the default rules"}; you can change them under ‘Good-time rules’:`,
+    gnHora: (l) => `<b>Hora:</b> ${l} hora.`, gnTithi: (l) => `<b>Tithi:</b> ${l}.`, gnTara: (l) => `<b>Tarabalam:</b> ${l} counted from the birth nakshatra. This applies only when a birth nakshatra is chosen.`,
     gnBoth: "No Durmuhurtham or Varjyam.", gnDur: "No Durmuhurtham.", gnVarj: "No Varjyam.",
-    gnAllT: "any tithi", gnNone: "none chosen, so no good times are shown", gnMin: "Windows shorter than 5 minutes are left out.",
+    gnAllT: "any tithi", gnNone: "none chosen, so no good times are shown", gnMin: (m) => `Only windows of at least ${m} minutes are shown.`,
     cleanDur: "No Durmuhurtham", cleanVarj: "No Varjyam",
-    goodNote: `<p>A time is shown as good only when all of these hold at once:</p><ol>
-      <li>Hora: Guru, Sukra, Budha or Chandra hora.</li>
-      <li>No Durmuhurtham or Varjyam.</li>
-      <li>Tithi: Dwitiya, Tritiya, Panchami, Saptami, Dashami, Ekadashi or Trayodashi (in either paksha), Shukla Chaturdashi, Purnima or Bahula Padyami.</li>
-      <li>Tarabalam: tara 2, 4, 6, 8 or 9 counted from the birth nakshatra (Sampat, Kshema, Sadhana, Mitra, Parama Mitra). This applies only when a birth nakshatra is chosen.</li></ol>
-      <p>Windows shorter than 5 minutes are left out.</p>`,
     noteTitle: "Town offset:",
     note: "Apply each town’s desantara (time-difference) minutes to sunrise and sunset. For example, on 11 April the auspicious muhurtham in Vrishabha lagna at Rajahmundry is at 8:40 in the morning. For Visakhapatnam, +6 makes it 8:34. For Hyderabad, −13 makes it 8:53. (The sign “+” means earlier and “−” means later.)",
     vara: (v, l) => `Vara: <b>${v}</b> · first hora ${l}`,
@@ -1833,6 +1822,7 @@ function render() {
 }
 
 // ---------- Good times: good hora lord, no Durmuhurtham/Varjyam, good tara ----------
+const GOOD_MIN = 5; // shortest good-time window shown, minutes
 const GOOD_DEFAULT = { hora: [1, 2, 3, 5], tithi: [1, 2, 4, 6, 9, 10, 12, 13, 14, 15, 16, 17, 19, 21, 24, 25, 27], tara: [1, 3, 5, 7, 8], noDur: true, noVarj: true };
 let GOOD = JSON.parse(JSON.stringify(GOOD_DEFAULT));
 try {
@@ -1865,7 +1855,8 @@ function goodNoteHTML() {
   if (GOOD.noDur && GOOD.noVarj) items.push(L().gnBoth); else if (GOOD.noDur) items.push(L().gnDur); else if (GOOD.noVarj) items.push(L().gnVarj);
   items.push(L().gnTithi(GOOD.tithi.length === 30 ? L().gnAllT : list(GOOD.tithi.slice().sort((a, b) => a - b).map(tithiName))));
   if (GOOD.tara.length < 9) items.push(L().gnTara(list(GOOD.tara.slice().sort((a, b) => a - b).map((i) => `${TARA_NAME[LANG][i]} (${i + 1})`))));
-  return `<p>${L().gnIntro}</p><ol>${items.map((x) => `<li>${x}</li>`).join("")}</ol><p>${L().gnMin}</p>`;
+  items.push(L().gnMin(GOOD_MIN));
+  return `<p>${L().gnIntro(!sameGood(GOOD, GOOD_DEFAULT))}</p><ol>${items.map((x) => `<li>${x}</li>`).join("")}</ol>`;
 }
 function buildGood() {
   $("goodSet").innerHTML = goodSetHTML();
@@ -1922,7 +1913,7 @@ function goodWindows(r) {
     bad.forEach(([a, b]) => {
       segs = segs.flatMap(([s, e]) => (b <= s || a >= e) ? [[s, e]] : [...(a > s ? [[s, a]] : []), ...(b < e ? [[b, e]] : [])]);
     });
-    segs.filter(([s, e]) => e - s >= 5).forEach(([s, e]) => {
+    segs.filter(([s, e]) => e - s >= GOOD_MIN).forEach(([s, e]) => {
       const mid = (s + e) / 2, nk = naks.find((x) => toLocal(x.start) <= mid && mid < toLocal(x.end));
       const tt = tithis.find((x) => toLocal(x.start) <= mid && mid < toLocal(x.end));
       out.push({ s, e, lord: hr.lord, i: hr.i, nak: nk ? nk.index : null, tithi: tt ? tt.index : null });

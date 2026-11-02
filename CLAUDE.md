@@ -57,7 +57,8 @@ Screenshots from `npm run test:ui` land in `test-output/` (git-ignored). Look at
 - హోర (short ఓ), not హోరా — but keep హోరాధిపతి.
 - No AM/PM in Telugu. English uses `06:15 AM`.
 - No good/bad words (మంచిది/చెడ్డది) in the hora tables. Never mention the book's publisher name on the page.
-- Every user-visible string exists in both `I18N.te` and `I18N.en`. English is a translation of the Telugu, not a separate wording.
+- Every user-visible string exists in both `I18N.te` and `I18N.en` (longer reference data, such as `GUIDE`, `TARA_FX`, `MASA_RULE`, keeps its own `te`/`en` pair). English is a translation of the Telugu, not a separate wording.
+- Headings in the bottom note use `.sub-h` (bold orange). Noto Sans Telugu is loaded at weight 600 so Telugu bold really is bold.
 
 ## Layout rules
 
@@ -67,6 +68,7 @@ Screenshots from `npm run test:ui` land in `test-output/` (git-ignored). Look at
 - The 10-day section starts from the selected date (default today) and its heading names the start date (`dd/mm నుండి 10 రోజుల పంచాంగం`). The today label, highlight, now line and tara Now chip appear only on the current panchangam day's row, if it is among the 10 days.
 - 10-day day card (tooltip): line 1 date · day · sunrise/sunset; line 2 samvatsaram · ayanam · rutuvu · masam · paksham (each item kept on one line); then tithi, nakshatra and the other rows.
 - Tarabalam: a day can have 2–3 taras; the one running now is highlighted with a ఇప్పుడు / Now chip (panel and today's 10-day card). "Now" is inside the day from the town's sunrise to the next town sunrise.
+- సూచనలు / Guidance fold-out (after the tara section): the book's travel page (p. 92) and household page (p. 106), photos in `data/book-pages/p092_prayanam.jpg` and `p106_grihopayogam.jpg`. Telugu keeps the book's wording; the book's list 1, 2, 3, 5, 6 is shown as 1–5. Tables must fit 390 px.
 - Paste box: holds an editable sample in the page's language (the WhatsApp channel's Telugu layout, or its English translation with AM/PM times). Pasting over the untouched sample replaces it; applying the untouched sample saves nothing; the reader accepts either language.
 - No horizontal scrolling of the page itself at 390 px width.
 - The page is also published as a Claude artifact, where the frame grows to full height and blocks geolocation, so never rely on scrolling inside the page or on media queries for orientation.

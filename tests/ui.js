@@ -95,6 +95,26 @@ const check = (ok, msg) => { if (!ok) { failures++; console.log("  FAIL " + msg)
     check((await bars()) >= before, "Apply with all horas should not reduce good times");
     await page.click("#goodReset"); await page.click("#goodApply");
     check((await bars()) === before, "Default rules + Apply should restore the original bars");
+    // Guidance (book pages): two headings, two tables, five list items; tables fit without the page scrolling sideways
+    await page.evaluate(() => { document.getElementById("guideRef").open = true; });
+    const gd = await page.evaluate(() => {
+      const b = document.getElementById("guideRefBody"), W = (el) => el.getBoundingClientRect();
+      return { h3: b.querySelectorAll("h3").length, tables: b.querySelectorAll("table").length, items: b.querySelectorAll("ol > li").length,
+        rows: [...b.querySelectorAll("table")].map((t) => t.tBodies[0].rows.length).join(","),
+        heads: [...b.querySelectorAll("th")].filter((th) => !th.offsetParent || !th.textContent.trim()).length,
+        clipped: [...b.querySelectorAll(".tbl-wrap")].filter((w) => w.scrollWidth > w.clientWidth + 1).length,
+        outside: [...b.querySelectorAll("table")].filter((t) => W(t).right > W(b).right + 1).length,
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        noteHeads: [...document.querySelectorAll(".note .sub-h")].map((h) => getComputedStyle(h).fontWeight + "/" + getComputedStyle(h).display) };
+    });
+    check(gd.h3 === 2 && gd.tables === 2 && gd.items === 5 && gd.rows === "8,7", "Guidance section content: " + JSON.stringify(gd));
+    check(gd.heads === 0, `Guidance tables: ${gd.heads} column headings hidden or empty`);
+    check(gd.clipped === 0 && gd.outside === 0, `Guidance tables do not fit: ${gd.clipped} scroll inside, ${gd.outside} stick out`);
+    check(gd.overflow <= 1, `page scrolls sideways by ${gd.overflow}px with the Guidance section open`);
+    check(gd.noteHeads.length === 2 && gd.noteHeads.every((x) => x === "600/block"), "bottom note headings not bold on their own line: " + gd.noteHeads.join(" "));
+    await page.locator("#guideRef").screenshot({ path: path.join(OUT, `${v.name}-${lang}-guide.png`) });
+    await page.locator(".note").screenshot({ path: path.join(OUT, `${v.name}-${lang}-note.png`) });
+    await page.evaluate(() => { document.getElementById("guideRef").open = false; });
     await page.screenshot({ path: path.join(OUT, `${v.name}-${lang}.png`), fullPage: true });
     // Current tara: with a janma nakshatra and the current Hindu day, exactly one tara is marked
     await page.selectOption("#janma", "0");
